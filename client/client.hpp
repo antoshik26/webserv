@@ -5,6 +5,7 @@ class client
 {
 	private:
 		int _fd_sockfd;
+		char buf[1024];
 	public:
 		client()
 		{
@@ -64,6 +65,8 @@ class client
 
 		int put_request() //post get delete запросы
 		{
+			int count_read2;
+			count_read2 = send(_fd_sockfd, buf, 1024, 0);
 			return (1);
 		}
 };

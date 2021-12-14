@@ -40,6 +40,8 @@ class serv
 		// char* env[];
 		sockaddr_in *serv_config;
 		int socket_fd;
+		// std::string buf;
+		char buf[1024];
 		// sockaddr_in6 serv_config_ipv6;
 		// hostent ip_adress_connect;
 
@@ -87,19 +89,23 @@ class serv
 			// close(socket_fd);
 		}
 
-		// int reading()
-		// {
-		// 	int count_read;
+		int reading()
+		{
+			int count_read = 0;
 
-		// 	count_read = read()
-		// }
+			// int count_read = recv(socket_fd, buf, 1024, 1);
+			count_read = send(socket_fd, buf, 1024, 1);
+			// count_read = read(socket_fd, buf, 1024);
+			
+			return (count_read);
+		}
 
 	private:
 		int listen_fd()
 		{
 			int error = 0;
 			
-			error = listen(socket_fd, 1);
+			error = listen(socket_fd, 5);
 			return (error);
 		}
 };
