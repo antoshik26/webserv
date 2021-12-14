@@ -5,25 +5,28 @@
 #include <string>
 #include <sys/types.h>
 #include <arpa/inet.h>
-#include <sys/socet.h>
+#include <sys/socket.h>
 #include <netdb.h>
+#include "../cofig_parser/config_parser.hpp"
 
 #define		serv_port 5000; //считывать с config		 
 #define		fd_count 500;
 
-struct in_addr
-{
-	in_addr_t s_addr;
-};
+// typedef struct in_addr
+// {
+// 	in_addr_t s_addr;
+// };
 
-struct sockaddr_in
-{
-	uint8_t sa_len;
-	sa_famaly_t sa_family;
-	in_port_t sin_port;
-	struct in_addr sin_addr;
-	char sin_zero[8];
-}; //ipv4
+// typedef struct sockaddr_in
+// {
+// 	uint8_t sa_len;
+// 	sa_famaly_t sa_family;
+// 	in_port_t sin_port;
+// 	struct in_addr sin_addr;
+// 	char sin_zero[8];
+// }; //ipv4
+
+// sockaddr_in6 ipv6
 
 // struct sockaddr_in = {
 // 	.sin_famaly = AF_INET;
@@ -34,15 +37,38 @@ struct sockaddr_in
 class serv
 {
 	private:
-		char* env[];
-		struct sockaddr_in serv_config;
-		SOCKET socet_serv;
-
+		// char* env[];
+		sockaddr_in *serv_config;
+		int socket_fd;
+		// sockaddr_in6 serv_config_ipv6;
+		// hostent ip_adress_connect;
 
 	public:
 		serv()
 		{
 
+		}
+
+		serv(const Config_parser conf_serv)
+		{
+			try
+			{
+				int error = 0;
+				(void)conf_serv;
+				// serv_config.sin_len = 
+				serv_config->sin_family = AF_INET;
+				// serv_config.sin_port = htons(conf_serv.get_listen_port);
+				serv_config->sin_addr.s_addr = INADDR_ANY;
+				// serv_config.sin_addr.s_addr = inet_addr("127.0.0.1"); на приватный ip адресс
+				socket_fd = socket(AF_INET, SOCK_STREAM, 0);
+				error =  bind(socket_fd, (sockaddr *)serv_config, (socklen_t)(sizeof(serv_config)));
+				
+				error = listen_fd(); 
+			}
+			catch(std::exception &e)
+			{
+				throw;
+			}
 		}
 
 		serv(serv &obj)
@@ -53,14 +79,29 @@ class serv
 		serv operator=(serv &obj)
 		{
 			(void)obj;
+			return (*this);
 		}
 		
 		~serv()
 		{
-
+			// close(socket_fd);
 		}
-		
 
+		// int reading()
+		// {
+		// 	int count_read;
+
+		// 	count_read = read()
+		// }
+
+	private:
+		int listen_fd()
+		{
+			int error = 0;
+			
+			error = listen(socket_fd, 1);
+			return (error);
+		}
 };
 
 #endif
