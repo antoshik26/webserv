@@ -8,7 +8,7 @@ SRCS = main.cpp
 OBJS = ${SRCS:.cpp=.o}
 
 %.o: %.cpp
-		${CC} ${FLAGS} -o ${INCLUDE} -c $< -o ${<:.cpp=.o}
+		${CC} -g ${FLAGS} -o ${INCLUDE} -c $< -o ${<:.cpp=.o}
 
 all:	${NAME}
 
