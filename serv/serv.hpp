@@ -48,9 +48,10 @@ class serv
 		// char* env[];
 		sockaddr_in serv_config;
 		int socket_fd;
+		// int client_socket_fd;
 		// std::string buf;
-		char buf[1024];
-		fs_set multithreaded_fd;
+		// char buf[1024];
+		// fs_set multithreaded_fd;
 		// sockaddr_in6 serv_config_ipv6;
 		// hostent ip_adress_connect;
 
@@ -64,15 +65,18 @@ class serv
 		{
 			try
 			{
+				int option = 1;
 				// int error = 0;
 				(void)conf_serv;
 				bzero((char *) &serv_config, sizeof(serv_config));
 				// serv_config.sin_len = 
 				serv_config.sin_family = AF_INET;
+				serv_config.sin_port = htons(80);
 				// serv_config.sin_port = htons(conf_serv.get_listen_port);
 				serv_config.sin_addr.s_addr = INADDR_ANY;
 				// serv_config.sin_addr.s_addr = inet_addr("127.0.0.1"); на приватный ip адресс
 				socket_fd = socket(AF_INET, SOCK_STREAM, 0);
+				setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &option, sizeof(serv_config));
 				// error =  bind(socket_fd, (sockaddr *)serv_config, (socklen_t)(sizeof(serv_config)));
 				// error = listen_fd(); 
 			}
@@ -80,6 +84,11 @@ class serv
 			{
 				throw;
 			}
+		}
+
+		int get_sock()
+		{
+			return (socket_fd);
 		}
 
 		serv(serv &obj)
@@ -134,18 +143,18 @@ class serv
 			int count_read = 0;
 
 			// int count_read = recv(socket_fd, buf, 1024, 1);
-			count_read = send(socket_fd, buf, 1024, 1);
+			// count_read = send(socket_fd, buf, 1024, 1);
 			// count_read = read(socket_fd, buf, 1024);
 			
 			return (count_read);
 		}
 
-		int accept_serv(const sockaddr_in* client_config)
+		int accept_serv()
 		{
 			int sock_klient = 0;
 			try
 			{
-				sock_klient = accept(socket_fd, (sockaddr *)&client_config, (socklen_t*)(sizeof(client_config)));
+				sock_klient = accept(socket_fd, NULL, NULL);
 				if (sock_klient < 0)
 				{
 					// throw;
@@ -167,13 +176,13 @@ class serv
 			error = listen(socket_fd, 5);
 			return (error);
 		}
+		
+		// int select()
+		// {
+		// 	FD_ZERO(&multithreaded_fd);
 
-		int select()
-		{
-			FD_ZERO(&multithreaded_fd);
-
-			return (fd_new_client);
-		}
+		// 	return (fd_new_client);
+		// }
 };
 
 #endif
