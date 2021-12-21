@@ -14,7 +14,7 @@ int  main(int argc, char* argv[], char* env[])
 	{
 		config_parser config;
 		serv myserv(config);
-		int client_socket_fd;
+		// int client_socket_fd;
 		client cl;
 
 
@@ -26,22 +26,28 @@ int  main(int argc, char* argv[], char* env[])
 		// 	throw;
 		error = myserv.listen_fd();
 		// error = myserv.accept_serv(cl.get_config());
-		client_socket_fd = myserv.accept_serv();
-		while (true)
-		{
-			// size_t length = 1;
-			int i = 1;
-			int j = -1;
-			char ptr[4096];
+		// client_socket_fd = myserv.accept_serv();
+		myserv.new_client(); //select, poll, kqueue
+		
 
-			// while (i > 0)
-			// {
-			i = recv(client_socket_fd, ptr, 4096, 0);
-			j++;
-			// }
-			if (i > 0)
-				std::cout << std::string(ptr, 0, i) << std::endl;
-		}
+		// while (true)
+		// {
+		// 	// size_t length = 1;
+		// 	int i = 1;
+		// 	int j = -1;
+		// 	char ptr[4096];
+
+		// 	// while (i > 0)
+		// 	// {
+		// 	i = recv(client_socket_fd, ptr, 4096, 0);
+		// 	j++;
+		// 	// }
+		// 	if (i > 0)
+		// 	{
+		// 		std::cout << std::string(ptr, 0, i) << std::endl;
+		// 		break;
+		// 	}
+		// }
 	}
 	catch (std::exception &e)
 	{

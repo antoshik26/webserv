@@ -14,8 +14,14 @@
 #include <sys/select.h>
 #include <sys/time.h>
 #include <stdio.h>
+#include <sys/poll.h>
+#include <fcntl.h>
+#include <sys/ioctl.h>
+// #include <sys/epoll.h>
+#include <sys/event.h>
 
 #include "../config_parser/config_parser.hpp"
+#include "../request_manager/request_manager.hpp"
 
 #define		serv_port		5000; //считывать с config		 
 #define		fd_count		500;
@@ -45,15 +51,29 @@
 class serv
 {
 	private:
-		// char* env[];
+		// std::map<int, stasd> multiserv;
+		// typedef struct serv
+		// {
+		// 	sockaddr_in serv_config
+		// 	int socket_fd;
+		// 	poll;
+		// }	
 		sockaddr_in serv_config;
 		int socket_fd;
-		// int client_socket_fd;
-		// std::string buf;
-		// char buf[1024];
-		// fs_set multithreaded_fd;
-		// sockaddr_in6 serv_config_ipv6;
-		// hostent ip_adress_connect;
+		// kqueue
+		// int kqueuefd;
+		// struct kevent kevent_struct;
+		// poll
+		// struct pollfd fds[200];
+		// select
+
+
+		int client_socket_fd;
+		pollfd poll_server_client_socketfd[10];	//плохо
+		// std::vector<pollfd> fds();				//хорошо
+		int count_client;						//отвратительно
+		// std::pair<int, int> pull_server_client_socketfd[100];
+		// request_manager request; //new_client
 
 	public:
 		serv()
@@ -65,7 +85,9 @@ class serv
 		{
 			try
 			{
+				count_client = 0;
 				int option = 1;
+				int ret = 0;
 				// int error = 0;
 				(void)conf_serv;
 				bzero((char *) &serv_config, sizeof(serv_config));
@@ -74,11 +96,19 @@ class serv
 				serv_config.sin_port = htons(80);
 				// serv_config.sin_port = htons(conf_serv.get_listen_port);
 				serv_config.sin_addr.s_addr = INADDR_ANY;
+				bzero(serv_config.sin_zero, 8);
 				// serv_config.sin_addr.s_addr = inet_addr("127.0.0.1"); на приватный ip адресс
 				socket_fd = socket(AF_INET, SOCK_STREAM, 0);
-				setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &option, sizeof(serv_config));
+				ret = setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, (char *)&option, sizeof(option));
+				ret = fcntl(socket_fd, F_SETFL, O_NONBLOCK);
 				// error =  bind(socket_fd, (sockaddr *)serv_config, (socklen_t)(sizeof(serv_config)));
 				// error = listen_fd(); 
+				// epull();
+				for (int i = 0; i < 10; i++)
+					poll_server_client_socketfd[i].fd = -1;
+				// poll_server_client_socketfd[0].fd = socket_fd;
+				// poll_server_client_socketfd[0].events = POLLIN;
+				// ret = fcntl( listen_fd, F_SETFL, O_NONBLOCK );
 			}
 			catch(std::exception &e)
 			{
@@ -138,17 +168,6 @@ class serv
 			
 		}
 
-		int reading()
-		{
-			int count_read = 0;
-
-			// int count_read = recv(socket_fd, buf, 1024, 1);
-			// count_read = send(socket_fd, buf, 1024, 1);
-			// count_read = read(socket_fd, buf, 1024);
-			
-			return (count_read);
-		}
-
 		int accept_serv()
 		{
 			int sock_klient = 0;
@@ -173,15 +192,117 @@ class serv
 		{
 			int error = 0;
 			
-			error = listen(socket_fd, 5);
+			error = listen(socket_fd, 32);
 			return (error);
 		}
-		
-		// int select()
-		// {
-		// 	FD_ZERO(&multithreaded_fd);
 
-		// 	return (fd_new_client);
+		int new_client()
+		{
+			int new_client = -1;
+			int i;
+			int rc;
+			char buffer[5024];
+			std::string a;
+			bzero(buffer, 5024);
+
+			try
+			{
+				while (true)
+				{
+					if ((new_client = accept_serv()) == -1)
+					{
+						// throw;
+					}
+					else
+					{
+						poll_server_client_socketfd[count_client].fd = new_client;
+						poll_server_client_socketfd[count_client].events = POLLIN | POLLOUT;
+						count_client++;
+					}
+					i = 0;
+					while(i < count_client)
+					{
+						rc = recv(poll_server_client_socketfd[i].fd, buffer, 5024, 0);
+						if (rc < 0)
+						{
+							// throw;
+						}
+						else
+						{
+							if (rc > 0)
+							{
+								// std::cout << std::string(buffer, 0, rc) << std::endl;
+								std::cout << "aaaaaaaa " << poll_server_client_socketfd[i].fd << std::endl;
+								printf("%s\n", buffer);
+							}
+							// 	break;
+							// char b[] = "HTTP/1.1 200 OK \r\n\r\n asdfgh \r\n\r\n";
+							// a = "asdfghjmmnbvdsa";
+							// rc = send(poll_server_client_socketfd[i].fd, buffer, sizeof(buffer), 0); //бред
+
+						}
+						i++;
+						bzero(buffer, 5024);
+					}
+
+					// size_t length = 1;
+					// int i = 1;
+					// int j = -1;
+					// char ptr[4096];
+
+					// while (i > 0)
+					// {
+					// i = recv(client_socket_fd, ptr, 4096, 0);
+					// j++;
+					// // }
+					// if (i > 0)
+					// {
+					// 	std::cout << std::string(ptr, 0, i) << std::endl;
+					// 	break;
+					// }
+					// request.save_request(ptr);
+				}
+				// connect();
+				// answer();
+			}
+			catch(std::exception &e)
+			{
+				// throw;
+			}
+		
+			return (0);
+		}		
+
+		int connect()
+		{
+			int i;
+
+			i = 0;
+			while (i < 100)
+			{
+				if (poll_server_client_socketfd[i].fd == -1)
+					break;
+				i++;
+			}
+			if (i == 100)
+				return (-1);
+			
+			poll_server_client_socketfd[i].fd = ::connect(client_socket_fd, (sockaddr *)&serv_config, (socklen_t)(sizeof(serv_config)));
+			return (0);
+		}
+
+		int answer()
+		{
+			char *sent_answer;
+			send(client_socket_fd, sent_answer, strlen(sent_answer), 0);
+			return (0);
+		}
+	
+		// int epull()
+		// {
+		// 	kqueuefd = kqueue();
+		// 	kevent_struct.
+		// 	return (0);
 		// }
 };
 
