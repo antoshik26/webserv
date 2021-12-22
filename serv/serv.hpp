@@ -60,6 +60,7 @@ class serv
 		// }	
 		sockaddr_in serv_config;
 		int socket_fd;
+		int count_serv;
 		// kqueue
 		// int kqueuefd;
 		// struct kevent kevent_struct;
@@ -70,7 +71,7 @@ class serv
 
 		int client_socket_fd;
 		pollfd poll_server_client_socketfd[10];	//плохо
-		// std::vector<pollfd> fds();				//хорошо
+		// std::vector<pollfd> fds();			//хорошо
 		int count_client;						//отвратительно
 		// std::pair<int, int> pull_server_client_socketfd[100];
 		// request_manager request; //new_client
@@ -85,6 +86,7 @@ class serv
 		{
 			try
 			{
+				count_serv = 1;
 				count_client = 0;
 				int option = 1;
 				int ret = 0;
@@ -93,7 +95,7 @@ class serv
 				bzero((char *) &serv_config, sizeof(serv_config));
 				// serv_config.sin_len = 
 				serv_config.sin_family = AF_INET;
-				serv_config.sin_port = htons(80);
+				serv_config.sin_port = htons(8000);
 				// serv_config.sin_port = htons(conf_serv.get_listen_port);
 				serv_config.sin_addr.s_addr = INADDR_ANY;
 				bzero(serv_config.sin_zero, 8);
@@ -105,7 +107,13 @@ class serv
 				// error = listen_fd(); 
 				// epull();
 				for (int i = 0; i < 10; i++)
+				{
 					poll_server_client_socketfd[i].fd = -1;
+					poll_server_client_socketfd[i].events = 0;
+					poll_server_client_socketfd[i].revents = 0;
+				}
+				poll_server_client_socketfd[0].fd = socket_fd;
+				poll_server_client_socketfd[0].events = POLLIN;
 				// poll_server_client_socketfd[0].fd = socket_fd;
 				// poll_server_client_socketfd[0].events = POLLIN;
 				// ret = fcntl( listen_fd, F_SETFL, O_NONBLOCK );
@@ -168,12 +176,12 @@ class serv
 			
 		}
 
-		int accept_serv()
+		int accept_serv(int socket_serv)
 		{
 			int sock_klient = 0;
 			try
 			{
-				sock_klient = accept(socket_fd, NULL, NULL);
+				sock_klient = accept(socket_serv, NULL, NULL);
 				if (sock_klient < 0)
 				{
 					// throw;
@@ -196,12 +204,33 @@ class serv
 			return (error);
 		}
 
+		int add_client_in_poll(int socket_serv)
+		{
+			int new_client = 0;
+
+			if ((new_client = accept_serv(socket_serv)) == -1)
+			{
+				// throw;
+				return (new_client);
+			}
+			else
+			{
+				count_client++;
+				poll_server_client_socketfd[count_client].fd = new_client;
+				poll_server_client_socketfd[count_client].events = POLLIN;
+				return (1);
+			}
+			return (0);
+		}
+
 		int new_client()
 		{
-			int new_client = -1;
+			// int new_client = -1;
 			int i;
 			int rc;
+			int rc2;
 			char buffer[5024];
+			int error;
 			std::string a;
 			bzero(buffer, 5024);
 
@@ -209,41 +238,60 @@ class serv
 			{
 				while (true)
 				{
-					if ((new_client = accept_serv()) == -1)
-					{
-						// throw;
-					}
-					else
-					{
-						poll_server_client_socketfd[count_client].fd = new_client;
-						poll_server_client_socketfd[count_client].events = POLLIN | POLLOUT;
-						count_client++;
-					}
+					rc2 = poll(poll_server_client_socketfd, 10, -1);
 					i = 0;
-					while(i < count_client)
+					while (rc2 > 0 && i < 10)
 					{
-						rc = recv(poll_server_client_socketfd[i].fd, buffer, 5024, 0);
-						if (rc < 0)
+						if (poll_server_client_socketfd[i].revents == 0)
 						{
-							// throw;
+							i++;
+							continue;
+						}
+						if (i < count_serv)
+						{
+							error = add_client_in_poll(poll_server_client_socketfd[i].fd);
+							if (error == 1)
+								rc2--;
 						}
 						else
 						{
-							if (rc > 0)
-							{
-								// std::cout << std::string(buffer, 0, rc) << std::endl;
-								std::cout << "aaaaaaaa " << poll_server_client_socketfd[i].fd << std::endl;
-								printf("%s\n", buffer);
-							}
-							// 	break;
-							// char b[] = "HTTP/1.1 200 OK \r\n\r\n asdfgh \r\n\r\n";
-							// a = "asdfghjmmnbvdsa";
-							// rc = send(poll_server_client_socketfd[i].fd, buffer, sizeof(buffer), 0); //бред
 
+							rc = recv(poll_server_client_socketfd[i].fd, buffer, 5024, 0);
+							std::cout << "aaaaaaaa " << poll_server_client_socketfd[i].fd << std::endl;
+							printf("%s\n", buffer);
+							char b[] = "HTTP/1.1 200 OK\r\n\r\n asdfgh \r\n\r\n";
+							rc = send(poll_server_client_socketfd[i].fd, b, strlen(b), 0); //бред
+							close(poll_server_client_socketfd[i].fd);
+							poll_server_client_socketfd[i].fd = -1;
+							rc2--;
+							bzero(buffer, 5024);
 						}
 						i++;
-						bzero(buffer, 5024);
 					}
+					// while(i < count_client)
+					// {
+					// 	rc = recv(poll_server_client_socketfd[i].fd, buffer, 5024, 0);
+					// 	if (rc < 0)
+					// 	{
+					// 		// throw;
+					// 	}
+					// 	else
+					// 	{
+					// 		if (rc > 0)
+					// 		{
+					// 			// std::cout << std::string(buffer, 0, rc) << std::endl;
+					// 			std::cout << "aaaaaaaa " << poll_server_client_socketfd[i].fd << std::endl;
+					// 			printf("%s\n", buffer);
+					// 		}
+					// 		// 	break;
+					// 		char b[] = "HTTP/1.1 200 OK\r\n\r\n asdfgh \r\n\r\n";
+					// 		// a = "asdfghjmmnbvdsa";
+					// 		rc = send(poll_server_client_socketfd[i].fd, b, strlen(b), 0); //бред
+
+					// 	}
+					// 	i++;
+					// 	bzero(buffer, 5024);
+					// }
 
 					// size_t length = 1;
 					// int i = 1;
