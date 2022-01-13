@@ -17,11 +17,14 @@
 #include <sys/poll.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
+#include <dirent.h>
 // #include <sys/epoll.h>
 #include <sys/event.h>
+#include <sys/stat.h>
 
 #include "../config_parser/config_parser.hpp"
 #include "../request_manager/request_manager.hpp"
+#include "../cgi/cgi.hpp"
 
 #define		serv_port		5000; //считывать с config		 
 #define		fd_count		500;
@@ -259,7 +262,7 @@ class serv
 							rc = recv(poll_server_client_socketfd[i].fd, buffer, 5024, 0);
 							std::cout << "aaaaaaaa " << poll_server_client_socketfd[i].fd << std::endl;
 							printf("%s\n", buffer);
-							char b[] = "HTTP/1.1 200 OK\r\n\r\n asdfgh \r\n\r\n";
+							char b[] = "HTTP/1.1 200 OK\r\n\r\n Hello World \r\n\r\n";
 							rc = send(poll_server_client_socketfd[i].fd, b, strlen(b), 0); //бред
 							close(poll_server_client_socketfd[i].fd);
 							poll_server_client_socketfd[i].fd = -1;
@@ -344,6 +347,29 @@ class serv
 			char *sent_answer;
 			send(client_socket_fd, sent_answer, strlen(sent_answer), 0);
 			return (0);
+		}
+
+		std::string crate_dir_tree(char* path_dir)
+		{
+			std::string dir_tree;
+			DIR* path = opendir(path_dir);
+			struct dirent* dirent_file;
+			struct stat* stat_file = NULL;
+			while ((dirent_file = readdir(path)) != NULL)
+			{
+				if (stat(dirent_file->d_name, stat_file) != -1)
+				{
+					if (S_ISREG(stat_file->st_mode))
+					{
+						//file S_ISREG
+					}
+					if (S_ISDIR(stat_file->st_mode))
+					{
+						//dir S_ISDIR
+					}
+				}
+			}
+			return (dir_tree);
 		}
 	
 		// int epull()
