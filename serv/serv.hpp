@@ -77,7 +77,8 @@ class serv
 		// std::vector<pollfd> fds();			//хорошо
 		int count_client;						//отвратительно
 		// std::pair<int, int> pull_server_client_socketfd[100];
-		// request_manager request; //new_client
+		// request_manager request;
+
 
 	public:
 		serv()
@@ -352,23 +353,30 @@ class serv
 		std::string crate_dir_tree(char* path_dir)
 		{
 			std::string dir_tree;
+			std::string buf;
 			DIR* path = opendir(path_dir);
 			struct dirent* dirent_file;
 			struct stat* stat_file = NULL;
+			dir_tree = "HTTP/1.1 200 OK\r\n\r\n";
 			while ((dirent_file = readdir(path)) != NULL)
 			{
 				if (stat(dirent_file->d_name, stat_file) != -1)
 				{
 					if (S_ISREG(stat_file->st_mode))
 					{
+						buf = "<a href=" + (std::string)dirent_file->d_name + " >" + (std::string)dirent_file->d_name + " </a>\n";
 						//file S_ISREG
 					}
 					if (S_ISDIR(stat_file->st_mode))
 					{
+						buf = "<a href=" + (std::string)dirent_file->d_name + " >" + (std::string)dirent_file->d_name + " </a>\n";
 						//dir S_ISDIR
 					}
 				}
+				dir_tree = dir_tree + buf;
+				buf.clear();
 			}
+			dir_tree = dir_tree + "\r\n\r\n";
 			return (dir_tree);
 		}
 	
