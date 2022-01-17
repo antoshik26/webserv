@@ -18,6 +18,9 @@ ${NAME}:	${OBJS}
 test:			
 				${CC} -g main.cpp
 
+pusk:
+			./webserv config.conf
+
 clean:
 				-rm -rf ${OBJS}
 

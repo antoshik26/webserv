@@ -24,7 +24,8 @@ class request_manager
 
 			find_method_http(request);
 			find_protocol(request);
-			parsing_bodi(request);
+			parsing_request(request);
+			// parsing_body(request);
 		}
 		
 
@@ -63,7 +64,7 @@ class request_manager
 			}
 		}
 
-		void parsing_bodi(std::string request)
+		void parsing_request(std::string request)
 		{
 			std::pair<std::string, std::string> pair_node;
 
@@ -106,6 +107,11 @@ class request_manager
 			pair_node = find_line(request, "Accept-Language", ':');
 			//проверка
 			_body.insert(pair_node);
+		}
+
+		void parsing_bodi(std::string request)
+		{
+			(void)request;
 		}
 
 		std::pair<std::string, std::string> find_line(std::string request, std::string find_string, char reg)
