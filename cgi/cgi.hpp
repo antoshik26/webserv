@@ -9,19 +9,16 @@
 class cgi
 {
 	private:
-		int _pipe[2];
-		// pid_t _pid;
-		std::string* _argv_cgi;
-		std::string* _env;
+		int _pipe1[2];
+		int _pipe2[2];
+
+		const char* _script;
+		const char* _env;
+		pid_t fork(int	*pipe_1, int	*pipe_2, int	fd1);
 
 	public:
-		cgi()
-		{
-			_pipe[0] = 0;
-			_pipe[1] = 1;
-		}
-
-		cgi(std::string *argv_cgi, std::string *env)
+	
+		cgi(std::string _script, std::string *env)
 		{
 			_argv_cgi = argv_cgi;
 			_env = env;
@@ -31,6 +28,7 @@ class cgi
 
 		~cgi()
 		{
+			
 		}
 
 		// int cgi_challenge()
