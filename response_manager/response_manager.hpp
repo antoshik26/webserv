@@ -87,7 +87,7 @@ class response_manager
 					{	 
 						if ((_loc = (_conf.get_locations()).find("/")) != (_conf.get_locations()).end()) 
 						{
-							content_file = create_path_to_file(_loc->second);
+							content_file = create_path_to_file(_conf.get_locations());
 							if (stat(content_file.c_str(), stat_file) != -1)
 								html = html + read_full_file(content_file);
 							else
@@ -159,13 +159,13 @@ class response_manager
 
 		std::string html_header()
 		{
-			std::string html_header;
+			std::string html_header = "HTTP/1.1 200 OK\r\n\r\n";
 			return(html_header);
 		}
 
 		std::string html_basement()
 		{
-			std::string html_basement;
+			std::string html_basement = "\r\n\r\n";
 			return(html_basement);
 		}
 
@@ -190,10 +190,32 @@ class response_manager
 			return (body_html);
 		}
 
-		std::string create_path_to_file(std::vector<std::string>)
+		std::string create_path_to_file(std::pair<std::string, std::vector<std::string> >)
 		{
 			std::string path_to_file;
 
+			// if ()
+			// {
+
+			// }
+			return (path_to_file);
+		}
+
+		std::string create_path_to_file(std::map<std::string, std::vector<std::string> > loc)
+		{
+			std::string path_to_file;
+			std::map<std::string, std::vector<std::string> >::iterator it = loc.begin();
+			std::map<std::string, std::vector<std::string> >::iterator it2 = loc.end();
+			
+			while (it != it2)
+			{
+				if (it->first == "pass")
+					path_to_file = path_to_file + it->second[0];
+
+				if (it->first == "index")
+					path_to_file = path_to_file + it->second[0];
+				it++;
+			}
 			return (path_to_file);
 		}
 };

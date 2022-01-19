@@ -10,6 +10,7 @@ class request_manager
 	private:
 		std::string _name_request;
 		std::string _name_protocol;
+		std::string _page;
 		std::string _page_and_param;
 		std::string _page_index;
 		// std::map<std::string, std::vector<std::string> > _body;
@@ -45,7 +46,7 @@ class request_manager
 
 		std::string get_page_and_param()
 		{
-			return (_page_and_param);
+			return (_page);
 		}
 
 		std::string get_page_index()
@@ -142,25 +143,67 @@ class request_manager
 		void find_page_and_param(std::string request)
 		{
 			(void)request;
-			
+			std::string page;
+			std::string line;
+			size_t i = 0;
+			size_t j = 0;
+
+			i = request.find("/");
+			j = request.find("HTTP");
+			line = request.substr(i, j);
+			if ((i = line.find("?")) != std::string::npos)
+			{
+				parsing_param(line.substr(i, (j - 1)));
+			}
+			_page = page;
 		}
 
-		void parsing_body(std::string request)
+		void parsing_body(std::string body)
 		{
-			(void)request;
-			
+			(void)body;
+			split_param_body(body);
 		}
 
 		void parsing_page_index(std::string body_srt)
 		{
 			(void)body_srt;
-
 		}
 
 		void split_param_body(std::string body_srt)
 		{
 			(void)body_srt;
+			std::string page_and_param;
 
+			if (!(_body.empty()))
+				_body.clear();
+			parsing_param(body_srt);
+			_page_and_param = page_and_param;
+		}
+
+		void parsing_param(std::string body)
+		{
+			(void)body;
+			std::pair<std::string, std::string> obj_map;
+			int i = 0;
+			int j = 0;
+
+			while (body[i])
+			{
+				if (body[i] == '=')
+				{
+					obj_map.first = body.substr(j, i);
+					j = i;
+				}
+				if (body[i] == '&' || body[i + 1] == 0)
+				{
+					obj_map.second = body.substr(j, i);
+					j = i;
+					_body.insert(obj_map);
+					obj_map.first.clear();
+					obj_map.second.clear();
+				}
+				i++;
+			}
 		}
 
 		std::pair<std::string, std::string> find_line(std::string request, std::string find_string, char reg)
@@ -247,3 +290,5 @@ class request_manager
 // Sec-Fetch-Dest: document
 // Accept-Encoding: gzip, deflate, br
 // Accept-Language: en-US,en;q=0.9,ru;q=0.8
+
+// Transfer-Encoding: Chunked

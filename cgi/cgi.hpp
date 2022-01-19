@@ -20,8 +20,10 @@ class cgi
 	
 		cgi(std::string _script, std::string *env)
 		{
-			_argv_cgi = argv_cgi;
-			_env = env;
+			(void)_script;
+			(void)env;
+			// _argv_cgi = argv_cgi;
+			// _env = env;
 			// pipe[0] = 0;
 			// pipe[1] = 1;
 		}
