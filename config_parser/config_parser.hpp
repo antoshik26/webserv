@@ -14,9 +14,15 @@ class config_parser
 		std::string _serv_name;
 		std::string _access_log;
 		std::string _error_log;
-		std::map<std::string, std::vector<std::string> > _locations;
+		std::map<std::string, std::vector<std::string> > _locations; //?
+		// std::map<std::string, std::map<std::string, std::string> > _locations;
 		std::map<std::string, std::map<std::string, std::string> > _cgi; //подумать над таким выводом
 	public:
+		config_parser()
+		{
+
+		}
+
 		config_parser(std::string config_serv)
 		{
 			(void)config_serv;
@@ -68,7 +74,7 @@ class config_parser
 				while (config_serv[n] !=  ';')
 					n++;
 				line = config_serv.substr(i, n);
-				// _port = atoi((char*)line);
+				_port = atoi(line.c_str());
 			}
 		}
 
@@ -124,33 +130,24 @@ class config_parser
 					while(config_serv[i] != '$')
 						i++;
 					extensions = config_serv.substr(n, i);
-					find_cgi(config_serv, extensions);
 					find_cgi_include(config_serv, extensions);
-					find_cgi_param(config_serv, extensions);
 					find_pass(config_serv, extensions);
+					find_cgi_index(config_serv, extensions);
+					find_cgi_param(config_serv, extensions);
 				}
 			}
-		}
-
-		void find_cgi(std::string config_serv, std::string exception)
-		{
-			(void)config_serv;
-			(void)exception;
-			
-			size_t n;
-			size_t i;
-			std::pair<std::string, std::map<std::string, std::string> > obj;
-			std::pair<std::string, std::string> map_obj;
-			std::string index;
-			std::string line;
-
-
 		}
 
 		void find_cgi_include(std::string config_serv, std::string exception)
 		{
 			(void)config_serv;
 			(void)exception;
+			size_t n;
+			size_t i;
+			std::pair<std::string, std::map<std::string, std::string> > obj;
+			std::pair<std::string, std::string> map_obj;
+			std::string index;
+			std::string line;
 
 			if ((n = config_serv.find("include")) != std::string::npos)
 			{
@@ -168,13 +165,18 @@ class config_parser
 				obj.second.insert(map_obj);
 				_cgi.insert(obj);
 			}
-
 		}
 
 		void find_cgi_pass(std::string config_serv, std::string exception)
 		{
 			(void)config_serv;
 			(void)exception;
+			size_t n;
+			size_t i;
+			std::pair<std::string, std::map<std::string, std::string> > obj;
+			std::pair<std::string, std::string> map_obj;
+			std::string index;
+			std::string line;
 
 			if ((n = config_serv.find("cgi_puss")) != std::string::npos)
 			{
@@ -194,8 +196,17 @@ class config_parser
 			}
 		}
 
-		void find_cgi_include(std::string config_serv, std::string exception)
+		void find_cgi_index(std::string config_serv, std::string exception)
 		{
+			(void)config_serv;
+			(void)exception;
+			size_t n;
+			size_t i;
+			std::pair<std::string, std::map<std::string, std::string> > obj;
+			std::pair<std::string, std::string> map_obj;
+			std::string index;
+			std::string line;
+
 			if ((n = config_serv.find("cgi_index")) != std::string::npos)
 			{
 				while (config_serv[n] != ' ')
@@ -218,6 +229,12 @@ class config_parser
 		{
 			(void)config_serv;
 			(void)exception;
+			size_t n;
+			size_t i;
+			std::pair<std::string, std::map<std::string, std::string> > obj;
+			std::pair<std::string, std::string> map_obj;
+			std::string index;
+			std::string line;
 
 			if ((n = config_serv.find("cgi_param")) != std::string::npos)
 			{

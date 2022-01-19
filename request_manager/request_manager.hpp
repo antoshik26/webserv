@@ -10,6 +10,8 @@ class request_manager
 	private:
 		std::string _name_request;
 		std::string _name_protocol;
+		std::string _page_and_param;
+		std::string _page_index;
 		// std::map<std::string, std::vector<std::string> > _body;
 		std::map<std::string, std::string> _body;
 	public:
@@ -23,16 +25,44 @@ class request_manager
 			std::string line_request;
 
 			find_method_http(request);
+			find_page_and_param(request);
 			find_protocol(request);
 			parsing_request(request);
-			// parsing_body(request);
+			parsing_body(request);
 		}
-		
+		//оператор копирование 
+		//оператор присваивания
+
+		std::string get_name_request()
+		{
+			return (_name_request);
+		}
+
+		std::string get_name_protocol()
+		{
+			return (_name_protocol);
+		}
+
+		std::string get_page_and_param()
+		{
+			return (_page_and_param);
+		}
+
+		std::string get_page_index()
+		{
+			return (_page_index);
+		}
+
+		std::map<std::string, std::string> get_body()
+		{
+			return (_body);
+		}
 
 		~request_manager()
 		{
 
 		}
+
 	private:
 		void find_method_http(std::string request)
 		{
@@ -109,9 +139,28 @@ class request_manager
 			_body.insert(pair_node);
 		}
 
-		void parsing_bodi(std::string request)
+		void find_page_and_param(std::string request)
 		{
 			(void)request;
+			
+		}
+
+		void parsing_body(std::string request)
+		{
+			(void)request;
+			
+		}
+
+		void parsing_page_index(std::string body_srt)
+		{
+			(void)body_srt;
+
+		}
+
+		void split_param_body(std::string body_srt)
+		{
+			(void)body_srt;
+
 		}
 
 		std::pair<std::string, std::string> find_line(std::string request, std::string find_string, char reg)
@@ -152,7 +201,7 @@ class request_manager
 				j++;
 			}
 			return (res_split);
-		}
+		}		
 };
 
 #endif
@@ -182,3 +231,19 @@ class request_manager
 // Accept-Language: en-us
 // Accept-Encoding: gzip, deflate
 // Connection: keep-alive
+
+// GET /page1?name=asdfg&sname=sdfghjgfds HTTP/1.1
+// Host: localhost:8000
+// Connection: keep-alive
+// sec-ch-ua: " Not A;Brand";v="99", "Chromium";v="96", "Google Chrome";v="96"
+// sec-ch-ua-mobile: ?0
+// sec-ch-ua-platform: "macOS"
+// Upgrade-Insecure-Requests: 1
+// User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.55 Safari/537.36
+// Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
+// Sec-Fetch-Site: none
+// Sec-Fetch-Mode: navigate
+// Sec-Fetch-User: ?1
+// Sec-Fetch-Dest: document
+// Accept-Encoding: gzip, deflate, br
+// Accept-Language: en-US,en;q=0.9,ru;q=0.8

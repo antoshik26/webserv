@@ -25,6 +25,7 @@
 #include "../config_parser/config_parser.hpp"
 #include "../request_manager/request_manager.hpp"
 #include "../cgi/cgi.hpp"
+#include "../response_manager/response_manager.hpp"
 
 #define		serv_port		5000; //считывать с config		 
 #define		fd_count		500;
@@ -75,9 +76,12 @@ class serv
 		int client_socket_fd;
 		pollfd poll_server_client_socketfd[10];	//плохо
 		// std::vector<pollfd> fds();			//хорошо
+		std::vector<config_parser> conf_fd; 
 		int count_client;						//отвратительно
 		// std::pair<int, int> pull_server_client_socketfd[100];
-		// request_manager request;
+		request_manager request;
+		response_manager response;
+		config_parser _conf_serv;
 
 
 	public:
@@ -95,7 +99,7 @@ class serv
 				int option = 1;
 				int ret = 0;
 				// int error = 0;
-				(void)conf_serv;
+				_conf_serv = conf_serv;
 				bzero((char *) &serv_config, sizeof(serv_config));
 				// serv_config.sin_len = 
 				serv_config.sin_family = AF_INET;
@@ -261,14 +265,39 @@ class serv
 						{
 
 							rc = recv(poll_server_client_socketfd[i].fd, buffer, 5024, 0);
-							std::cout << "aaaaaaaa " << poll_server_client_socketfd[i].fd << std::endl;
-							printf("%s\n", buffer);
-							char b[] = "HTTP/1.1 200 OK\r\n\r\n Hello World \r\n\r\n";
-							rc = send(poll_server_client_socketfd[i].fd, b, strlen(b), 0); //бред
-							close(poll_server_client_socketfd[i].fd);
-							poll_server_client_socketfd[i].fd = -1;
-							rc2--;
-							bzero(buffer, 5024);
+							if (rc == 0)
+							{
+								// close(poll_server_client_socketfd[i].fd);
+								// poll_server_client_socketfd[i].fd = -1;
+								// rc2--;
+							}
+							if (rc < 0)
+							{
+								std::cout << "error" << std::endl;
+							}
+							if (rc > 0)
+							{
+								std::cout << "aaaaaaaa " << poll_server_client_socketfd[i].fd << std::endl;
+								printf("%s\n", buffer);
+								request = request_manager((std::string)buffer);
+								response = response_manager(request, _conf_serv);
+								// if (response.error() == 0)
+								// {
+									std::string body_html = response.body_html();
+									char b[] = "HTTP/1.1 200 OK\r\n\r\n Hello World \r\n\r\n"; //переделать
+									rc = send(poll_server_client_socketfd[i].fd, b, strlen(b), 0); //бред
+									close(poll_server_client_socketfd[i].fd);
+									poll_server_client_socketfd[i].fd = -1;
+									rc2--;
+									bzero(buffer, 5024);	
+								// }
+								// else
+								// {
+
+								// }
+							
+							}
+							
 						}
 						i++;
 					}

@@ -2,26 +2,35 @@
 #define RESPONSE_MANAGER_HPP
 #include <iostream>
 #include <string>
+#include <fstream>
 #include "../request_manager/request_manager.hpp"
 #include "../config_parser/config_parser.hpp"
 
 class response_manager
 {
 	private:
+		request_manager _request;
+		config_parser _conf;
 		std::string response;
-
 	public:
+		response_manager()
+		{
+
+		}
+
 		response_manager(request_manager request, config_parser conf)
 		{
-			(void)request;
-			(void)conf;
+			_request = request;
+			_conf = conf;
 		}
+		//оператор копирование 
+		//оператор присваивания
 
 		~response_manager()
 		{
 		}
 
-		std::string crate_dir_tree(char* path_dir)
+		std::string crate_dir_tree(const char* path_dir)
 		{
 			std::string dir_tree;
 			std::string buf;
@@ -51,6 +60,142 @@ class response_manager
 			return (dir_tree);
 		}
 
+		int error()
+		{
+
+			return (0);
+		}
+
+		std::string body_html()
+		{
+			std::string html;
+			std::string html_header;
+			std::string html_basement;
+			std::string content_file;
+			std::map<std::string, std::vector<std::string> >::iterator _loc;
+			struct stat* stat_file = NULL;
+			int error;
+
+			if ((error = this->error()) == 0)
+			{
+				html_header = this->html_header();
+				html = html + html_header;
+				html_basement = this->html_basement();
+				if (stat((_request.get_page_index()).c_str(), stat_file) != -1 || _request.get_page_index() == "/") // переделать под любой путь
+				{
+					if (_request.get_page_index() == "/")
+					{	 
+						if ((_loc = (_conf.get_locations()).find("/")) != (_conf.get_locations()).end()) 
+						{
+							content_file = create_path_to_file(_loc->second);
+							if (stat(content_file.c_str(), stat_file) != -1)
+								html = html + read_full_file(content_file);
+							else
+								html = create_error_page(404);
+						}
+						else
+						{
+							html = create_error_page(404);
+						}
+					}
+					else
+					{
+						if (S_ISREG(stat_file->st_mode))
+						{
+							content_file = read_full_file(_request.get_page_index());
+							html = html + content_file;
+						}
+						if (S_ISDIR(stat_file->st_mode))
+						{
+							html = html + crate_dir_tree(_request.get_page_index().c_str());
+						}
+					}
+				}
+				else
+				{
+					html = html + create_error_page(404);
+				}
+				
+			}
+			else
+			{
+				html = html + create_error_page(error);
+			}
+			html = html + html_basement;
+			return (html);
+		}
+
+		std::string create_error_page(int error)
+		{
+			std::string html_error;
+			if (error == 500)
+				html_error = error_500();
+			if (error == 404)
+				html_error = error_404();
+			if (error ==501)
+				html_error = error_501();
+			return (html_error);
+		}
+
+	private:
+		std::string read_full_file(std::string path_to_file)
+		{
+			std::string file;
+			std::string line;
+			std::ifstream fs;
+
+			fs.open(path_to_file);
+			if (fs.is_open())
+			{
+				while (getline(fs, line))
+				{
+					// std::cout << line << std::endl;
+					file = file + line;
+					line.clear();
+				}
+			}
+			return (file);
+		}
+
+		std::string html_header()
+		{
+			std::string html_header;
+			return(html_header);
+		}
+
+		std::string html_basement()
+		{
+			std::string html_basement;
+			return(html_basement);
+		}
+
+		std::string error_500()
+		{
+			std::string body_html;
+		
+			return (body_html);
+		}
+
+		std::string error_404()
+		{
+			std::string body_html;
+		
+			return (body_html);
+		}
+
+		std::string error_501()
+		{
+			std::string body_html;
+		
+			return (body_html);
+		}
+
+		std::string create_path_to_file(std::vector<std::string>)
+		{
+			std::string path_to_file;
+
+			return (path_to_file);
+		}
 };
 
 #endif
