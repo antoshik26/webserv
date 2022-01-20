@@ -53,20 +53,13 @@ void test(const char *_script,char **_env,int	*_pipe1, int	*_pipe2, int	fd1)
 }
 int main(int argc, char **argv, char **env)
 {
-	pid_t		pid;
-	int pipe[2];
-	int *ptr(0);
-	pid = fork();
-	/*if (!pid)
+	int i;
+	
+	i = 0;
+	while(argv[i]!=0)
 	{
-		execve("test.py",argv,env);
+		i++;		
 	}
-	else
-	{
-		std::cout<<"error";
-	}*/
-	test("test.py",env,ptr,pipe,0);
-	test("test.py",env,pipe,ptr,1);
-	return(0);
+	std::cout<<i<<std::endl;
 
 }

@@ -1,32 +1,19 @@
 #include"cgi.hpp"
 
-cgi::cgi(std::string script, std::string *env):_script(script.c_str()){
-	
-	_env=env;//преобразовать string в char!!!!!!
-	int		**pipe;
-	int		i;
-	pid_t	*pid;
-	int		num;
-
-	i = 0;
-	num = size - 4;
-	pipe = make_pipe(size - 4);
-	pid = malloc(sizeof(pid) * (size - 3));
-	if (!pid)
-		return ;
-	pid[i] = test(all[num--], pipe[i], pipe[i + 1], fd[1]);
-	i++;
-	while (0 < num)
-	{
-		pid[i] = test(all[num--], pipe[i], pipe[i + 1], 0);
-		i++;
-	}
-	pid[i] = test(all[num--], pipe[i], pipe[i + 1], fd[0]);
-	print_errors(pid, all, i);
-	free_pipe(pipe, pid);
-
+cgi::cgi(std::string extension,std::map<std::string, std::map<std::string, std::string> > cgi,std::map<std::string, std::string> body,const char **env):_script(find_script(extension,cgi))
+{
+	this->fill_env(env,body);
+	this->execve_script();
 }
-pid_t cgi::fork(int	*pipe_1, int	*pipe_2, int	fd1)
+
+void cgi::execve_script()
+{
+	pid_t	pid;
+	int pipe[2];
+
+	
+}
+/*pid_t cgi::fork(int	*pipe_1, int	*pipe_2, int	fd1)
 {
 	pid_t	pid;
 
@@ -73,4 +60,4 @@ pid_t cgi::fork(int	*pipe_1, int	*pipe_2, int	fd1)
 		close(pipe_1[1]);
 		close(pipe_1[0]);
 	}
-}
+}*/
