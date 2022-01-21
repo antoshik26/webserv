@@ -64,7 +64,7 @@ class serv
 		// }	
 		sockaddr_in serv_config;
 		int socket_fd;
-		int count_serv;
+		size_t count_serv;
 		// kqueue
 		// int kqueuefd;
 		// struct kevent kevent_struct;
@@ -73,15 +73,16 @@ class serv
 		// select
 
 
-		int client_socket_fd;
-		pollfd poll_server_client_socketfd[10];	//плохо
-		// std::vector<pollfd> fds();			//хорошо
-		std::vector<config_parser> conf_fd; 
+		// int client_socket_fd;
+		// pollfd poll_server_client_socketfd[10];	//плохо
+		std::vector<pollfd> _poll_server_client_socketfd;			//хорошо
+		std::vector<int> conf_fd;
+		std::vector<config_parser> _conf_serv_vec;
 		int count_client;						//отвратительно
 		// std::pair<int, int> pull_server_client_socketfd[100];
 		request_manager request;
 		response_manager response;
-		config_parser _conf_serv;
+		// config_parser _conf_serv;
 
 
 	public:
@@ -90,7 +91,7 @@ class serv
 
 		}
 
-		serv(const config_parser conf_serv)
+		serv(std::vector<config_parser> conf_serv)
 		{
 			try
 			{
@@ -99,29 +100,57 @@ class serv
 				int option = 1;
 				int ret = 0;
 				// int error = 0;
-				_conf_serv = conf_serv;
-				bzero((char *) &serv_config, sizeof(serv_config));
-				// serv_config.sin_len = 
-				serv_config.sin_family = AF_INET;
-				serv_config.sin_port = htons(8000);
-				// serv_config.sin_port = htons(conf_serv.get_listen_port);
-				serv_config.sin_addr.s_addr = INADDR_ANY;
-				bzero(serv_config.sin_zero, 8);
-				// serv_config.sin_addr.s_addr = inet_addr("127.0.0.1"); на приватный ip адресс
-				socket_fd = socket(AF_INET, SOCK_STREAM, 0);
-				ret = setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, (char *)&option, sizeof(option));
-				ret = fcntl(socket_fd, F_SETFL, O_NONBLOCK);
-				// error =  bind(socket_fd, (sockaddr *)serv_config, (socklen_t)(sizeof(serv_config)));
-				// error = listen_fd(); 
-				// epull();
-				for (int i = 0; i < 10; i++)
+				std::vector<config_parser>::iterator it = conf_serv.begin();
+				std::vector<config_parser>::iterator it2 = conf_serv.end();
+				pollfd one_socket;
+
+				_conf_serv_vec = conf_serv;
+				count_serv = conf_serv.size();
+			 	std::cout << it->get_port() <<std::endl;
+				while (it != it2)
 				{
-					poll_server_client_socketfd[i].fd = -1;
-					poll_server_client_socketfd[i].events = 0;
-					poll_server_client_socketfd[i].revents = 0;
+					bzero((char *) &serv_config, sizeof(serv_config));
+					// serv_config.sin_len = 
+					serv_config.sin_family = AF_INET;
+					serv_config.sin_port = htons(it->get_port());
+					// serv_config.sin_port = htons(conf_serv.get_listen_port);
+					serv_config.sin_addr.s_addr = INADDR_ANY;
+					bzero(serv_config.sin_zero, 8);
+					// serv_config.sin_addr.s_addr = inet_addr("127.0.0.1"); на приватный ip адресс
+					socket_fd = socket(AF_INET, SOCK_STREAM, 0);
+					ret = setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, (char *)&option, sizeof(option));
+					ret = fcntl(socket_fd, F_SETFL, O_NONBLOCK);
+					// error =  bind(socket_fd, (sockaddr *)serv_config, (socklen_t)(sizeof(serv_config)));
+					// error = listen_fd(); 
+					// epull();
+					one_socket.fd = socket_fd;
+					one_socket.events = POLLIN;
+					ret = fcntl(socket_fd, F_SETFL, O_NONBLOCK );
+					_poll_server_client_socketfd.push_back(one_socket);
+					it++;
 				}
-				poll_server_client_socketfd[0].fd = socket_fd;
-				poll_server_client_socketfd[0].events = POLLIN;
+				
+			
+				// bzero((char *) &serv_config, sizeof(serv_config));
+				// // serv_config.sin_len = 
+				// serv_config.sin_family = AF_INET;
+				// serv_config.sin_port = htons(it->get_port());
+				// // serv_config.sin_port = htons(conf_serv.get_listen_port);
+				// serv_config.sin_addr.s_addr = INADDR_ANY;
+				// bzero(serv_config.sin_zero, 8);
+				// // serv_config.sin_addr.s_addr = inet_addr("127.0.0.1"); на приватный ip адресс
+				// socket_fd = socket(AF_INET, SOCK_STREAM, 0);
+				// ret = setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, (char *)&option, sizeof(option));
+				// ret = fcntl(socket_fd, F_SETFL, O_NONBLOCK);
+				// // error =  bind(socket_fd, (sockaddr *)serv_config, (socklen_t)(sizeof(serv_config)));
+				// // error = listen_fd(); 
+				// // epull();
+				// for (int i = 0; i < 10; i++)
+				// {
+				// 	poll_server_client_socketfd[i].fd = -1;
+				// 	poll_server_client_socketfd[i].events = 0;
+				// 	poll_server_client_socketfd[i].revents = 0;
+				// }
 				// poll_server_client_socketfd[0].fd = socket_fd;
 				// poll_server_client_socketfd[0].events = POLLIN;
 				// ret = fcntl( listen_fd, F_SETFL, O_NONBLOCK );
@@ -215,6 +244,7 @@ class serv
 		int add_client_in_poll(int socket_serv)
 		{
 			int new_client = 0;
+			pollfd new_socket;
 
 			if ((new_client = accept_serv(socket_serv)) == -1)
 			{
@@ -224,8 +254,9 @@ class serv
 			else
 			{
 				count_client++;
-				poll_server_client_socketfd[count_client].fd = new_client;
-				poll_server_client_socketfd[count_client].events = POLLIN;
+				new_socket.fd = new_client;
+				new_socket.events = POLLIN;
+				_poll_server_client_socketfd.push_back(new_socket);
 				return (1);
 			}
 			return (0);
@@ -234,7 +265,7 @@ class serv
 		int new_client()
 		{
 			// int new_client = -1;
-			int i;
+			size_t i;
 			int rc;
 			int rc2;
 			char buffer[5024];
@@ -246,25 +277,25 @@ class serv
 			{
 				while (true)
 				{
-					rc2 = poll(poll_server_client_socketfd, 10, -1);
+					rc2 = poll(_poll_server_client_socketfd.data(), _poll_server_client_socketfd.size(), -1);
 					i = 0;
-					while (rc2 > 0 && i < 10)
+					while (rc2 > 0 && i < _poll_server_client_socketfd.size())
 					{
-						if (poll_server_client_socketfd[i].revents == 0)
+						if (_poll_server_client_socketfd[i].revents == 0)
 						{
 							i++;
 							continue;
 						}
 						if (i < count_serv)
 						{
-							error = add_client_in_poll(poll_server_client_socketfd[i].fd);
+							error = add_client_in_poll(_poll_server_client_socketfd[i].fd);
 							if (error == 1)
 								rc2--;
 						}
 						else
 						{
 
-							rc = recv(poll_server_client_socketfd[i].fd, buffer, 5024, 0);
+							rc = recv(_poll_server_client_socketfd[i].fd, buffer, 5024, 0);
 							if (rc == 0)
 							{
 								// close(poll_server_client_socketfd[i].fd);
@@ -277,17 +308,18 @@ class serv
 							}
 							if (rc > 0)
 							{
-								std::cout << "aaaaaaaa " << poll_server_client_socketfd[i].fd << std::endl;
+								std::cout << "aaaaaaaa " << _poll_server_client_socketfd[i].fd << std::endl;
 								printf("%s\n", buffer);
-								request = request_manager((std::string)buffer);
-								response = response_manager(request, _conf_serv);
+								// request = request_manager((std::string)buffer);
+								// response = response_manager(request, _conf_serv);
 								// if (response.error() == 0)
 								// {
 									std::string body_html = response.body_html();
 									char b[] = "HTTP/1.1 200 OK\r\n\r\n Hello World \r\n\r\n"; //переделать
-									rc = send(poll_server_client_socketfd[i].fd, b, strlen(b), 0); //бред
-									close(poll_server_client_socketfd[i].fd);
-									poll_server_client_socketfd[i].fd = -1;
+									rc = send(_poll_server_client_socketfd[i].fd, b, strlen(b), 0); //бред
+									close(_poll_server_client_socketfd[i].fd);
+									_poll_server_client_socketfd[i].fd = -1;
+									// _poll_server_client_socketfd[i].erase();
 									rc2--;
 									bzero(buffer, 5024);	
 								// }
@@ -354,30 +386,30 @@ class serv
 			return (0);
 		}		
 
-		int connect()
-		{
-			int i;
+		// int connect()
+		// {
+		// 	int i;
 
-			i = 0;
-			while (i < 100)
-			{
-				if (poll_server_client_socketfd[i].fd == -1)
-					break;
-				i++;
-			}
-			if (i == 100)
-				return (-1);
+		// 	i = 0;
+		// 	while (i < 100)
+		// 	{
+		// 		if (poll_server_client_socketfd[i].fd == -1)
+		// 			break;
+		// 		i++;
+		// 	}
+		// 	if (i == 100)
+		// 		return (-1);
 			
-			poll_server_client_socketfd[i].fd = ::connect(client_socket_fd, (sockaddr *)&serv_config, (socklen_t)(sizeof(serv_config)));
-			return (0);
-		}
+		// 	poll_server_client_socketfd[i].fd = ::connect(client_socket_fd, (sockaddr *)&serv_config, (socklen_t)(sizeof(serv_config)));
+		// 	return (0);
+		// }
 
-		int answer()
-		{
-			char *sent_answer;
-			send(client_socket_fd, sent_answer, strlen(sent_answer), 0);
-			return (0);
-		}
+		// int answer()
+		// {
+		// 	char *sent_answer;
+		// 	send(client_socket_fd, sent_answer, strlen(sent_answer), 0);
+		// 	return (0);
+		// }
 
 		std::string crate_dir_tree(char* path_dir)
 		{

@@ -14,39 +14,49 @@ int  main(int argc, char* argv[], char* env[])
 	std::string line;
 	std::string config;
 	int error = 0;
-	// size_t i = 0;
-	// size_t j = 0;
+	size_t i = 0;
+	size_t j = 0;
+	argv[1] = "config.conf";
 	std::vector<config_parser> list_conf;
 	try
 	{
-		// fs.open(argv[1]);
-		// if (fs.is_open())
-		// {
-		// 	while (getline(fs, line))
-		// 	{
-		// 		std::cout << line << std::endl;
-		// 		config = config + line;
-		// 		line.clear();
-		// 	}
-		// }
-		// else
-		// 	// throw;
-		// while (i == config.find("server"))
-		// {
-		// 	if (j == 0)
-		// 	{
-		// 		i = j;
-		// 	}
-		// 	else
-		// 	{
-		// 		line = config.substr(j, i - j);
-		// 		list_conf.push_back(config_parser(line));
-		// 	}
-		// }
-		// config_parser config(argv[1]);
-		serv myserv(config);
-		// int client_socket_fd;
-		client cl;
+		fs.open(argv[1]);
+		if (fs.is_open())
+		{
+			while (getline(fs, line))
+			{
+				// std::cout << line << std::endl;
+				config = config + line + '\n';
+				line.clear();
+			}
+			// std::cout << config << std::endl;
+		}
+		else
+		{
+			// throw;
+		}
+		while ((i = config.find("server", i)) != std::string::npos)
+		{
+			if (j == 0)
+			{
+				i = i + 7;
+				j = i;
+			}
+			else
+			{
+				line = config.substr(j, i - j);
+				std::cout << line << std::endl;
+				list_conf.push_back(config_parser(line));
+				i = i + 7;
+				j = i;
+			}
+		}
+		line = config.substr(j, i - config.length());
+		std::cout << line << std::endl;
+		list_conf.push_back(config_parser(line));
+
+		// serv myserv(config);
+		serv myserv(list_conf);
 
 
 		error = myserv.serv_bind();
