@@ -84,7 +84,7 @@ class config_parser
 			size_t i;
 			std::string line;
 
-			if ((n = config_serv.find("avtoindex")) != std::string::npos)
+			if ((n = config_serv.find("autoindex")) != std::string::npos)
 			{
 				while (config_serv[n] != ' ')
 					n++;
@@ -94,7 +94,8 @@ class config_parser
 				i = n;
 				while (config_serv[n] !=  ';')
 					n++;
-				line = config_serv.substr(i, n);
+				line = config_serv.substr(i, n - i);
+				std::cout << line << std::endl;
 				if (line == "on")
 					_avtoindex = true;
 				else	
@@ -111,12 +112,17 @@ class config_parser
 			std::string extensions;
 			std::pair<std::string, std::map<std::string, std::string> > pair_cgi_param;
 
-			
-			while ((n = config_serv.find("location")) != std::string::npos)
+			std::cout<< config_serv <<std::endl;
+			n = 0;
+			while ((n = config_serv.find("location", n)) != std::string::npos)
 			{
 				i = n;
-				while (config_serv[i] != '/' || config_serv[i] != '~')
+				n = n + 8;
+				while (config_serv[i] != '/' && config_serv[i] != '~')
+				{
+					std::cout << config_serv[i] << std::endl;
 					i++;
+				}
 				if (config_serv[i] == '/')
 				{
 					find_root(config_serv);
@@ -129,11 +135,16 @@ class config_parser
 					n = i;
 					while(config_serv[i] != '$')
 						i++;
-					extensions = config_serv.substr(n, i);
-					find_cgi_include(config_serv, extensions);
-					find_pass(config_serv, extensions);
-					find_cgi_index(config_serv, extensions);
-					find_cgi_param(config_serv, extensions);
+					extensions = config_serv.substr(n, i - n);
+					if (extensions == ".cs" || extensions == ".py")
+					{
+						find_cgi_include(config_serv, extensions);
+						find_cgi_pass(config_serv, extensions);
+						find_cgi_index(config_serv, extensions);
+						find_cgi_param(config_serv, extensions);
+					}
+					else
+						find_pass(config_serv, extensions);
 				}
 			}
 		}
@@ -158,7 +169,7 @@ class config_parser
 				i = n;
 				while (config_serv[n] !=  ';')
 					n++;
-				line = config_serv.substr(i, n);
+				line = config_serv.substr(i, n - i);
 				obj.first = exception;
 				map_obj.first = "include";
 				map_obj.second = line;
@@ -173,7 +184,7 @@ class config_parser
 			(void)exception;
 			size_t n;
 			size_t i;
-			std::pair<std::string, std::map<std::string, std::string> > obj;
+			std::map<std::string, std::map<std::string, std::string> >::iterator obj;
 			std::pair<std::string, std::string> map_obj;
 			std::string index;
 			std::string line;
@@ -187,12 +198,12 @@ class config_parser
 				i = n;
 				while (config_serv[n] !=  ';')
 					n++;
-				line = config_serv.substr(i, n);
-				obj.first = exception;
+				line = config_serv.substr(i, n - i);
+				obj = _cgi.find(exception);
 				map_obj.first = "cgi_puss";
 				map_obj.second = line;
-				obj.second.insert(map_obj);
-				_cgi.insert(obj);
+				obj->second.insert(map_obj);
+				// _cgi.insert(obj);
 			}
 		}
 
@@ -202,7 +213,7 @@ class config_parser
 			(void)exception;
 			size_t n;
 			size_t i;
-			std::pair<std::string, std::map<std::string, std::string> > obj;
+			std::map<std::string, std::map<std::string, std::string> >::iterator obj;
 			std::pair<std::string, std::string> map_obj;
 			std::string index;
 			std::string line;
@@ -216,12 +227,12 @@ class config_parser
 				i = n;
 				while (config_serv[n] !=  ';')
 					n++;
-				line = config_serv.substr(i, n);
-				obj.first = exception;
+				line = config_serv.substr(i, n - i);
+				obj = _cgi.find(exception);
 				map_obj.first = "cgi_index";
 				map_obj.second = line;
-				obj.second.insert(map_obj);
-				_cgi.insert(obj);
+				obj->second.insert(map_obj);
+				// _cgi.insert(obj);
 			}
 		}
 
@@ -231,7 +242,7 @@ class config_parser
 			(void)exception;
 			size_t n;
 			size_t i;
-			std::pair<std::string, std::map<std::string, std::string> > obj;
+			std::map<std::string, std::map<std::string, std::string> >::iterator obj;
 			std::pair<std::string, std::string> map_obj;
 			std::string index;
 			std::string line;
@@ -245,12 +256,12 @@ class config_parser
 				i = n;
 				while (config_serv[n] !=  ';')
 					n++;
-				line = config_serv.substr(i, n);
-				obj.first = exception;
+				line = config_serv.substr(i, n - i);
+				obj = _cgi.find(exception);
 				map_obj.first = "cgi_param";
 				map_obj.second = line;
-				obj.second.insert(map_obj);
-				_cgi.insert(obj);
+				obj->second.insert(map_obj);
+				// _cgi.insert(obj);
 			}
 		}
 
@@ -332,8 +343,9 @@ class config_parser
 				i = n;
 				while (config_serv[n] !=  ';')
 					n++;
-				line = config_serv.substr(i, n);
+				line = config_serv.substr(i, n - i);
 				obj.first = exception;
+				// obj = _cgi.find(exception);
 				map_obj.first = "pass";
 				map_obj.second = line;
 				obj.second.insert(map_obj);
@@ -348,7 +360,7 @@ class config_parser
 			std::pair<std::string, std::vector<std::string> > obj;
 			std::string root;
 
-			if ((n = config_serv.find("server_name")) != std::string::npos)
+			if ((n = config_serv.find("root")) != std::string::npos)
 			{
 				while (config_serv[n] != ' ')
 					n++;
@@ -357,7 +369,7 @@ class config_parser
 				i = n;
 				while (config_serv[n] !=  ';')
 					n++;
-				root = config_serv.substr(i, n);
+				root = config_serv.substr(i, n - i);
 				obj.first = "root";
 				obj.second.push_back(root);
 				_locations.insert(obj);
@@ -382,20 +394,22 @@ class config_parser
 				i = n;
 				while (config_serv[n] !=  ';')
 					n++;
-				index = config_serv.substr(i, n);
+				index = config_serv.substr(i, n - i);
 				obj.first = "index";
 				i = 0;
 				n = 0;
 				while (index[i])
 				{
-					if (index[i] == ' ' || index[i])
+					if (index[i] == ' ' || !index[i])
 					{
-						line = index.substr(n, i);
+						line = index.substr(n, i - n);
 						obj.second.push_back(line);
 						n = i;
 					}
 					i++;
 				}
+				line = index.substr(n, i - n);
+				obj.second.push_back(line);
 				_locations.insert(obj);
 			}
 		}
