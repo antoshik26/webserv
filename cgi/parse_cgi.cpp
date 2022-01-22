@@ -7,10 +7,9 @@ void cgi::fill_env(const char **env,	std::map<std::string, std::string> body)
 	i = 0;
 	while(env[i]!=0)
 		i++;
-	this->_env=new char*[i+2];
-	this->_env[i+1]=0;
+	this->_env=new char*[i+3];
+	this->_env[i+2]=0;
 	fill_varibles(i,body);
-	//his->_env[i]="QUERRY_ARRAY=A:III?B:IIII";//DRAFT
 	while (i>0)
 	{
 		i--;
@@ -20,8 +19,13 @@ void cgi::fill_env(const char **env,	std::map<std::string, std::string> body)
 }
 void cgi::fill_varibles(int i,	std::map<std::string, std::string> body)
 {
-	//body[];
+	this->env[i]=new char[strlen(body["a"])];
+	this->env[i]=(char *)body["a"];
+	i++;
+	this->env[i]=new char[strlen(body["b"])];
+	this->env[i]=(char *)body["b"];
 }
+
 const char *cgi::find_script(std::string extension, std::map<std::string, std::map<std::string, std::string> > cgi)
 {
 	std::string search;
