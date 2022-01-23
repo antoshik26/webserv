@@ -45,21 +45,21 @@ int  main(int argc, char* argv[], char* env[])
 			else
 			{
 				line = config.substr(j, i - j);
-				std::cout << line << std::endl;
+				// std::cout << line << std::endl;
 				list_conf.push_back(config_parser(line));
 				i = i + 7;
 				j = i;
 			}
 		}
 		line = config.substr(j, i - config.length());
-		std::cout << line << std::endl;
+		// std::cout << line << std::endl;
 		list_conf.push_back(config_parser(line));
 
 		// serv myserv(config);
 		serv myserv(list_conf);
 
 
-		error = myserv.serv_bind();
+		// error = myserv.serv_bind();
 		// if (error != 0)
 		// 	throw;
 		

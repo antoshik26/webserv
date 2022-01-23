@@ -15,6 +15,7 @@ class request_manager
 		std::string _page_index;
 		// std::map<std::string, std::vector<std::string> > _body;
 		std::map<std::string, std::string> _body;
+		std::map<std::string, std::string> _body_cgi;
 	public:
 		request_manager()
 		{
@@ -138,6 +139,9 @@ class request_manager
 			pair_node = find_line(request, "Accept-Language", ':');
 			//проверка
 			_body.insert(pair_node);
+			pair_node = find_line(request, "Transfer-Encoding", ':');
+			//проверка
+			_body.insert(pair_node);
 		}
 
 		void find_page_and_param(std::string request)
@@ -150,12 +154,13 @@ class request_manager
 
 			i = request.find("/");
 			j = request.find("HTTP");
-			line = request.substr(i, j);
+			line = request.substr(i, ((j - i) - 1));
+			_page_and_param = line;
 			if ((i = line.find("?")) != std::string::npos)
 			{
 				parsing_param(line.substr(i, (j - 1)));
 			}
-			_page = page;
+			_page_index = line;
 		}
 
 		void parsing_body(std::string body)
@@ -174,8 +179,8 @@ class request_manager
 			(void)body_srt;
 			std::string page_and_param;
 
-			if (!(_body.empty()))
-				_body.clear();
+			if (!(_body_cgi.empty()))
+				_body_cgi.clear();
 			parsing_param(body_srt);
 			_page_and_param = page_and_param;
 		}
@@ -220,9 +225,9 @@ class request_manager
 				str->first = request.substr(n, i - n);
 				i++;
 				n = i;
-				while (request[i] != '\n')
+				while (request[i] != '\r')
 					i++;
-				str->second = request.substr(n, i - n);
+				str->second = request.substr(n + 1, i - n);
 			}
 			return (*str);
 		}

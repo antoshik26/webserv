@@ -72,7 +72,8 @@ class response_manager
 			std::string html_header;
 			std::string html_basement;
 			std::string content_file;
-			std::map<std::string, std::vector<std::string> >::iterator _loc;
+			std::map<std::string, std::map<std::string, std::string> >::iterator _loc;
+			std::map<std::string, std::map<std::string, std::string> > _locations;
 			struct stat* stat_file = NULL;
 			int error;
 
@@ -85,13 +86,15 @@ class response_manager
 				{
 					if (_request.get_page_index() == "/")
 					{	 
-						if ((_loc = (_conf.get_locations()).find("/")) != (_conf.get_locations()).end()) 
+						_locations = _conf.get_locations();
+						_loc = _locations.find("/");
+						if (_loc != _conf.get_locations().end()) 
 						{
-							content_file = create_path_to_file(_conf.get_locations());
-							if (stat(content_file.c_str(), stat_file) != -1)
+							content_file = create_path_to_file(_loc->second);
+							// if (stat(content_file.c_str(), stat_file) != -1)
 								html = html + read_full_file(content_file);
-							else
-								html = create_error_page(404);
+							// else
+							// 	html = create_error_page(404);
 						}
 						else
 						{
@@ -150,7 +153,7 @@ class response_manager
 				while (getline(fs, line))
 				{
 					// std::cout << line << std::endl;
-					file = file + line;
+					file = file + line + "\n";
 					line.clear();
 				}
 			}
@@ -190,32 +193,33 @@ class response_manager
 			return (body_html);
 		}
 
-		std::string create_path_to_file(std::pair<std::string, std::vector<std::string> >)
+		// std::string create_path_to_file(std::pair<std::string, std::vector<std::string> >)
+		// {
+		// 	std::string path_to_file;
+
+		// 	// if ()
+		// 	// {
+
+		// 	// }
+		// 	return (path_to_file);
+		// }
+
+		std::string create_path_to_file(std::map<std::string, std::string> loc)
 		{
 			std::string path_to_file;
-
-			// if ()
-			// {
-
-			// }
-			return (path_to_file);
-		}
-
-		std::string create_path_to_file(std::map<std::string, std::vector<std::string> > loc)
-		{
-			std::string path_to_file;
-			std::map<std::string, std::vector<std::string> >::iterator it = loc.begin();
-			std::map<std::string, std::vector<std::string> >::iterator it2 = loc.end();
+			std::map<std::string, std::string>::iterator it = loc.begin();
+			std::map<std::string, std::string>::iterator it2 = loc.end();
 			
 			while (it != it2)
 			{
 				if (it->first == "pass")
-					path_to_file = path_to_file + it->second[0];
+					path_to_file = path_to_file + it->second;
 
 				if (it->first == "index")
-					path_to_file = path_to_file + it->second[0];
+					path_to_file = path_to_file + it->second;
 				it++;
-			}
+			}//переделать бредятину
+			path_to_file = "/Users/dmadelei/Documents/webserv/web_document/7000_port/html/page1.html";
 			return (path_to_file);
 		}
 };

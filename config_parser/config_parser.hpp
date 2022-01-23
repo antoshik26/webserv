@@ -14,8 +14,8 @@ class config_parser
 		std::string _serv_name;
 		std::string _access_log;
 		std::string _error_log;
-		std::map<std::string, std::vector<std::string> > _locations; //?
-		// std::map<std::string, std::map<std::string, std::string> > _locations;
+		// std::map<std::string, std::vector<std::string> > _locations; //переделать смотреть ниже
+		std::map<std::string, std::map<std::string, std::string> > _locations;
 		std::map<std::string, std::map<std::string, std::string> > _cgi; //подумать над таким выводом
 	public:
 		config_parser()
@@ -36,7 +36,7 @@ class config_parser
 		{
 		}
 		
-		std::map<std::string, std::vector<std::string> > get_locations()
+		std::map<std::string, std::map<std::string, std::string> > get_locations()
 		{
 			return (_locations);
 		}
@@ -95,7 +95,7 @@ class config_parser
 				while (config_serv[n] !=  ';')
 					n++;
 				line = config_serv.substr(i, n - i);
-				std::cout << line << std::endl;
+				// std::cout << line << std::endl;
 				if (line == "on")
 					_avtoindex = true;
 				else	
@@ -112,7 +112,7 @@ class config_parser
 			std::string extensions;
 			std::pair<std::string, std::map<std::string, std::string> > pair_cgi_param;
 
-			std::cout<< config_serv <<std::endl;
+			// std::cout<< config_serv <<std::endl;
 			n = 0;
 			while ((n = config_serv.find("location", n)) != std::string::npos)
 			{
@@ -120,13 +120,14 @@ class config_parser
 				n = n + 8;
 				while (config_serv[i] != '/' && config_serv[i] != '~')
 				{
-					std::cout << config_serv[i] << std::endl;
+					// std::cout << config_serv[i] << std::endl;
 					i++;
 				}
 				if (config_serv[i] == '/')
 				{
-					find_root(config_serv);
-					find_index(config_serv);
+					extensions = "/"; 
+					find_root(config_serv, extensions);
+					find_index(config_serv, extensions);
 				}
 				else
 				{
@@ -353,11 +354,13 @@ class config_parser
 			}
 		}
 
-		void find_root(std::string config_serv)
+		void find_root(std::string config_serv, std::string exception)
 		{
 			size_t n;
 			size_t i;
-			std::pair<std::string, std::vector<std::string> > obj;
+			// std::pair<std::string, std::vector<std::string> > obj;
+			std::pair<std::string, std::map<std::string, std::string> > obj;
+			std::pair<std::string, std::string> obj_map;
 			std::string root;
 
 			if ((n = config_serv.find("root")) != std::string::npos)
@@ -370,17 +373,20 @@ class config_parser
 				while (config_serv[n] !=  ';')
 					n++;
 				root = config_serv.substr(i, n - i);
-				obj.first = "root";
-				obj.second.push_back(root);
+				obj.first = exception;
+				obj_map.first = "root";
+				obj_map.second = root;
+				obj.second.insert(obj_map);
 				_locations.insert(obj);
 			}
 		}
 
-		void find_index(std::string config_serv)
+		void find_index(std::string config_serv, std::string exception)
 		{
 			size_t n;
 			size_t i;
-			std::pair<std::string, std::vector<std::string> > obj;
+			std::map<std::string, std::map<std::string, std::string> >::iterator obj;
+			std::pair<std::string, std::string> obj_map;
 			std::string index;
 			std::string line;
 
@@ -395,22 +401,26 @@ class config_parser
 				while (config_serv[n] !=  ';')
 					n++;
 				index = config_serv.substr(i, n - i);
-				obj.first = "index";
+				// obj.first = "index";
 				i = 0;
 				n = 0;
-				while (index[i])
-				{
-					if (index[i] == ' ' || !index[i])
-					{
-						line = index.substr(n, i - n);
-						obj.second.push_back(line);
-						n = i;
-					}
-					i++;
-				}
-				line = index.substr(n, i - n);
-				obj.second.push_back(line);
-				_locations.insert(obj);
+				// while (index[i])
+				// {
+				// 	if (index[i] == ' ' || !index[i])
+				// 	{
+				// 		line = index.substr(n, i - n);
+				// 		obj.second.push_back(line);
+				// 		n = i;
+				// 	}
+				// 	i++;
+				// }
+				// line = index.substr(n, i - n);
+				obj = _locations.find(exception);
+				obj_map.first = "index";
+				obj_map.second = index;
+				obj->second.insert(obj_map);
+				// obj.second.push_back(line);
+				// _locations.insert(obj);
 			}
 		}
 };

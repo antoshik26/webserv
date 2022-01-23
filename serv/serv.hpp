@@ -99,6 +99,7 @@ class serv
 				count_client = 0;
 				int option = 1;
 				int ret = 0;
+				int error = 0;
 				// int error = 0;
 				std::vector<config_parser>::iterator it = conf_serv.begin();
 				std::vector<config_parser>::iterator it2 = conf_serv.end();
@@ -126,7 +127,13 @@ class serv
 					one_socket.fd = socket_fd;
 					one_socket.events = POLLIN;
 					ret = fcntl(socket_fd, F_SETFL, O_NONBLOCK );
+					error = serv_bind(socket_fd, serv_config);
+					if (error < 0)
+					{
+						// throw;
+					}
 					_poll_server_client_socketfd.push_back(one_socket);
+					_conf_serv_vec.push_back(*it);
 					it++;
 				}
 				
@@ -192,7 +199,39 @@ class serv
 
 		// }
 
-		int serv_bind()
+		// int serv_bind()
+		// {
+		// 	int error = 0;
+		// 	try
+		// 	{
+		// 		std::vector<pollfd>::iterator it = _poll_server_client_socketfd.begin();
+		// 		std::vector<pollfd>::iterator it2 = _poll_server_client_socketfd.end();
+
+		// 		while (it != it2)
+		// 		{
+		// 			error =  bind(socket_fd, (sockaddr *)&serv_config, (socklen_t)(sizeof(serv_config)));
+		// 			if (error != 0)
+		// 			{
+		// 				// throw;
+		// 			}
+		// 			it++;
+		// 		}
+		// 		// error =  bind(socket_fd, (sockaddr *)&serv_config, (socklen_t)(sizeof(serv_config)));
+		// 		// if (error != 0)
+		// 		// {
+		// 		// 	// throw;
+		// 		// }
+		// 		// else
+		// 		// 	_fd_sockfd = sockfd; 
+		// 	}
+		// 	catch(std::exception &e)
+		// 	{
+		// 		// throw;
+		// 	}
+		// 	return (error);
+		// }
+
+		int serv_bind(int socket_fd, sockaddr_in serv_config)
 		{
 			int error = 0;
 			try
@@ -202,15 +241,12 @@ class serv
 				{
 					// throw;
 				}
-				// else
-				// 	_fd_sockfd = sockfd; 
 			}
 			catch(std::exception &e)
 			{
 				// throw;
 			}
 			return (error);
-			
 		}
 
 		int accept_serv(int socket_serv)
@@ -233,15 +269,38 @@ class serv
 			return (sock_klient);
 		}
 		
+		// int listen_fd()
+		// {
+		// 	int error = 0;
+			
+		// 	error = listen(socket_fd, 32);
+		// 	return (error);
+		// }
+
 		int listen_fd()
 		{
-			int error = 0;
-			
-			error = listen(socket_fd, 32);
-			return (error);
+			try
+			{	
+				int error = 0;
+				std::vector<pollfd>::iterator it = _poll_server_client_socketfd.begin();
+				std::vector<pollfd>::iterator it2 = _poll_server_client_socketfd.end();
+				
+				while (it != it2)
+				{
+					error = listen(it->fd, 32);
+					// if (error < 0)
+					// 	throw;
+					it++;
+				}
+				return (error);
+			}
+			catch(std::exception &e)
+			{
+				throw;
+			}
 		}
 
-		int add_client_in_poll(int socket_serv)
+		int add_client_in_poll(int socket_serv, config_parser conf)
 		{
 			int new_client = 0;
 			pollfd new_socket;
@@ -257,6 +316,7 @@ class serv
 				new_socket.fd = new_client;
 				new_socket.events = POLLIN;
 				_poll_server_client_socketfd.push_back(new_socket);
+				_conf_serv_vec.push_back(conf);
 				return (1);
 			}
 			return (0);
@@ -272,6 +332,8 @@ class serv
 			int error;
 			std::string a;
 			bzero(buffer, 5024);
+			std::vector<pollfd>::iterator it;
+			std::vector<config_parser>::iterator it2;
 
 			try
 			{
@@ -288,7 +350,8 @@ class serv
 						}
 						if (i < count_serv)
 						{
-							error = add_client_in_poll(_poll_server_client_socketfd[i].fd);
+							// error = add_client_in_poll(_poll_server_client_socketfd[i].fd);
+							error = add_client_in_poll(_poll_server_client_socketfd[i].fd, _conf_serv_vec[i]);
 							if (error == 1)
 								rc2--;
 						}
@@ -310,16 +373,21 @@ class serv
 							{
 								std::cout << "aaaaaaaa " << _poll_server_client_socketfd[i].fd << std::endl;
 								printf("%s\n", buffer);
-								// request = request_manager((std::string)buffer);
-								// response = response_manager(request, _conf_serv);
+								request = request_manager((std::string)buffer);
+								response = response_manager(request, _conf_serv_vec[i]);
 								// if (response.error() == 0)
 								// {
 									std::string body_html = response.body_html();
-									char b[] = "HTTP/1.1 200 OK\r\n\r\n Hello World \r\n\r\n"; //переделать
-									rc = send(_poll_server_client_socketfd[i].fd, b, strlen(b), 0); //бред
+									std::cout << body_html << std::endl;
+									// char b[] = "HTTP/1.1 200 OK\r\n\r\n Hello World \r\n\r\n"; //переделать
+									// rc = send(_poll_server_client_socketfd[i].fd, b, strlen(b), 0); //бред
+									rc = send(_poll_server_client_socketfd[i].fd, body_html.c_str(), body_html.length(), 0);
 									close(_poll_server_client_socketfd[i].fd);
 									_poll_server_client_socketfd[i].fd = -1;
-									// _poll_server_client_socketfd[i].erase();
+									// it = _poll_server_client_socketfd.find(_poll_server_client_socketfd[i]);
+									// _poll_server_client_socketfd.erase(it);
+									// _conf_serv_vec[i];
+									// _conf_serv_vec.erase(it2);
 									rc2--;
 									bzero(buffer, 5024);	
 								// }
