@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <unistd.h>
 #include "../request_manager/request_manager.hpp"
 #include "../config_parser/config_parser.hpp"
 
@@ -72,6 +73,7 @@ class response_manager
 			std::string html_header;
 			std::string html_basement;
 			std::string content_file;
+			std::string path;
 			std::map<std::string, std::map<std::string, std::string> >::iterator _loc;
 			std::map<std::string, std::map<std::string, std::string> > _locations;
 			struct stat* stat_file = NULL;
@@ -82,51 +84,142 @@ class response_manager
 				html_header = this->html_header();
 				html = html + html_header;
 				html_basement = this->html_basement();
-				if (stat((_request.get_page_index()).c_str(), stat_file) != -1 || _request.get_page_index() == "/") // переделать под любой путь
+				if (definition_path_or_filr(_request.get_page_index()) == 0)	//path //вынести в работу с путями
 				{
-					if (_request.get_page_index() == "/")
-					{	 
-						_locations = _conf.get_locations();
-						_loc = _locations.find("/");
-						if (_loc != _conf.get_locations().end()) 
+					path = find_path_to_html();
+					if (path.empty())
+					{
+						if (_conf.get_avtoindex() == true)
 						{
-							content_file = create_path_to_file(_loc->second);
-							// if (stat(content_file.c_str(), stat_file) != -1)
-								html = html + read_full_file(content_file);
-							// else
-							// 	html = create_error_page(404);
+							if (stat(path.c_str(), stat_file) != -1)
+							{
+								if (S_ISDIR(stat_file->st_mode))
+								{
+									crate_dir_tree((_request.get_page_index()).c_str());
+								}
+							}
 						}
 						else
 						{
-							html = create_error_page(404);
+							// rewrite ^ https://$host$request_uri? <флаг>;
+							create_error_page(404); 
 						}
+						
 					}
 					else
 					{
-						if (S_ISREG(stat_file->st_mode))
-						{
-							content_file = read_full_file(_request.get_page_index());
-							html = html + content_file;
-						}
-						if (S_ISDIR(stat_file->st_mode))
-						{
-							html = html + crate_dir_tree(_request.get_page_index().c_str());
-						}
+						// if (stat(path.c_str(), stat_file) != -1)
+							html = html + read_full_file(path);
+						// else
+							// html = create_error_page(404);
 					}
 				}
-				else
+				else								//file /вынести в функцию работы с файлами /чанки /сокеты
 				{
-					html = html + create_error_page(404);
+					path = find_path_to_cgi();
+					if (path.empty())
+					{
+						// if (stat(path.c_str(), stat_file) != -1)
+						// {
+						// 	if (S_ISREG(stat_file->st_mode))
+						// 	{
+						// 		html = html + read_full_file(path);
+						// 	}
+						// 	else
+						// 	{
+						// 		// rewrite ^ https://$host$request_uri? <флаг>;
+						// 		create_error_page(404); 
+						// 	}
+						// }
+						// else
+						// {
+						// 	// rewrite ^ https://$host$request_uri? <флаг>;
+						// 	create_error_page(404); 
+						// }
+					}
+					else
+					{
+						if (stat(path.c_str(), stat_file) != -1)
+							html = html + read_full_file(path);
+						else
+							html = create_error_page(404);
+					}
 				}
-				
 			}
 			else
 			{
-				html = html + create_error_page(error);
+				// rewrite ^ https://$host$request_uri? <флаг>;
+				create_error_page(500); 
 			}
 			html = html + html_basement;
 			return (html);
 		}
+
+
+		// std::string body_html()
+		// {
+		// 	std::string html;
+		// 	std::string html_header;
+		// 	std::string html_basement;
+		// 	std::string content_file;
+		// 	std::string path;
+		// 	std::map<std::string, std::map<std::string, std::string> >::iterator _loc;
+		// 	std::map<std::string, std::map<std::string, std::string> > _locations;
+		// 	struct stat* stat_file = NULL;
+		// 	int error;
+
+		// 	if ((error = this->error()) == 0)
+		// 	{
+		// 		html_header = this->html_header();
+		// 		html = html + html_header;
+		// 		html_basement = this->html_basement();
+		// 		path = find_path_to_html();
+		// 		path = path + _request.get_page_index();
+		// 		if (stat((_request.get_page_index()).c_str(), stat_file) != -1 || _request.get_page_index() == "/") // переделать под любой путь
+		// 		{
+		// 			if (_request.get_page_index() == "/")
+		// 			{	 
+		// 				_locations = _conf.get_locations();
+		// 				_loc = _locations.find("/");
+		// 				if (_loc != _conf.get_locations().end()) 
+		// 				{
+		// 					content_file = create_path_to_file(_loc->second);
+		// 					// if (stat(content_file.c_str(), stat_file) != -1)
+		// 						html = html + read_full_file(content_file);
+		// 					// else
+		// 					// 	html = create_error_page(404);
+		// 				}
+		// 				else
+		// 				{
+		// 					html = create_error_page(404);
+		// 				}
+		// 			}
+		// 			else
+		// 			{
+		// 				if (S_ISREG(stat_file->st_mode))
+		// 				{
+		// 					content_file = read_full_file(_request.get_page_index());
+		// 					html = html + content_file;
+		// 				}
+		// 				if (S_ISDIR(stat_file->st_mode))
+		// 				{
+		// 					html = html + crate_dir_tree(_request.get_page_index().c_str());
+		// 				}
+		// 			}
+		// 		}
+		// 		else
+		// 		{
+		// 			html = html + create_error_page(404);
+		// 		}
+				
+		// 	}
+		// 	else
+		// 	{
+		// 		html = html + create_error_page(error);
+		// 	}
+		// 	html = html + html_basement;
+		// 	return (html);
+		// }
 
 		std::string create_error_page(int error)
 		{
@@ -193,16 +286,82 @@ class response_manager
 			return (body_html);
 		}
 
-		// std::string create_path_to_file(std::pair<std::string, std::vector<std::string> >)
-		// {
-		// 	std::string path_to_file;
+		std::string find_path_to_html()
+		{
+			size_t i = 0;
+		 	const char* stat_path;
+			char buf[1000];
+			std::string path;
+			std::map<std::string, std::map<std::string, std::string> > _locations;
+			std::vector<std::string> split_file;
+			std::string path_and_file;
+			struct stat stat_file;
+			// std::map<std::string, std::map<std::string, std::string> >::iterator it = _locations.begin();
 
-		// 	// if ()
-		// 	// {
+			_locations = _conf.get_locations();
+			for (std::map<std::string, std::map<std::string, std::string> >::iterator it = _locations.begin(); it != _locations.end(); it++)
+			{
+				if (_request.get_page_index() == it->first)
+				{
+					split_file = split((it->second).find("index"));
+					path = (it->second).find("root")->second;
+					while (i < split_file.size())
+					{
+						path_and_file = path + split_file[i];
+						// getcwd(buf, sizeof(buf));
+						// path_and_file.erase(0, 1);
+						// path_and_file = buf + path_and_file;
+						stat_path = path_and_file.c_str();
+						if (stat(stat_path, &stat_file) != -1)
+						{
+							return (path_and_file);
+						}
+						path_and_file.clear();
+						i++;
+					}
+				}
+			}
+			return (path_and_file);
+		}
 
-		// 	// }
-		// 	return (path_to_file);
-		// }
+		std::string find_path_to_cgi()
+		{
+			std::string path;
+
+			return (path);
+		}
+
+		int definition_path_or_filr(std::string file_or_path)
+		{
+			(void)file_or_path;
+			int a = 0;
+
+			return a;
+		}
+
+		std::vector<std::string> split(std::map<std::string, std::string>::iterator it)
+		{
+			std::vector<std::string> split_file;
+			std::string page_location = it->second;
+			std::string line;
+			int i = 0;
+			int n = 0;
+
+			while (page_location[i])
+			{
+				if (page_location[i] == ' ')
+				{
+					line = page_location.substr(n, i - n);
+					split_file.push_back(line);
+					line.clear();
+					n = i + 1;
+				}
+				i++;
+			}
+			line = page_location.substr(n, i - n);
+			split_file.push_back(line);
+			return (split_file);
+		}
 
 		std::string create_path_to_file(std::map<std::string, std::string> loc)
 		{
