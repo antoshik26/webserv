@@ -107,6 +107,7 @@ class config_parser
 		{
 			(void)config_serv;
 			size_t n;
+			size_t a;
 			size_t i;
 			std::string line;
 			std::string extensions;
@@ -131,21 +132,40 @@ class config_parser
 				}
 				else
 				{
-					while(config_serv[i] != '.')
+					a = config_serv.find("location", n);
+					line = config_serv.substr(n, a - n);
+					i = 0;
+					// std::cout << line << std::endl;
+					while (line[i] != '.')
 						i++;
-					n = i;
-					while(config_serv[i] != '$')
+					a = i;
+					while(line[i] != '$')
 						i++;
-					extensions = config_serv.substr(n, i - n);
+					extensions = line.substr(a, i - a);
 					if (extensions == ".cs" || extensions == ".py")
 					{
-						find_cgi_include(config_serv, extensions);
-						find_cgi_pass(config_serv, extensions);
-						find_cgi_index(config_serv, extensions);
-						find_cgi_param(config_serv, extensions);
+						find_cgi_include(line, extensions);
+						find_cgi_pass(line, extensions);
+						find_cgi_index(line, extensions);
+						find_cgi_param(line, extensions);
 					}
 					else
-						find_pass(config_serv, extensions);
+						find_pass(line, extensions);
+					// while(config_serv[i] != '.')
+					// 	i++;
+					// n = i;
+					// while(config_serv[i] != '$')
+					// 	i++;
+					// extensions = config_serv.substr(n, i - n);
+					// if (extensions == ".cs" || extensions == ".py")
+					// {
+					// 	find_cgi_include(config_serv, extensions);
+					// 	find_cgi_pass(config_serv, extensions);
+					// 	find_cgi_index(config_serv, extensions);
+					// 	find_cgi_param(config_serv, extensions);
+					// }
+					// else
+					// 	find_pass(config_serv, extensions);
 				}
 			}
 		}

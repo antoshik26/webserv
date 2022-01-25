@@ -37,18 +37,18 @@ class response_manager
 			std::string buf;
 			DIR* path = opendir(path_dir);
 			struct dirent* dirent_file;
-			struct stat* stat_file = NULL;
+			struct stat stat_file;
 			dir_tree = "HTTP/1.1 200 OK\r\n\r\n";
 			while ((dirent_file = readdir(path)) != NULL)
 			{
-				if (stat(dirent_file->d_name, stat_file) != -1)
+				if (stat(dirent_file->d_name, &stat_file) != -1)
 				{
-					if (S_ISREG(stat_file->st_mode))
+					if (S_ISREG(stat_file.st_mode))
 					{
 						buf = "<a href=" + (std::string)dirent_file->d_name + " >" + (std::string)dirent_file->d_name + " </a>\n";
 						//file S_ISREG
 					}
-					if (S_ISDIR(stat_file->st_mode))
+					if (S_ISDIR(stat_file.st_mode))
 					{
 						buf = "<a href=" + (std::string)dirent_file->d_name + " >" + (std::string)dirent_file->d_name + " </a>\n";
 						//dir S_ISDIR
@@ -76,7 +76,7 @@ class response_manager
 			std::string path;
 			std::map<std::string, std::map<std::string, std::string> >::iterator _loc;
 			std::map<std::string, std::map<std::string, std::string> > _locations;
-			struct stat* stat_file = NULL;
+			struct stat stat_file;
 			int error;
 
 			if ((error = this->error()) == 0)
@@ -91,9 +91,9 @@ class response_manager
 					{
 						if (_conf.get_avtoindex() == true)
 						{
-							if (stat(path.c_str(), stat_file) != -1)
+							if (stat(path.c_str(), &stat_file) != -1)
 							{
-								if (S_ISDIR(stat_file->st_mode))
+								if (S_ISDIR(stat_file.st_mode))
 								{
 									crate_dir_tree((_request.get_page_index()).c_str());
 								}
@@ -108,10 +108,10 @@ class response_manager
 					}
 					else
 					{
-						// if (stat(path.c_str(), stat_file) != -1)
+						if (stat(path.c_str(), &stat_file) != -1)
 							html = html + read_full_file(path);
-						// else
-							// html = create_error_page(404);
+						else
+							html = create_error_page(404);
 					}
 				}
 				else								//file /вынести в функцию работы с файлами /чанки /сокеты
@@ -139,7 +139,7 @@ class response_manager
 					}
 					else
 					{
-						if (stat(path.c_str(), stat_file) != -1)
+						if (stat(path.c_str(), &stat_file) != -1)
 							html = html + read_full_file(path);
 						else
 							html = create_error_page(404);
@@ -326,9 +326,34 @@ class response_manager
 
 		std::string find_path_to_cgi()
 		{
+			size_t i = 0;
+			size_t n = 0;
+		 	const char* stat_path;
+			char buf[1000];
 			std::string path;
-
-			return (path);
+			std::map<std::string, std::map<std::string, std::string> > _cgi;
+			std::map<std::string, std::map<std::string, std::string> >::iterator it;
+			std::vector<std::string> split_file;
+			std::string path_and_file;
+			struct stat stat_file;
+			std::string line;
+			
+			line = _request.get_page_index().substr(_request.get_page_index().find(".") + 1, _request.get_page_index().length());
+			_cgi = _conf.get_cgi();
+			for (std::map<std::string, std::map<std::string, std::string> >::iterator it = _cgi.begin(); it != _cgi.end(); it++)
+			{
+				if (it->first.find(line) != std::string::npos)
+				{
+					path = (it->second).find("pass")->second;
+					path_and_file = path + _request.get_page_index();
+					stat_path = path_and_file.c_str();
+					if (stat(stat_path, &stat_file) != -1)
+					{
+						return (path_and_file);
+					}
+				}
+			}
+			return (path_and_file);
 		}
 
 		int definition_path_or_filr(std::string file_or_path)
@@ -336,6 +361,8 @@ class response_manager
 			(void)file_or_path;
 			int a = 0;
 
+			if (file_or_path.find(".") != std::string::npos)
+				a = 1;
 			return a;
 		}
 

@@ -133,7 +133,7 @@ class serv
 						// throw;
 					}
 					_poll_server_client_socketfd.push_back(one_socket);
-					_conf_serv_vec.push_back(*it);
+					// _conf_serv_vec.push_back(*it);
 					it++;
 				}
 				
@@ -378,7 +378,7 @@ class serv
 								// if (response.error() == 0)
 								// {
 									std::string body_html = response.body_html();
-									std::cout << body_html << std::endl;
+									// std::cout << body_html << std::endl;
 									// char b[] = "HTTP/1.1 200 OK\r\n\r\n Hello World \r\n\r\n"; //переделать
 									// rc = send(_poll_server_client_socketfd[i].fd, b, strlen(b), 0); //бред
 									rc = send(_poll_server_client_socketfd[i].fd, body_html.c_str(), body_html.length(), 0);
