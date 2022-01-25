@@ -3,7 +3,19 @@
 #include<unistd.h>
 #include<string>
 #include<stdlib.h>
-void test(const char *_script,char **_env,int	*_pipe1, int	*_pipe2, int	fd1)
+# include <sys/types.h>
+# include <unistd.h>
+# include <fcntl.h>
+# include <stdio.h> 
+# include <stdlib.h>
+# include <sys/ioctl.h>
+# include <errno.h>
+#include<iostream>
+#include<sys/types.h>
+#include<unistd.h>
+#include<string>
+#include<stdlib.h>
+/*void test(const char *_script,char **_env,int	*_pipe1, int	*_pipe2, int	fd1)
 {
 	pid_t	pid;
 
@@ -50,16 +62,45 @@ void test(const char *_script,char **_env,int	*_pipe1, int	*_pipe2, int	fd1)
 		close(_pipe1[1]);
 		close(_pipe1[0]);
 	}
-}
-int main(int argc, char **argv, char **env)
+}*/
+/*int main(int argc, char **argv, char **env)
 {
 	int i;
-	
-	i = 0;
-	while(argv[i]!=0)
+	//int fd;
+	//char * const * nll = NULL;
+	//fd=open("tmp", O_WRONLY | O_TRUNC | O_CREAT, 0777 );
+	pid_t		pid;
+	int pipe[2];
+	int *ptr(0);
+	pid = fork();
+	if (!pid)
 	{
-		i++;		
-	}
-	std::cout<<i<<std::endl;
+		execve("/bin/ls",argv,env);
+		std::cout<<"error";
 
+	}
+	else
+	{
+		std::cout<<"error";
+	}
+	waitpid();
+	//close(fd);
+}*/
+int main(int argc, char **argv, char **env)
+{
+	pid_t		pid;
+	int pipe[2];
+	int *ptr(0);
+	pid = fork();
+	if (!pid)
+	{
+		execve("test.py",argv,env);
+	}
+	else
+	{
+		std::cout<<"error";
+	}
+	//test("test.py",env,ptr,pipe,0);
+	//test("test.py",env,pipe,ptr,1);
+	return(0);
 }

@@ -1,3 +1,4 @@
 #!/usr/bin/python
-import os
-print(os.getenv("a")+" "+os.getenv("b"))
+print("hello world")
+
+#print(os.getenv("a")+" "+os.getenv("b"))

@@ -16,7 +16,7 @@ void cgi::execve_script()
 	pid=fork();
 	if(pid==0)
 	{
-		execve(script,);
+		execve(script,nll,env);
 		std::cout<<"Eror: mistake while execve"<<std::endl;
 	}
 	else
