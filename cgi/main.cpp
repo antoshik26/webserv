@@ -1,106 +1,40 @@
 #include<iostream>
 #include<sys/types.h>
-#include<unistd.h>
-#include<string>
-#include<stdlib.h>
-# include <sys/types.h>
 # include <unistd.h>
 # include <fcntl.h>
 # include <stdio.h> 
 # include <stdlib.h>
-# include <sys/ioctl.h>
-# include <errno.h>
-#include<iostream>
-#include<sys/types.h>
-#include<unistd.h>
-#include<string>
-#include<stdlib.h>
-/*void test(const char *_script,char **_env,int	*_pipe1, int	*_pipe2, int	fd1)
-{
-	pid_t	pid;
-
-	if (!pid)
-	{
-		//pipe connect
-		if (&pipe != 0)
-		{
-			dup2(_pipe1[1], 1);
-			close(_pipe1[1]);
-			close(_pipe1[0]);
-		}
-		if (&pipe != 0)
-		{
-			dup2(_pipe2[0], 0);
-			close(_pipe2[1]);
-			close(_pipe2[0]);
-		}
-		//redirect
-		if (fd1 && !_pipe1)
-		{
-			dup2(fd1, 1);
-			close(fd1);
-		}
-		else if (fd1 == -1 && !_pipe2)
-		{
-			dup2(1, 0);
-			close(fd1);
-		}
-		else if (fd1 == -100 && !_pipe2)
-			exit(0);//error handler need improvment
-		else if (fd1 && !_pipe2)
-		{
-			dup2(fd1, 0);
-			close(fd1);
-		}
-		if (access(_script,1) || execve(_script,0,_env))
-		{
-			std::cout<<"error while execve"<<std::endl;
-		}
-	}
-	if (_pipe1 != 0)
-	{
-		close(_pipe1[1]);
-		close(_pipe1[0]);
-	}
-}*/
-/*int main(int argc, char **argv, char **env)
-{
-	int i;
-	//int fd;
-	//char * const * nll = NULL;
-	//fd=open("tmp", O_WRONLY | O_TRUNC | O_CREAT, 0777 );
-	pid_t		pid;
-	int pipe[2];
-	int *ptr(0);
-	pid = fork();
-	if (!pid)
-	{
-		execve("/bin/ls",argv,env);
-		std::cout<<"error";
-
-	}
-	else
-	{
-		std::cout<<"error";
-	}
-	waitpid();
-	//close(fd);
-}*/
+#include <stdio.h>
+#include <unistd.h>
 int main(int argc, char **argv, char **env)
 {
-	pid_t		pid;
-	int pipe[2];
+	/*pid_t		pid;
 	int *ptr(0);
+	char * const * nll = NULL;
+	env[i]=new char[strlen(body["a"])];
+	env[i]=(char *)body["a"];
+	i++;
+	env[i]=new char[strlen(body["b"])];
+	env[i]=(char *)body["b"];
+	int fd=open("tmp",O_WRONLY | O_TRUNC | O_CREAT, 0777 );
 	pid = fork();
+
 	if (!pid)
 	{
-		execve("test.py",argv,env);
+		dup2(fd,1);
+
+		execve("test.py",nll,env);
+		std::cout<<"error: smt wrong execve"<<std::endl;
 	}
 	else
 	{
-		std::cout<<"error";
+		std::cout<<"error: smt wrong wt fork()"<<std::endl;
 	}
-	//test("test.py",env,ptr,pipe,0);
-	//test("test.py",env,pipe,ptr,1);
-	return(0);
+	close(fd);
+	return(0);*/
+	int i=0;
+	while(env[i])
+	{
+		std::cout<<env[i++]<<std::endl;
+	}
 }

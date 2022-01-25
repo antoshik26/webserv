@@ -1,26 +1,42 @@
 #include"cgi.hpp"
 
-cgi::cgi(std::string extension,std::map<std::string, std::map<std::string, std::string> > cgi,std::map<std::string, std::string> body,const char **env):_script(find_script(extension,cgi))
+cgi::cgi(const char **env):_script()
 {
 	this->fill_env(env,body);
-	this->execve_script();
-	file("tmp.txt");
 }
+void cgi::new_cgi(std::string extension,std::map<std::string, std::map<std::string, std::string> > cgi,std::map<std::string, std::string> body)
+{
+	_script=find_script(extension,cgi);
+	this->execve_script();
 
+}
 void cgi::execve_script()
 {
-	pid_t	pid;
-	int pipe[2];
+	pid_t		pid;
 	char * const * nll = NULL;
+	int fd=open("tmp",O_WRONLY | O_TRUNC | O_CREAT, 0777 );
+	pid = fork();
 
-	pid=fork();
-	if(pid==0)
+	if (!pid)
 	{
-		execve(script,nll,env);
-		std::cout<<"Eror: mistake while execve"<<std::endl;
+		dup2(fd,1);
+		execve("test.py",nll,this->env);
+		std::cout<<"error: smt wrong execve"<<std::endl;
 	}
-	else
-	{
-		std::cout<<"Eror: mistake while execve"<<std::endl;
-	}
+	close(fd);
+
+}
+
+std::string get_string()
+{
+	std::string line;
+	std::ifstream in("tmp");
+	getline(in,line);
+	in.close();
+	return(line);
+}
+
+cgi::~cgi()
+{
+
 }

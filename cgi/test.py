@@ -1,4 +1,4 @@
 #!/usr/bin/python
-print("hello world")
+print("hwll")
 
 #print(os.getenv("a")+" "+os.getenv("b"))
