@@ -14,13 +14,15 @@ class cgi
 	private:
 		char* _script;
 		char **_env;
-		void fill_env(const char **env,	std::map<std::string, std::string> body);
-		void fill_varibles(int i,	std::map<std::string, std::string> body);
-		const char *find_script(std::string extension,std::map<std::string, std::map<std::string, std::string> > cgi);
+		int pos;
+		void fill_env(char **env);
+		void fill_varibles(std::map<std::string, std::string> body);
+		void find_script(std::string extension,std::map<std::string, std::map<std::string, std::string> > cgi);
 		void execve_script();
 	public:
-		cgi(const char **env);
-		void new_cgi(std::string extension,std::map<std::string, std::map<std::string, std::string> > cgi,std::map<std::string, std::string> body);
+		cgi(char **env);
+		//void new_cgi(std::string extension,std::map<std::string, std::map<std::string, std::string> > cgi,std::map<std::string, std::string> body);//final
+		void new_cgi(std::map<std::string, std::string> body);//comment
 		std::string get_string();
 		virtual ~cgi();
 };

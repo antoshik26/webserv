@@ -1,4 +1,4 @@
 #!/usr/bin/python
-print("hwll")
-
-#print(os.getenv("a")+" "+os.getenv("b"))
+import os
+open()
+print(os.getenv("a")+" "+os.getenv("b"))
