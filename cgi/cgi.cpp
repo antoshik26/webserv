@@ -22,7 +22,7 @@ void cgi::execve_script()
 {
 	pid_t		pid;
 	char * const * nll = NULL;
-	int fd=open("tmp",O_TRUNC |O_WRONLY| O_CREAT, 0777 );
+	int fd=open("tmp.js",O_TRUNC |O_WRONLY| O_CREAT, 0777 );
 	pid = fork();
 	int f;
 	if (!pid)
@@ -38,7 +38,7 @@ void cgi::execve_script()
 std::string cgi::get_string()
 {
 	std::string line;
-	std::ifstream in("tmp");
+	std::ifstream in("tmp.js");
 	getline(in,line);
 	in.close();
 	return(line);

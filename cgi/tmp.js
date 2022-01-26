@@ -1,2 +1,2 @@
 const text=document.getElementById("text")
-text.textContent=ggg efvgg
+text.textContent=ggg

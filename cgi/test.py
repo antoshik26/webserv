@@ -1,4 +1,4 @@
 #!/usr/bin/python
 import os
-open()
-print(os.getenv("a")+" "+os.getenv("b"))
+print("const text=document.getElementById(\"text\")")
+print("text.textContent="+os.getenv("a")+" "+os.getenv("b"))
