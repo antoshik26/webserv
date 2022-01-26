@@ -78,6 +78,7 @@ class serv
 		std::vector<pollfd> _poll_server_client_socketfd;			//хорошо
 		std::vector<int> conf_fd;
 		std::vector<config_parser> _conf_serv_vec;
+		std::vector<std::string> recv_reader; //что бы поменять на меньший буфер и сохранять сюда request
 		int count_client;						//отвратительно
 		// std::pair<int, int> pull_server_client_socketfd[100];
 		request_manager request;
@@ -328,7 +329,7 @@ class serv
 			size_t i;
 			int rc;
 			int rc2;
-			char buffer[5024];
+			char buffer[10024];
 			int error;
 			std::string a;
 			bzero(buffer, 5024);
@@ -358,7 +359,7 @@ class serv
 						else
 						{
 
-							rc = recv(_poll_server_client_socketfd[i].fd, buffer, 5024, 0);
+							rc = recv(_poll_server_client_socketfd[i].fd, buffer,10024, 0);
 							if (rc == 0)
 							{
 								// close(poll_server_client_socketfd[i].fd);

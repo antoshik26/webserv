@@ -58,6 +58,11 @@ class config_parser
 			return(_port);
 		}
 
+		std::string get_return()
+		{
+			return(_return);
+		}
+
 	private:
 		void find_return(std::string config_serv)
 		{
@@ -67,6 +72,7 @@ class config_parser
 
 			if ((n = config_serv.find("return")) != std::string::npos)
 			{
+				n = config_serv.find("301");
 				while (config_serv[n] != ' ')
 					n++;
 				n++;
@@ -75,7 +81,9 @@ class config_parser
 				i = n;
 				while (config_serv[n] != ';')
 					n++;
-				_return = config_serv.substr(i,n);
+				line = config_serv.substr(i, n - i);
+				_return = line;
+				std::cout << _return <<std::endl;
 			}
 
 		}

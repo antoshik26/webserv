@@ -82,10 +82,20 @@ class response_manager
 			struct stat stat_file;
 			int error;
 
-			// if (request.get_name_request == "POST")
+			// if (request.get_name_request() == "GET")
 			// {
-				
+				// html = metod_get();
 			// }
+			// if (request.get_name_request() == "POST")
+			// {
+				// html = metod_post();	
+			// }
+			// if (request.get_name_request() == "DELETE")
+			// {
+				// html = metod_delete();
+			// }
+			// html = create_error_page(501);
+			//GET //перенести в метод metod_post
 			if ((error = this->error()) == 0)
 			{
 				html_header = this->html_header();
@@ -108,10 +118,15 @@ class response_manager
 						}
 						else
 						{
-							// rewrite ^ https://$host$request_uri? <флаг>;
-							create_error_page(404); 
+							if (_conf.get_return().empty())
+								html = create_error_page(404);
+							else
+							{
+								html = return_page();
+								if (html.empty())
+									html = create_error_page(404);
+							}
 						}
-						
 					}
 					else
 					{
@@ -155,8 +170,7 @@ class response_manager
 			}
 			else
 			{
-				// rewrite ^ https://$host$request_uri? <флаг>;
-				create_error_page(500); 
+				create_error_page(501);
 			}
 			html = html + html_basement;
 			return (html);
@@ -209,21 +223,55 @@ class response_manager
 		std::string error_500()
 		{
 			std::string body_html;
-		
+
+			body_html = "HTTP/1.1 500 Internal Server Error\r\n\r\n";
+			body_html = body_html + "<!DOCTYPE html>";
+			body_html = body_html + "<html>";
+			body_html = body_html + "<body>";
+			body_html = body_html + "<h1>500</h1>";
+			body_html = body_html + "</body>";
+			body_html = body_html + "</html>";
+			// body_html = body_html + html_basement();
 			return (body_html);
 		}
 
 		std::string error_404()
 		{
 			std::string body_html;
-		
+
+			body_html = "HTTP/1.1 404 Not Found\r\n\r\n";
+			body_html = body_html + "<!DOCTYPE html>";
+			body_html = body_html + "<html>";
+			body_html = body_html + "<body>";
+			body_html = body_html + "<h1>404</h1>";
+			body_html = body_html + "</body>";
+			body_html = body_html + "</html>";
+			// body_html = body_html + html_basement();
 			return (body_html);
 		}
 
 		std::string error_501()
 		{
 			std::string body_html;
+			
+			body_html = "HTTP/1.1 501 Not Implemented\r\n\r\n";
+			body_html = body_html + "<!DOCTYPE html>";
+			body_html = body_html + "<html>";
+			body_html = body_html + "<body>";
+			body_html = body_html + "<h1>501</h1>";
+			body_html = body_html + "</body>";
+			body_html = body_html + "</html>";
+			// body_html = body_html + html_basement();
+			return (body_html);
+		}
 		
+		std::string return_page()
+		{
+			std::string body_html;
+
+			body_html = "HTTP/1.1 301 Moved Permanently\n";
+			body_html = body_html + "Location: " + _conf.get_return();
+			std::cout << body_html << std::endl;
 			return (body_html);
 		}
 
@@ -235,9 +283,9 @@ class response_manager
 			std::string path;
 			std::map<std::string, std::map<std::string, std::string> > _locations;
 			std::vector<std::string> split_file;
-			std::string path_and_file;
+			std::string path_and_file = "";
 			struct stat stat_file;
-			// std::map<std::string, std::map<std::string, std::string> >::iterator it = _locations.begin();
+			std::map<std::string, std::map<std::string, std::string> >::iterator it = _locations.begin();
 
 			_locations = _conf.get_locations();
 			for (std::map<std::string, std::map<std::string, std::string> >::iterator it = _locations.begin(); it != _locations.end(); it++)
@@ -250,7 +298,7 @@ class response_manager
 					{
 						path_and_file = path + split_file[i];
 						stat_path = path_and_file.c_str();
-						if (stat(stat_path, &stat_file) != -1)
+						if (stat(stat_path, &stat_file) != -1) //НЕ ПАПКА
 						{
 							return (path_and_file);
 						}
@@ -262,7 +310,8 @@ class response_manager
 			if (path_and_file.empty())
 			{
 				path = _locations.find("/")->second.find("root")->second;
-				path_and_file = path + _request.get_page_index();
+				if (!(_locations.find("/")->second.find("index")->second.empty()))
+					path_and_file = path + _request.get_page_index();
 			}
 			return (path_and_file);
 		}
