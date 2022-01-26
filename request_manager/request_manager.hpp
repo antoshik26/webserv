@@ -140,7 +140,24 @@ class request_manager
 			//проверка
 			_body.insert(pair_node);
 			pair_node = find_line(request, "Transfer-Encoding", ':');
+			_body.insert(pair_node);
 			//проверка
+			pair_node = find_line(request, "Content-Length", ':');
+			_body.insert(pair_node);
+			//post
+			pair_node = find_line(request, "Cache-Control", ':');
+			_body.insert(pair_node);
+
+			pair_node = find_line(request, "Origin", ':');
+			_body.insert(pair_node);
+
+			pair_node = find_line(request, "Content-Type", ':');
+			_body.insert(pair_node);
+
+			pair_node = find_line(request, "Content-Type", ':');
+			_body.insert(pair_node);
+
+			pair_node = find_line(request, "Referer", ':');
 			_body.insert(pair_node);
 		}
 
@@ -165,8 +182,38 @@ class request_manager
 
 		void parsing_body(std::string body)
 		{
-			(void)body;
-			split_param_body(body);
+			std::string line_body;
+			std::string str;
+			size_t n = 0;
+			size_t i = 0;
+			
+			if (_name_request == "GET")
+			{
+				while (body[i] != '\n')
+					i++;
+				str = body.substr(0, i);
+				if ((n = str.find('?')) != std::string::npos)
+				{
+					i = n;
+					while (str[n] != ' ')
+						n++;
+					line_body = str.substr(i, n - i);
+					split_param_body(line_body);
+				}
+			}
+			if (_name_request == "POST")
+			{
+				n = body.length();
+				i = n;
+				while (body[i] != '\n')
+					i--;
+				str = body.substr(i + 1, n - i);
+				split_param_body(str);
+			}
+			if (_name_request == "DELETE")
+			{
+
+			}
 		}
 
 		void parsing_page_index(std::string body_srt)
@@ -176,13 +223,12 @@ class request_manager
 
 		void split_param_body(std::string body_srt)
 		{
-			(void)body_srt;
 			std::string page_and_param;
-
+			
 			if (!(_body_cgi.empty()))
 				_body_cgi.clear();
 			parsing_param(body_srt);
-			_page_and_param = page_and_param;
+			// _page_and_param = page_and_param;
 		}
 
 		void parsing_param(std::string body)
@@ -196,19 +242,21 @@ class request_manager
 			{
 				if (body[i] == '=')
 				{
-					obj_map.first = body.substr(j, i);
-					j = i;
+					obj_map.first = body.substr(j, i - j);
+					j = i + 1;
 				}
-				if (body[i] == '&' || body[i + 1] == 0)
+				if (body[i] == '&')
 				{
-					obj_map.second = body.substr(j, i);
-					j = i;
-					_body.insert(obj_map);
+					obj_map.second = body.substr(j, i - j);
+					j = i + 1;
+					_body_cgi.insert(obj_map);
 					obj_map.first.clear();
 					obj_map.second.clear();
 				}
 				i++;
 			}
+			obj_map.second = body.substr(j, i - j);
+			_body_cgi.insert(obj_map);
 		}
 
 		std::pair<std::string, std::string> find_line(std::string request, std::string find_string, char reg)
@@ -297,3 +345,26 @@ class request_manager
 // Accept-Language: en-US,en;q=0.9,ru;q=0.8
 
 // Transfer-Encoding: Chunked
+
+// POST / HTTP/1.1
+// Host: localhost:7000
+// Connection: keep-alive
+// Content-Length: 34
+// Cache-Control: max-age=0
+// sec-ch-ua: " Not A;Brand";v="99", "Chromium";v="96", "Google Chrome";v="96"
+// sec-ch-ua-mobile: ?0
+// sec-ch-ua-platform: "macOS"
+// Upgrade-Insecure-Requests: 1
+// Origin: http://localhost:7000
+// Content-Type: application/x-www-form-urlencoded
+// User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.55 Safari/537.36
+// Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
+// Sec-Fetch-Site: same-origin
+// Sec-Fetch-Mode: navigate
+// Sec-Fetch-User: ?1
+// Sec-Fetch-Dest: document
+// Referer: http://localhost:7000/
+// Accept-Encoding: gzip, deflate, br
+// Accept-Language: en-US,en;q=0.9,ru;q=0.8
+
+// username=antoshik_26&password=asdf
