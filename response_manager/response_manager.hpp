@@ -82,6 +82,10 @@ class response_manager
 			struct stat stat_file;
 			int error;
 
+			if (request.get_name_request == "POST")
+			{
+				
+			}
 			if ((error = this->error()) == 0)
 			{
 				html_header = this->html_header();

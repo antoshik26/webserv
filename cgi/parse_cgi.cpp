@@ -19,16 +19,16 @@ void cgi::fill_env(const char **env,	std::map<std::string, std::string> body)
 }
 void cgi::fill_varibles(int i,	std::map<std::string, std::string> body)
 {
-	this->env[i]=new char[strlen(body["a"])];
-	this->env[i]=(char *)body["a"];
+	this->env[i]=new char[strlen(body["a"])+2];
+	this->env[i]="a="(char *)body["a"];
 	i++;
-	this->env[i]=new char[strlen(body["b"])];
-	this->env[i]=(char *)body["b"];
+	this->env[i]=new char[strlen(body["b"])+2];
+	this->env[i]="b="+(char *)body["b"];
 }
 
 const char *cgi::find_script(std::string extension, std::map<std::string, std::map<std::string, std::string> > cgi)
 {
 	std::string search;
 	search = cgi.find(".py")->first;
-	return(search.c_str());
+	return((char*)search.c_str());
 }
