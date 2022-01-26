@@ -38,26 +38,29 @@ class response_manager
 			DIR* path = opendir(path_dir);
 			struct dirent* dirent_file;
 			struct stat stat_file;
-			dir_tree = "HTTP/1.1 200 OK\r\n\r\n";
+			dir_tree = dir_tree + "<!DOCTYPE html>\n<html>\n<body>\n";
 			while ((dirent_file = readdir(path)) != NULL)
 			{
 				if (stat(dirent_file->d_name, &stat_file) != -1)
 				{
 					if (S_ISREG(stat_file.st_mode))
 					{
-						buf = "<a href=" + (std::string)dirent_file->d_name + " >" + (std::string)dirent_file->d_name + " </a>\n";
+						buf = "<a href=\"" + (std::string)dirent_file->d_name + "\">" + (std::string)dirent_file->d_name + "</a>\n";
+						std::cout << buf <<std::endl;
 						//file S_ISREG
 					}
 					if (S_ISDIR(stat_file.st_mode))
 					{
 						buf = "<a href=" + (std::string)dirent_file->d_name + " >" + (std::string)dirent_file->d_name + " </a>\n";
-						//dir S_ISDIR
+						std::cout << buf <<std::endl;
+						// dir S_ISDIR
 					}
 				}
 				dir_tree = dir_tree + buf;
 				buf.clear();
 			}
-			dir_tree = dir_tree + "\r\n\r\n";
+			dir_tree = dir_tree + "</body> \n</html>\n";
+			std::cout << dir_tree << std::endl;
 			return (dir_tree);
 		}
 
@@ -91,11 +94,12 @@ class response_manager
 					{
 						if (_conf.get_avtoindex() == true)
 						{
+							path = "/Users/dmadelei/Documents/webserv/web_document/7000_port"; //переделать туть на локальный /
 							if (stat(path.c_str(), &stat_file) != -1)
 							{
 								if (S_ISDIR(stat_file.st_mode))
 								{
-									crate_dir_tree((_request.get_page_index()).c_str());
+									html = html + crate_dir_tree((path).c_str());
 								}
 							}
 						}
