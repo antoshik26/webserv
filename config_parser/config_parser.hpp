@@ -14,6 +14,7 @@ class config_parser
 		std::string _serv_name;
 		std::string _access_log;
 		std::string _error_log;
+		std::string _return;
 		// std::map<std::string, std::vector<std::string> > _locations; //переделать смотреть ниже
 		std::map<std::string, std::map<std::string, std::string> > _locations;
 		std::map<std::string, std::map<std::string, std::string> > _cgi; //подумать над таким выводом
@@ -27,6 +28,7 @@ class config_parser
 		{
 			(void)config_serv;
 			find_port(config_serv);
+			find_return(config_serv);
 			find_server_name(config_serv);
 			find_avtoindex(config_serv);
 			find_locations(config_serv);
@@ -57,6 +59,27 @@ class config_parser
 		}
 
 	private:
+		void find_return(std::string config_serv)
+		{
+			size_t n;
+			size_t i;
+			std::string line;
+
+			if ((n = config_serv.find("return")) != std::string::npos)
+			{
+				while (config_serv[n] != ' ')
+					n++;
+				n++;
+				while (config_serv[n] == ' ')
+					n++;
+				i = n;
+				while (config_serv[n] != ';')
+					n++;
+				_return = config_serv.substr(i,n);
+			}
+
+		}
+	
 		void find_port(std::string config_serv)
 		{
 			size_t n;

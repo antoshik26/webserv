@@ -98,7 +98,6 @@ class response_manager
 					{
 						if (_conf.get_avtoindex() == true)
 						{
-							path = "/Users/dmadelei/Documents/webserv/web_document/7000_port"; //переделать туть на локальный /
 							if (stat(path.c_str(), &stat_file) != -1)
 							{
 								if (S_ISDIR(stat_file.st_mode))
@@ -162,72 +161,6 @@ class response_manager
 			html = html + html_basement;
 			return (html);
 		}
-
-
-		// std::string body_html()
-		// {
-		// 	std::string html;
-		// 	std::string html_header;
-		// 	std::string html_basement;
-		// 	std::string content_file;
-		// 	std::string path;
-		// 	std::map<std::string, std::map<std::string, std::string> >::iterator _loc;
-		// 	std::map<std::string, std::map<std::string, std::string> > _locations;
-		// 	struct stat* stat_file = NULL;
-		// 	int error;
-
-		// 	if ((error = this->error()) == 0)
-		// 	{
-		// 		html_header = this->html_header();
-		// 		html = html + html_header;
-		// 		html_basement = this->html_basement();
-		// 		path = find_path_to_html();
-		// 		path = path + _request.get_page_index();
-		// 		if (stat((_request.get_page_index()).c_str(), stat_file) != -1 || _request.get_page_index() == "/") // переделать под любой путь
-		// 		{
-		// 			if (_request.get_page_index() == "/")
-		// 			{	 
-		// 				_locations = _conf.get_locations();
-		// 				_loc = _locations.find("/");
-		// 				if (_loc != _conf.get_locations().end()) 
-		// 				{
-		// 					content_file = create_path_to_file(_loc->second);
-		// 					// if (stat(content_file.c_str(), stat_file) != -1)
-		// 						html = html + read_full_file(content_file);
-		// 					// else
-		// 					// 	html = create_error_page(404);
-		// 				}
-		// 				else
-		// 				{
-		// 					html = create_error_page(404);
-		// 				}
-		// 			}
-		// 			else
-		// 			{
-		// 				if (S_ISREG(stat_file->st_mode))
-		// 				{
-		// 					content_file = read_full_file(_request.get_page_index());
-		// 					html = html + content_file;
-		// 				}
-		// 				if (S_ISDIR(stat_file->st_mode))
-		// 				{
-		// 					html = html + crate_dir_tree(_request.get_page_index().c_str());
-		// 				}
-		// 			}
-		// 		}
-		// 		else
-		// 		{
-		// 			html = html + create_error_page(404);
-		// 		}
-				
-		// 	}
-		// 	else
-		// 	{
-		// 		html = html + create_error_page(error);
-		// 	}
-		// 	html = html + html_basement;
-		// 	return (html);
-		// }
 
 		std::string create_error_page(int error)
 		{
@@ -316,9 +249,6 @@ class response_manager
 					while (i < split_file.size())
 					{
 						path_and_file = path + split_file[i];
-						// getcwd(buf, sizeof(buf));
-						// path_and_file.erase(0, 1);
-						// path_and_file = buf + path_and_file;
 						stat_path = path_and_file.c_str();
 						if (stat(stat_path, &stat_file) != -1)
 						{
@@ -328,6 +258,11 @@ class response_manager
 						i++;
 					}
 				}
+			}
+			if (path_and_file.empty())
+			{
+				path = _locations.find("/")->second.find("root")->second;
+				path_and_file = path + _request.get_page_index();
 			}
 			return (path_and_file);
 		}
@@ -369,7 +304,7 @@ class response_manager
 			(void)file_or_path;
 			int a = 0;
 
-			if (file_or_path.find(".") != std::string::npos)
+			if (file_or_path.find(".") != std::string::npos && file_or_path.find("html") == std::string::npos)
 				a = 1;
 			return a;
 		}
@@ -398,23 +333,25 @@ class response_manager
 			return (split_file);
 		}
 
-		std::string create_path_to_file(std::map<std::string, std::string> loc)
+		std::string metod_get()
 		{
-			std::string path_to_file;
-			std::map<std::string, std::string>::iterator it = loc.begin();
-			std::map<std::string, std::string>::iterator it2 = loc.end();
+			std::string html;
 			
-			while (it != it2)
-			{
-				if (it->first == "pass")
-					path_to_file = path_to_file + it->second;
+			return (html);
+		}
 
-				if (it->first == "index")
-					path_to_file = path_to_file + it->second;
-				it++;
-			}//переделать бредятину
-			path_to_file = "/Users/dmadelei/Documents/webserv/web_document/7000_port/html/page1.html";
-			return (path_to_file);
+		std::string metod_post()
+		{
+			std::string html;
+			
+			return (html);
+		}
+
+		std::string metod_delete()
+		{
+			std::string html;
+			
+			return (html);
 		}
 };
 

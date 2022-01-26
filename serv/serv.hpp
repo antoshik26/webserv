@@ -379,8 +379,6 @@ class serv
 								// {
 									std::string body_html = response.body_html();
 									// std::cout << body_html << std::endl;
-									// char b[] = "HTTP/1.1 200 OK\r\n\r\n Hello World \r\n\r\n"; //переделать
-									// rc = send(_poll_server_client_socketfd[i].fd, b, strlen(b), 0); //бред
 									rc = send(_poll_server_client_socketfd[i].fd, body_html.c_str(), body_html.length(), 0);
 									close(_poll_server_client_socketfd[i].fd);
 									_poll_server_client_socketfd[i].fd = -1;
