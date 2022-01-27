@@ -78,7 +78,7 @@ class serv
 		std::vector<pollfd> _poll_server_client_socketfd;			//хорошо
 		std::vector<int> conf_fd;
 		std::vector<config_parser> _conf_serv_vec;
-		std::vector<std::string> recv_reader; //что бы поменять на меньший буфер и сохранять сюда request
+		std::vector<std::string> _recv_reader; //что бы поменять на меньший буфер и сохранять сюда request
 		int count_client;						//отвратительно
 		// std::pair<int, int> pull_server_client_socketfd[100];
 		request_manager request;
@@ -105,6 +105,7 @@ class serv
 				std::vector<config_parser>::iterator it = conf_serv.begin();
 				std::vector<config_parser>::iterator it2 = conf_serv.end();
 				pollfd one_socket;
+				std::string line;
 
 				_conf_serv_vec = conf_serv;
 				count_serv = conf_serv.size();
@@ -134,6 +135,7 @@ class serv
 						// throw;
 					}
 					_poll_server_client_socketfd.push_back(one_socket);
+					_recv_reader.push_back(line);
 					// _conf_serv_vec.push_back(*it);
 					it++;
 				}
@@ -304,6 +306,7 @@ class serv
 		int add_client_in_poll(int socket_serv, config_parser conf)
 		{
 			int new_client = 0;
+			std::string new_socket_recv_reader;
 			pollfd new_socket;
 
 			if ((new_client = accept_serv(socket_serv)) == -1)
@@ -316,8 +319,10 @@ class serv
 				count_client++;
 				new_socket.fd = new_client;
 				new_socket.events = POLLIN;
+				
 				_poll_server_client_socketfd.push_back(new_socket);
 				_conf_serv_vec.push_back(conf);
+				_recv_reader.push_back(new_socket_recv_reader);
 				return (1);
 			}
 			return (0);
@@ -329,12 +334,13 @@ class serv
 			size_t i;
 			int rc;
 			int rc2;
-			char buffer[10024];
+			char buffer[2];
 			int error;
 			std::string a;
-			bzero(buffer, 5024);
+			bzero(buffer, 1);
 			std::vector<pollfd>::iterator it;
 			std::vector<config_parser>::iterator it2;
+			buffer[1] = 0;
 
 			try
 			{
@@ -359,12 +365,12 @@ class serv
 						else
 						{
 
-							rc = recv(_poll_server_client_socketfd[i].fd, buffer, 10024, 0);
+							rc = recv(_poll_server_client_socketfd[i].fd, buffer, 1, 0);
 							if (rc == 0)
 							{
-								// close(poll_server_client_socketfd[i].fd);
-								// poll_server_client_socketfd[i].fd = -1;
-								// rc2--;
+								close(_poll_server_client_socketfd[i].fd);
+								_poll_server_client_socketfd[i].fd = -1;
+								rc2--;
 							}
 							if (rc < 0)
 							{
@@ -372,29 +378,19 @@ class serv
 							}
 							if (rc > 0)
 							{
-								std::cout << "aaaaaaaa " << _poll_server_client_socketfd[i].fd << std::endl;
-								printf("%s\n", buffer);
-								request = request_manager((std::string)buffer);
-								response = response_manager(request, _conf_serv_vec[i]);
-								// if (response.error() == 0)
-								// {
+								// usleep(2000);
+								_recv_reader[i] = _recv_reader[i] + buffer;
+								// std::cout << buffer;
+								std::string j = _recv_reader[i];
+								std::cout << j[j.length() - 1];
+								if (_recv_reader[i].find("\r\n\r\n") != std::string::npos)
+								{
+									request = request_manager(_recv_reader[i]);
+									response = response_manager(request, _conf_serv_vec[i]);
 									std::string body_html = response.body_html();
-									// std::cout << body_html << std::endl;
 									rc = send(_poll_server_client_socketfd[i].fd, body_html.c_str(), body_html.length(), 0);
-									close(_poll_server_client_socketfd[i].fd);
-									_poll_server_client_socketfd[i].fd = -1;
-									// it = _poll_server_client_socketfd.find(_poll_server_client_socketfd[i]);
-									// _poll_server_client_socketfd.erase(it);
-									// _conf_serv_vec[i];
-									// _conf_serv_vec.erase(it2);
-									rc2--;
-									bzero(buffer, 5024);
-								// }
-								// else
-								// {
-
-								// }
-							
+								}
+								bzero(buffer, 1);
 							}
 							
 						}
