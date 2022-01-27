@@ -47,13 +47,11 @@ class response_manager
 					{
 						buf = "<a href=\"" + (std::string)dirent_file->d_name + "\">" + (std::string)dirent_file->d_name + "</a>\n";
 						std::cout << buf <<std::endl;
-						//file S_ISREG
 					}
 					if (S_ISDIR(stat_file.st_mode))
 					{
 						buf = "<a href=" + (std::string)dirent_file->d_name + " >" + (std::string)dirent_file->d_name + " </a>\n";
 						std::cout << buf <<std::endl;
-						// dir S_ISDIR
 					}
 				}
 				dir_tree = dir_tree + buf;
@@ -82,97 +80,14 @@ class response_manager
 			struct stat stat_file;
 			int error;
 
-			// if (request.get_name_request() == "GET")
-			// {
-				// html = metod_get();
-			// }
-			// if (request.get_name_request() == "POST")
-			// {
-				// html = metod_post();	
-			// }
-			// if (request.get_name_request() == "DELETE")
-			// {
-				// html = metod_delete();
-			// }
-			// html = create_error_page(501);
-			//GET //перенести в метод metod_post
-			if ((error = this->error()) == 0)
-			{
-				html_header = this->html_header();
-				html = html + html_header;
-				html_basement = this->html_basement();
-				if (definition_path_or_filr(_request.get_page_index()) == 0)	//path //вынести в работу с путями
-				{
-					path = find_path_to_html();
-					if (path.empty())
-					{
-						if (_conf.get_avtoindex() == true)
-						{
-							if (stat(path.c_str(), &stat_file) != -1)
-							{
-								if (S_ISDIR(stat_file.st_mode))
-								{
-									html = html + crate_dir_tree((path).c_str());
-								}
-							}
-						}
-						else
-						{
-							if (_conf.get_return().empty())
-								html = create_error_page(404);
-							else
-							{
-								html = return_page();
-								if (html.empty())
-									html = create_error_page(404);
-							}
-						}
-					}
-					else
-					{
-						if (stat(path.c_str(), &stat_file) != -1)
-							html = html + read_full_file(path);
-						else
-							html = create_error_page(404);
-					}
-				}
-				else								//file /вынести в функцию работы с файлами /чанки /сокеты
-				{
-					path = find_path_to_cgi();
-					if (path.empty())
-					{
-						// if (stat(path.c_str(), stat_file) != -1)
-						// {
-						// 	if (S_ISREG(stat_file->st_mode))
-						// 	{
-						// 		html = html + read_full_file(path);
-						// 	}
-						// 	else
-						// 	{
-						// 		// rewrite ^ https://$host$request_uri? <флаг>;
-						// 		create_error_page(404); 
-						// 	}
-						// }
-						// else
-						// {
-						// 	// rewrite ^ https://$host$request_uri? <флаг>;
-						// 	create_error_page(404); 
-						// }
-					}
-					else
-					{
-						if (stat(path.c_str(), &stat_file) != -1)
-							html = html + read_full_file(path);
-						else
-							html = create_error_page(404);
-					}
-				}
-			}
-			else
-			{
-				create_error_page(501);
-			}
-			html = html + html_basement;
+			if (_request.get_name_request() == "GET")
+				html = metod_get();
+			if (_request.get_name_request() == "POST")
+				html = metod_post();	
+			if (_request.get_name_request() == "DELETE")
+				html = metod_delete();
+			if (html.empty())
+				html = create_error_page(501);
 			return (html);
 		}
 
@@ -200,7 +115,6 @@ class response_manager
 			{
 				while (getline(fs, line))
 				{
-					// std::cout << line << std::endl;
 					file = file + line + "\n";
 					line.clear();
 				}
@@ -271,7 +185,6 @@ class response_manager
 
 			body_html = "HTTP/1.1 301 Moved Permanently\n";
 			body_html = body_html + "Location: " + _conf.get_return();
-			std::cout << body_html << std::endl;
 			return (body_html);
 		}
 
@@ -298,7 +211,7 @@ class response_manager
 					{
 						path_and_file = path + split_file[i];
 						stat_path = path_and_file.c_str();
-						if (stat(stat_path, &stat_file) != -1) //НЕ ПАПКА
+						if (stat(stat_path, &stat_file) != -1) //&& S_ISDIR(stat_file.st_mode)) //НЕ ПАПКА
 						{
 							return (path_and_file);
 						}
@@ -382,17 +295,106 @@ class response_manager
 			return (split_file);
 		}
 
-		std::string metod_get()
+		std::string metod_get() //переделать стуктуру создание get от ответа полностью
 		{
 			std::string html;
-			
+			std::string html_header;
+			std::string html_basement;
+			std::string content_file;
+			std::string path;
+			std::map<std::string, std::map<std::string, std::string> >::iterator _loc;
+			std::map<std::string, std::map<std::string, std::string> > _locations;
+			struct stat stat_file;
+
+			html_header = this->html_header();
+			html = html + html_header;
+			html_basement = this->html_basement();
+			if (definition_path_or_filr(_request.get_page_index()) == 0)	//path //вынести в работу с путями
+			{
+				path = find_path_to_html();
+				// if (definition_path_or_filr(path) == 0)
+				if (path.empty())
+				{
+					if (_conf.get_avtoindex() == true)
+					{
+						if (stat(path.c_str(), &stat_file) != -1)
+						{
+							if (S_ISDIR(stat_file.st_mode))
+							{
+								html = html + crate_dir_tree((path).c_str());
+							}
+						}
+					}
+					else
+					{
+						if (_conf.get_return().empty())
+							html = create_error_page(404);
+						else
+						{
+							html = return_page();
+							if (html.empty())
+								html = create_error_page(404);
+						}
+					}
+				}
+				else
+				{
+					if (stat(path.c_str(), &stat_file) != -1)
+						html = html + read_full_file(path);
+					else
+						html = create_error_page(404);
+				}
+			}
+			else								//file
+			{
+				path = find_path_to_cgi();
+				if (path.empty())
+				{
+					// if (stat(path.c_str(), stat_file) != -1)
+					// {
+					// 	if (S_ISREG(stat_file->st_mode))
+					// 	{
+					// 		html = html + read_full_file(path);
+					// 	}
+					// 	else
+					// 	{
+					// 		// rewrite ^ https://$host$request_uri? <флаг>;
+					// 		create_error_page(404); 
+					// 	}
+					// }
+					// else
+					// {
+					// 	// rewrite ^ https://$host$request_uri? <флаг>;
+					// 	create_error_page(404); 
+					// }
+				}
+				else
+				{
+					if (stat(path.c_str(), &stat_file) != -1)
+						html = html + read_full_file(path);
+					else
+						html = create_error_page(404);
+				}
+			}
+			html = html + html_basement;
 			return (html);
 		}
 
 		std::string metod_post()
 		{
 			std::string html;
-			
+			std::string html_header;
+			std::string html_basement;
+			std::string content_file;
+			std::string path;
+			std::map<std::string, std::map<std::string, std::string> >::iterator _loc;
+			std::map<std::string, std::map<std::string, std::string> > _locations;
+			struct stat stat_file;
+
+			// if(_request)
+			// {
+
+			// }
 			return (html);
 		}
 

@@ -359,7 +359,7 @@ class serv
 						else
 						{
 
-							rc = recv(_poll_server_client_socketfd[i].fd, buffer,10024, 0);
+							rc = recv(_poll_server_client_socketfd[i].fd, buffer, 10024, 0);
 							if (rc == 0)
 							{
 								// close(poll_server_client_socketfd[i].fd);
@@ -388,7 +388,7 @@ class serv
 									// _conf_serv_vec[i];
 									// _conf_serv_vec.erase(it2);
 									rc2--;
-									bzero(buffer, 5024);	
+									bzero(buffer, 5024);
 								// }
 								// else
 								// {

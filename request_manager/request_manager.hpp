@@ -25,7 +25,19 @@ class request_manager
 		{
 			(void)request;
 			std::string line_request;
+			int i = 0;
 
+			while (request[i])
+			{
+				std::cout << request; 
+				i++;
+			}
+			i++;
+			while (request[i])
+			{
+				std::cout << request; 
+				i++;
+			}
 			find_method_http(request);
 			find_page_and_param(request);
 			find_protocol(request);
