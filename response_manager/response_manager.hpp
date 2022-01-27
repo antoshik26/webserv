@@ -183,7 +183,7 @@ class response_manager
 		{
 			std::string body_html;
 
-			body_html = "HTTP/1.1 301 Moved Permanently\n";
+			body_html = "HTTP/1.1 307 Moved Permanently\n";//sadf
 			body_html = body_html + "Location: " + _conf.get_return();
 			return (body_html);
 		}
