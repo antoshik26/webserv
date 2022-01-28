@@ -129,8 +129,9 @@ class serv
 					// epull();
 					one_socket.fd = socket_fd;
 					one_socket.events = POLLIN;// | POLLOUT;
-					ret = fcntl(socket_fd, F_SETFL, O_NONBLOCK);
+					// ret = fcntl(socket_fd, F_SETFL, O_NONBLOCK);
 					error = serv_bind(socket_fd, serv_config);
+					errno = listen(socket_fd, 30000);
 					if (error < 0)
 					{
 						// throw;
@@ -216,7 +217,7 @@ class serv
 			int sock_klient = 0;
 			try
 			{
-				sock_klient = accept(socket_serv, NULL, NULL);
+				sock_klient = accept(socket_serv, 0, 0);
 				if (sock_klient < 0)
 				{
 					// throw;
@@ -272,7 +273,7 @@ class serv
 				count_client++;
 				new_socket.fd = new_client;
 				new_socket.events = POLLIN;// | POLLOUT;
-				// ret = fcntl(new_client, F_SETFL, O_NONBLOCK);
+				ret = fcntl(new_client, F_SETFL, O_NONBLOCK);
 				_poll_server_client_socketfd.push_back(new_socket);
 				_conf_serv_vec.push_back(conf);
 				_recv_reader.push_back(new_socket_recv_reader);
@@ -301,6 +302,8 @@ class serv
 				{
 					rc2 = poll(_poll_server_client_socketfd.data(), _poll_server_client_socketfd.size(), -1);
 					i = 0;
+					// if (errno != 0)
+					// 	std::cout << std::strerror(errno) << errno <<  std::endl;
 					while (rc2 > 0 && i < _poll_server_client_socketfd.size())
 					{
 						if (_poll_server_client_socketfd[i].revents == 0)
@@ -416,7 +419,12 @@ class serv
 
 			if ((_poll_server_client_socketfd[i].revents & POLLIN) == POLLIN)
 			{
-				rc = recv(_poll_server_client_socketfd[i].fd, buffer, 1024, 0);
+				
+
+				rc = recv(_poll_server_client_socketfd[i].fd, buffer, 1024 - 1, 0);
+				if (errno != 0)
+					std::cout << std::strerror(errno) << errno <<  std::endl;
+				usleep(1000);
 				if (rc == 0)
 				{
 					close(_poll_server_client_socketfd[i].fd);
@@ -435,7 +443,7 @@ class serv
 				{
 				// std::cout << POLLIN << std::endl;
 					result = reader_recv(i, buffer);
-					std::cout << _recv_reader[i] << std::endl;
+					std::cout << buffer << std::endl;
 					if (result == 0)
 					{
 						request = request_manager(_recv_reader[i]);
