@@ -4,6 +4,7 @@
 #include <string>
 #include <fstream>
 #include <unistd.h>
+#include <cstdlib>
 #include "../request_manager/request_manager.hpp"
 #include "../config_parser/config_parser.hpp"
 
@@ -128,11 +129,38 @@ class response_manager
 			return(html_header);
 		}
 
+		std::string html_header(int code)
+		{
+			std::string html_header = "HTTP/1.1 " + std::to_string(code) + " OK\r\n\r\n";
+			return(html_header);
+		}
+
+		std::string html_header(int code, std::string text)
+		{
+			std::string html_header = "HTTP/1.1 " + std::to_string(code) + " " + text + " OK\r\n\r\n";
+			return(html_header);
+		}
+
 		std::string html_basement()
 		{
 			std::string html_basement = "\r\n\r\n";
 			return(html_basement);
 		}
+		
+		std::string error_403()
+		{
+			std::string body_html;
+			// HTTP 403 Forbidden
+			return (body_html);
+		}
+
+		std::string error_204()
+		{
+			std::string body_html;
+			// 204 No Content
+			return (body_html);
+		}
+
 
 		std::string error_500()
 		{
@@ -183,7 +211,7 @@ class response_manager
 		{
 			std::string body_html;
 
-			body_html = "HTTP/1.1 307 Moved Permanently\n";//sadf
+			body_html = "HTTP/1.1 307 Temporary Redirect\n";
 			body_html = body_html + "Location: " + _conf.get_return();
 			return (body_html);
 		}
@@ -369,7 +397,15 @@ class response_manager
 					// }
 				}
 				else
-				{
+				{	
+					if (path.find(".py") != std::string::npos)
+					{
+						// cgi_py();
+					}
+					if (path.find(".cs") != std::string::npos)
+					{
+						//cgi_cs();
+					}
 					if (stat(path.c_str(), &stat_file) != -1)
 						html = html + read_full_file(path);
 					else
@@ -382,6 +418,7 @@ class response_manager
 
 		std::string metod_post()
 		{
+			std::ofstream f;
 			std::string html;
 			std::string html_header;
 			std::string html_basement;
@@ -389,20 +426,112 @@ class response_manager
 			std::string path;
 			std::map<std::string, std::map<std::string, std::string> >::iterator _loc;
 			std::map<std::string, std::map<std::string, std::string> > _locations;
+			std::map<std::string, std::string> body;
 			struct stat stat_file;
+			size_t n;
 
-			// if(_request)
+			html_header = this->html_header(204, "No Content");
+			html = html + html_header;
+			html_basement = this->html_basement();
+			//multipart
+			body = _request.get_body();
+			if ((_request.get_body().find("Content-Disposition")) != _request.get_body().end())
+			{
+				if ((n = _request.get_body().find("Content-Disposition")->second.find("filename")) != std::string::npos)
+				{
+
+					path = find_path_to_html();
+					if (path[path.length() - 1] != '/')
+						path = path + '/';
+					content_file = _request.get_body().find("Content-Disposition")->second.substr(n + 10, 9);//n - _request.get_body().find("Content-Disposition")->second.find("/r") - 1);
+					path = "/Users/dmadelei/Desktop/";
+					path = path + content_file;
+					if (!(path.empty()))
+					{
+						if (stat(path.c_str(), &stat_file) == 0)
+						{
+							f.open(path, std::ofstream::app);
+							if (f.good())
+							{
+								f << _request.get_body_file();
+								f.close();
+								//204
+							}
+							else
+								html = create_error_page(403);
+						}
+						else
+						{
+							f.open(path);
+							if (f.good())
+							{
+								// f << _request.get_body_file();
+								f.close();
+								//204
+							}
+							else
+								html = create_error_page(403);
+						}
+					}
+					else
+						html = create_error_page(403);
+				}
+				else
+					html = create_error_page(403);
+			}
+			//	cgi
+			// if (definition_path_or_filr(_request.get_page_index()) == 0)	//path //вынести в работу с путями
 			// {
+			// 	path = find_path_to_html();
+			// 	if (path.find(".cs") != std::string::npos || path.find(".py") != std::string::npos)
+			// 	{
 
+			// 	}
 			// }
+			html = html + html_basement;
 			return (html);
 		}
 
 		std::string metod_delete()
 		{
+			std::ofstream f;
 			std::string html;
-			
+			std::string html_header;
+			std::string html_basement;
+			std::string content_file;
+			std::string path;
+			std::map<std::string, std::map<std::string, std::string> >::iterator _loc;
+			std::map<std::string, std::map<std::string, std::string> > _locations;
+			std::map<std::string, std::string> body;
+			struct stat stat_file;
+			size_t n;
+
+			html_basement = this->html_basement();
+			path = find_path_to_html();
+			if (path.empty())
+			{
+				// content_file = 
+				path = path + content_file;
+				if (stat(path.c_str(), &stat_file) == 0)
+				{
+					std::remove(path.c_str());
+					if (!std::ifstream(path))
+						html = this->html_header(204);
+				}
+				else
+					html = create_error_page(403);
+			}
+			else
+				html = create_error_page(403);
+			html = html + html_basement;
 			return (html);
+		}
+
+		std::string find_file_name()
+		{
+			std::string file;
+			
+			return (file);
 		}
 };
 

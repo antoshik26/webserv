@@ -26,6 +26,7 @@
 #include "../request_manager/request_manager.hpp"
 #include "../cgi/cgi.hpp"
 #include "../response_manager/response_manager.hpp"
+#include "chanki.hpp"
 
 #define		serv_port		5000; //считывать с config		 
 #define		fd_count		500;
@@ -459,10 +460,11 @@ class serv
 		{
 			int result = 0;
 			size_t n;
+			size_t k;
 
 
 			_recv_reader[i] = _recv_reader[i] + buffer;
-			if (_recv_reader[i].find("\r\n\r\n") != std::string::npos)
+			if ((k = _recv_reader[i].find("\r\n\r\n")) != std::string::npos)
 			{
 				if ((n = _recv_reader[i].find("Content-Type: multipart/form-data; boundary=")) != std::string::npos)//multi if (_requests[socket].find(bound) == std::string::npos)
 				{
@@ -480,14 +482,22 @@ class serv
 					if (_recv_reader[i].find("Transfer-Encoding: chunked") != std::string::npos)
 					{
 						if (_recv_reader[i].find("0/r/n/r/n") != std::string::npos)
-							std::cout << "read_more" << std::endl;
+							return (1);
 						else
 						{
-							//работа с чанками
+							chanki a(_recv_reader[i]);
+							std::string new_recv_reader = a.get_request();
+							_recv_reader[i].clear();
+							_recv_reader[i] = new_recv_reader;
 						}	
 					}
 				}
 			}
+			size_t content_length = std::atoi(_recv_reader[i].substr(_recv_reader[i].find("Content-Length: ") + 16, 10).c_str());
+			if (_recv_reader[i].size() >= content_length + k + 4)
+				return (0);
+			else
+				return (1);
 			return (result);
 		}
 
@@ -501,7 +511,7 @@ class serv
 			body_html = response.body_html();
 			rc = send(_poll_server_client_socketfd[i].fd, body_html.c_str(), body_html.length(), 0);
 			// close(_poll_server_client_socketfd[i].fd); //?
-			_recv_reader[i].erase(); 
+			_recv_reader[i].erase();
 			// _poll_server_client_socketfd[i].fd = -1;  //?
 			return (result);
 		}
