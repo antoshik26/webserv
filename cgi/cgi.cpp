@@ -22,26 +22,37 @@ void cgi::execve_script()
 {
 	pid_t		pid;
 	char * const * nll = NULL;
-	int fd=open("tmp.js",O_TRUNC |O_WRONLY| O_CREAT, 0777 );
+	//int fd=open("tmp.js",O_TRUNC |O_WRONLY| O_CREAT, 0777 );
+	if(pipe(pipe1))
+	{
+		std::cout<<"error: pipe"<<std::endl;
+	}
 	pid = fork();
 	int f;
 	if (!pid)
-	{
-		dup2(fd,1);
+	{ 
+		dup2(pipe1[1],1);
+		//dup2(fd,1);
+		close(pipe1[1]);
 		execve("test.py",nll,this->_env);
 		std::cout<<"error: smt wrong execve"<<std::endl;
 	}
 	wait(&f);
-	close(fd);
+	close(pipe1[1]);
 }
 
 std::string cgi::get_string()
 {
-	std::string line;
-	std::ifstream in("tmp.js");
-	getline(in,line);
-	in.close();
-	return(line);
+	FILE *stream;
+    int c;
+	std::string ans;
+    stream = fdopen (pipe1[0], "r");
+    while ((c = fgetc (stream)) != EOF)
+    {   
+		ans.push_back(c);
+	}
+    fclose (stream);
+	return(ans);
 }
 
 cgi::~cgi()

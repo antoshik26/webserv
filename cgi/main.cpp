@@ -15,12 +15,14 @@ int main(int argc, char **argv, char **env)
 m["a"]="hello";
 	m["b"]="world";
 	c.new_cgi(m);
+	std::cout<<"1 test:"<<c.get_string()<<std::endl;
+
 	std::map<std::string, std::string> mw;
 
 	mw["a"]="ggg";
 	mw["b"]="efvgg";
 	c.new_cgi(mw);
-	std::cout<<c.get_string()<<std::endl;
-	//while (1);
+	std::cout<<"2 test:"<<c.get_string()<<std::endl;
+
 	
 }

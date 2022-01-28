@@ -15,6 +15,7 @@ class cgi
 		char* _script;
 		char **_env;
 		int pos;
+		int pipe1[2];
 		void fill_env(char **env);
 		void fill_varibles(std::map<std::string, std::string> body);
 		void find_script(std::string extension,std::map<std::string, std::map<std::string, std::string> > cgi);
