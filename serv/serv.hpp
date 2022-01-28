@@ -26,6 +26,7 @@
 #include "../request_manager/request_manager.hpp"
 #include "../cgi/cgi.hpp"
 #include "../response_manager/response_manager.hpp"
+#include "chanki.hpp"
 
 #define		serv_port		5000; //считывать с config		 
 #define		fd_count		500;
@@ -78,7 +79,7 @@ class serv
 		std::vector<pollfd> _poll_server_client_socketfd;			//хорошо
 		std::vector<int> conf_fd;
 		std::vector<config_parser> _conf_serv_vec;
-		std::vector<std::string> recv_reader; //что бы поменять на меньший буфер и сохранять сюда request
+		std::vector<std::string> _recv_reader; //что бы поменять на меньший буфер и сохранять сюда request
 		int count_client;						//отвратительно
 		// std::pair<int, int> pull_server_client_socketfd[100];
 		request_manager request;
@@ -105,6 +106,7 @@ class serv
 				std::vector<config_parser>::iterator it = conf_serv.begin();
 				std::vector<config_parser>::iterator it2 = conf_serv.end();
 				pollfd one_socket;
+				std::string line;
 
 				_conf_serv_vec = conf_serv;
 				count_serv = conf_serv.size();
@@ -126,14 +128,15 @@ class serv
 					// error = listen_fd(); 
 					// epull();
 					one_socket.fd = socket_fd;
-					one_socket.events = POLLIN;
-					ret = fcntl(socket_fd, F_SETFL, O_NONBLOCK );
+					one_socket.events = POLLIN;// | POLLOUT;
+					ret = fcntl(socket_fd, F_SETFL, O_NONBLOCK);
 					error = serv_bind(socket_fd, serv_config);
 					if (error < 0)
 					{
 						// throw;
 					}
 					_poll_server_client_socketfd.push_back(one_socket);
+					_recv_reader.push_back(line);
 					// _conf_serv_vec.push_back(*it);
 					it++;
 				}
@@ -189,48 +192,6 @@ class serv
 		{
 			close(socket_fd);
 		}
-		
-		// int setsockopt()
-		// {
-
-		// }
-
-		// int getsockopt()
-		// {
-
-		// }
-
-		// int serv_bind()
-		// {
-		// 	int error = 0;
-		// 	try
-		// 	{
-		// 		std::vector<pollfd>::iterator it = _poll_server_client_socketfd.begin();
-		// 		std::vector<pollfd>::iterator it2 = _poll_server_client_socketfd.end();
-
-		// 		while (it != it2)
-		// 		{
-		// 			error =  bind(socket_fd, (sockaddr *)&serv_config, (socklen_t)(sizeof(serv_config)));
-		// 			if (error != 0)
-		// 			{
-		// 				// throw;
-		// 			}
-		// 			it++;
-		// 		}
-		// 		// error =  bind(socket_fd, (sockaddr *)&serv_config, (socklen_t)(sizeof(serv_config)));
-		// 		// if (error != 0)
-		// 		// {
-		// 		// 	// throw;
-		// 		// }
-		// 		// else
-		// 		// 	_fd_sockfd = sockfd; 
-		// 	}
-		// 	catch(std::exception &e)
-		// 	{
-		// 		// throw;
-		// 	}
-		// 	return (error);
-		// }
 
 		int serv_bind(int socket_fd, sockaddr_in serv_config)
 		{
@@ -270,13 +231,6 @@ class serv
 			return (sock_klient);
 		}
 		
-		// int listen_fd()
-		// {
-		// 	int error = 0;
-			
-		// 	error = listen(socket_fd, 32);
-		// 	return (error);
-		// }
 
 		int listen_fd()
 		{
@@ -304,6 +258,8 @@ class serv
 		int add_client_in_poll(int socket_serv, config_parser conf)
 		{
 			int new_client = 0;
+			int ret;
+			std::string new_socket_recv_reader;
 			pollfd new_socket;
 
 			if ((new_client = accept_serv(socket_serv)) == -1)
@@ -315,9 +271,11 @@ class serv
 			{
 				count_client++;
 				new_socket.fd = new_client;
-				new_socket.events = POLLIN;
+				new_socket.events = POLLIN;// | POLLOUT;
+				// ret = fcntl(new_client, F_SETFL, O_NONBLOCK);
 				_poll_server_client_socketfd.push_back(new_socket);
 				_conf_serv_vec.push_back(conf);
+				_recv_reader.push_back(new_socket_recv_reader);
 				return (1);
 			}
 			return (0);
@@ -327,12 +285,13 @@ class serv
 		{
 			// int new_client = -1;
 			size_t i;
+			size_t n;
 			int rc;
 			int rc2;
-			char buffer[10024];
+			char buffer[1024];
 			int error;
 			std::string a;
-			bzero(buffer, 5024);
+			bzero(buffer, 1024);
 			std::vector<pollfd>::iterator it;
 			std::vector<config_parser>::iterator it2;
 
@@ -358,125 +317,204 @@ class serv
 						}
 						else
 						{
-
-							rc = recv(_poll_server_client_socketfd[i].fd, buffer,10024, 0);
-							if (rc == 0)
+							if ((_poll_server_client_socketfd[i].revents & POLLIN) == POLLIN)
 							{
-								// close(poll_server_client_socketfd[i].fd);
-								// poll_server_client_socketfd[i].fd = -1;
-								// rc2--;
-							}
-							if (rc < 0)
-							{
-								std::cout << "error" << std::endl;
-							}
-							if (rc > 0)
-							{
-								std::cout << "aaaaaaaa " << _poll_server_client_socketfd[i].fd << std::endl;
-								printf("%s\n", buffer);
-								request = request_manager((std::string)buffer);
-								response = response_manager(request, _conf_serv_vec[i]);
-								// if (response.error() == 0)
+								check_condition_socket(i, buffer);
+								i++;
+								continue;
+								// rc = recv(_poll_server_client_socketfd[i].fd, buffer, 1024, 0);
+								// if (rc == 0)
 								// {
-									std::string body_html = response.body_html();
-									// std::cout << body_html << std::endl;
-									rc = send(_poll_server_client_socketfd[i].fd, body_html.c_str(), body_html.length(), 0);
+								// 	close(_poll_server_client_socketfd[i].fd);
+								// 	_recv_reader[i].erase();
+								// 	_poll_server_client_socketfd[i].fd = -1;
+								// 	rc2--;
+								// }
+								// if (rc < 0)
+								// {
+								// 	// std::cout << "error" << std::endl;
+								// 	close(_poll_server_client_socketfd[i].fd);
+								// 	_recv_reader[i].erase();
+								// 	_poll_server_client_socketfd[i].fd = -1;
+								// }
+								// if (rc > 0)
+								// {
+								
+								
+								// usleep(2000);
+								// _recv_reader[i] = _recv_reader[i] + buffer;
+								// if (_recv_reader[i].find("\r\n\r\n") != std::string::npos)
+								// {
+								// 	if ((n = _recv_reader[i].find("Content-Type: multipart/form-data; boundary=")) != std::string::npos)//multi if (_requests[socket].find(bound) == std::string::npos)
+								// 	{
+								// 		std::string boundary;
+
+								// 		boundary = _recv_reader[i].substr(n);
+								// 		n = boundary.find("\r\n") - 45;
+								// 		boundary = "---" + boundary.substr(45, n) + "--";
+								// 		if (_recv_reader[i].find(boundary) != std::string::npos)
+								// 			std::cout << "read_more" << std::endl;
+								// 	}
+								// 	if (_recv_reader[i].find("Content-Length") != std::string::npos)
+								// 	{
+								// 		if (_recv_reader[i].find("Transfer-Encoding: chunked") != std::string::npos)
+								// 		{
+								// 			if (_recv_reader[i].find("0/r/n/r/n") != std::string::npos)
+								// 				std::cout << "read_more" << std::endl;
+								// 			else
+								// 			{
+								// 				//работа с чанками
+								// 			}	
+								// 		}
+								// 	}
+              						
+									// std::cout << _recv_reader[i] << std::endl;
+									// request = request_manager(_recv_reader[i]);
+									// response = response_manager(request, _conf_serv_vec[i]);
+									// std::string body_html = response.body_html();
+									// rc = send(_poll_server_client_socketfd[i].fd, body_html.c_str(), body_html.length(), 0);
+									// close(_poll_server_client_socketfd[i].fd);
+									// _recv_reader[i].erase();
+									// _poll_server_client_socketfd[i].fd = -1;
+								}
+								if ((_poll_server_client_socketfd[i].revents & POLLOUT) == POLLOUT)
+								{
+									write_send(i);
+									// _poll_server_client_socketfd[i].events = POLLIN; //?
 									close(_poll_server_client_socketfd[i].fd);
+									_recv_reader[i].erase();
 									_poll_server_client_socketfd[i].fd = -1;
-									// it = _poll_server_client_socketfd.find(_poll_server_client_socketfd[i]);
-									// _poll_server_client_socketfd.erase(it);
-									// _conf_serv_vec[i];
-									// _conf_serv_vec.erase(it2);
-									rc2--;
-									bzero(buffer, 5024);	
-								// }
-								// else
-								// {
-
-								// }
-							
+								}
+								bzero(buffer, 1024);
 							}
-							
-						}
-						i++;
-					}
-					// while(i < count_client)
-					// {
-					// 	rc = recv(poll_server_client_socketfd[i].fd, buffer, 5024, 0);
-					// 	if (rc < 0)
-					// 	{
-					// 		// throw;
-					// 	}
-					// 	else
-					// 	{
-					// 		if (rc > 0)
-					// 		{
-					// 			// std::cout << std::string(buffer, 0, rc) << std::endl;
-					// 			std::cout << "aaaaaaaa " << poll_server_client_socketfd[i].fd << std::endl;
-					// 			printf("%s\n", buffer);
-					// 		}
-					// 		// 	break;
-					// 		char b[] = "HTTP/1.1 200 OK\r\n\r\n asdfgh \r\n\r\n";
-					// 		// a = "asdfghjmmnbvdsa";
-					// 		rc = send(poll_server_client_socketfd[i].fd, b, strlen(b), 0); //бред
-
-					// 	}
-					// 	i++;
-					// 	bzero(buffer, 5024);
-					// }
-
-					// size_t length = 1;
-					// int i = 1;
-					// int j = -1;
-					// char ptr[4096];
-
-					// while (i > 0)
-					// {
-					// i = recv(client_socket_fd, ptr, 4096, 0);
-					// j++;
-					// // }
-					// if (i > 0)
-					// {
-					// 	std::cout << std::string(ptr, 0, i) << std::endl;
-					// 	break;
-					// }
-					// request.save_request(ptr);
+							i++;
+						}					
 				}
-				// connect();
-				// answer();
 			}
 			catch(std::exception &e)
 			{
 				// throw;
 			}
-		
 			return (0);
 		}		
+	
+		int check_chank_and_multipart(int i)
+		{
+			(void)i;
+			int result = 0;
 
-		// int connect()
-		// {
-		// 	int i;
+			return (result);
+		}
 
-		// 	i = 0;
-		// 	while (i < 100)
-		// 	{
-		// 		if (poll_server_client_socketfd[i].fd == -1)
-		// 			break;
-		// 		i++;
-		// 	}
-		// 	if (i == 100)
-		// 		return (-1);
-			
-		// 	poll_server_client_socketfd[i].fd = ::connect(client_socket_fd, (sockaddr *)&serv_config, (socklen_t)(sizeof(serv_config)));
-		// 	return (0);
-		// }
+		int check_condition_socket(int i, char *buffer)
+		{
+			(void)i;
+			(void)buffer;
+			int result = 0;
+			int rc = 0;
+			int rc2 = 0;
 
-		// int answer()
-		// {
-		// 	char *sent_answer;
-		// 	send(client_socket_fd, sent_answer, strlen(sent_answer), 0);
-		// 	return (0);
-		// }
+			if ((_poll_server_client_socketfd[i].revents & POLLIN) == POLLIN)
+			{
+				rc = recv(_poll_server_client_socketfd[i].fd, buffer, 1024, 0);
+				if (rc == 0)
+				{
+					close(_poll_server_client_socketfd[i].fd);
+					_recv_reader[i].erase();
+					_poll_server_client_socketfd[i].fd = -1;
+					rc2--;
+				}
+				if (rc < 0)
+				{
+					// std::cout << "error" << std::endl;
+					close(_poll_server_client_socketfd[i].fd);
+					_recv_reader[i].erase();
+					_poll_server_client_socketfd[i].fd = -1;
+				}
+				if (rc > 0)
+				{
+				// std::cout << POLLIN << std::endl;
+					result = reader_recv(i, buffer);
+					std::cout << _recv_reader[i] << std::endl;
+					if (result == 0)
+					{
+						request = request_manager(_recv_reader[i]);
+						response = response_manager(request, _conf_serv_vec[i]);
+						_poll_server_client_socketfd[i].events = POLLOUT;
+					}
+					else
+					{
+						return (0);
+					}
+				}
+			}
+			// if ((_poll_server_client_socketfd[i].revents & POLLOUT) == POLLOUT)
+			// {
+			// 	std::cout << POLLOUT << std::endl;
+			// 	result = write_send(i);
+			// }
+			return (result);
+		}
+
+		int reader_recv(int i, char *buffer)
+		{
+			int result = 0;
+			size_t n;
+			size_t k;
+
+
+			_recv_reader[i] = _recv_reader[i] + buffer;
+			if ((k = _recv_reader[i].find("\r\n\r\n")) != std::string::npos)
+			{
+				if ((n = _recv_reader[i].find("Content-Type: multipart/form-data; boundary=")) != std::string::npos)//multi if (_requests[socket].find(bound) == std::string::npos)
+				{
+					std::string boundary;
+					std::string buf;
+
+					boundary = _recv_reader[i].substr(n);
+					n = boundary.find("\r\n") - 45;
+					boundary = "---" + boundary.substr(45, n) + "--";
+					if (_recv_reader[i].find(boundary) == std::string::npos)
+						return (1);
+				}
+				if (_recv_reader[i].find("Content-Length") != std::string::npos)
+				{
+					if (_recv_reader[i].find("Transfer-Encoding: chunked") != std::string::npos)
+					{
+						if (_recv_reader[i].find("0/r/n/r/n") != std::string::npos)
+							return (1);
+						else
+						{
+							chanki a(_recv_reader[i]);
+							std::string new_recv_reader = a.get_request();
+							_recv_reader[i].clear();
+							_recv_reader[i] = new_recv_reader;
+						}	
+					}
+				}
+			}
+			size_t content_length = std::atoi(_recv_reader[i].substr(_recv_reader[i].find("Content-Length: ") + 16, 10).c_str());
+			if (_recv_reader[i].size() >= content_length + k + 4)
+				return (0);
+			else
+				return (1);
+			return (result);
+		}
+
+		int write_send(int i)
+		{
+			(void)i;
+			int result = 0;
+			size_t rc;
+			std::string body_html;
+
+			body_html = response.body_html();
+			rc = send(_poll_server_client_socketfd[i].fd, body_html.c_str(), body_html.length(), 0);
+			// close(_poll_server_client_socketfd[i].fd); //?
+			_recv_reader[i].erase();
+			// _poll_server_client_socketfd[i].fd = -1;  //?
+			return (result);
+		}
 
 		std::string crate_dir_tree(char* path_dir)
 		{
@@ -507,13 +545,6 @@ class serv
 			dir_tree = dir_tree + "\r\n\r\n";
 			return (dir_tree);
 		}
-	
-		// int epull()
-		// {
-		// 	kqueuefd = kqueue();
-		// 	kevent_struct.
-		// 	return (0);
-		// }
 };
-
+// syscall("php filein > file_out")
 #endif

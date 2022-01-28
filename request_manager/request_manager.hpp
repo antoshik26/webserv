@@ -16,6 +16,7 @@ class request_manager
 		// std::map<std::string, std::vector<std::string> > _body;
 		std::map<std::string, std::string> _body;
 		std::map<std::string, std::string> _body_cgi;
+		std::string _body_file;
 	public:
 		request_manager()
 		{
@@ -24,7 +25,6 @@ class request_manager
 		request_manager(std::string request)
 		{
 			(void)request;
-			std::string line_request;
 
 			find_method_http(request);
 			find_page_and_param(request);
@@ -58,6 +58,11 @@ class request_manager
 		std::map<std::string, std::string> get_body()
 		{
 			return (_body);
+		}
+
+		std::string get_body_file()
+		{
+			return (_body_file);
 		}
 
 		~request_manager()
@@ -154,11 +159,15 @@ class request_manager
 			pair_node = find_line(request, "Content-Type", ':');
 			_body.insert(pair_node);
 
+			pair_node = find_line(request, "Referer", ':');
+			_body.insert(pair_node);
+
+			pair_node = find_line(request, "Content-Disposition", ':');
+			_body.insert(pair_node);
+
 			pair_node = find_line(request, "Content-Type", ':');
 			_body.insert(pair_node);
 
-			pair_node = find_line(request, "Referer", ':');
-			_body.insert(pair_node);
 		}
 
 		void find_page_and_param(std::string request)
@@ -184,6 +193,7 @@ class request_manager
 		{
 			std::string line_body;
 			std::string str;
+			std::string boundary;
 			size_t n = 0;
 			size_t i = 0;
 			
@@ -203,12 +213,28 @@ class request_manager
 			}
 			if (_name_request == "POST")
 			{
-				n = body.length();
-				i = n;
-				while (body[i] != '\n')
-					i--;
-				str = body.substr(i + 1, n - i);
-				split_param_body(str);
+				if ((n = body.find("Content-Disposition")) != std::string::npos)
+				{
+					i = body.find("Content-Type:");
+					i = body.find("Content-Type:", i + 1);
+					while (body[i] != '\n')
+						i++;
+					n = body.find("Content-Type: multipart/form-data; boundary=");
+					boundary = body.substr(n);
+					n = boundary.find("\r\n") - 45;
+					boundary = "---" + boundary.substr(45, n) + "--";
+					n = body.find(boundary);
+					_body_file = body.substr((i + 3), n - (i + 3));
+				}
+				else
+				{
+					n = body.length();
+					i = n;
+					while (body[i] != '\n')
+						i--;
+					str = body.substr(i + 1, n - i);
+					split_param_body(str);
+				}	
 			}
 			if (_name_request == "DELETE")
 			{
@@ -390,3 +416,6 @@ class request_manager
 // Referer: http://localhost:7000/page2.html
 // Accept-Encoding: gzip, deflate, br
 // Accept-Language: en-US,en;q=0.9,ru;q=0.8
+
+// Content-Disposition: form-data; name="f"; filename="kianu.jpeg"
+// Content-Type: image/jpeg

@@ -15,6 +15,7 @@ class config_parser
 		std::string _access_log;
 		std::string _error_log;
 		std::string _return;
+		// std::map<std::string, std::string> _return; //подумать над этим
 		// std::map<std::string, std::vector<std::string> > _locations; //переделать смотреть ниже
 		std::map<std::string, std::map<std::string, std::string> > _locations;
 		std::map<std::string, std::map<std::string, std::string> > _cgi; //подумать над таким выводом
@@ -72,7 +73,7 @@ class config_parser
 
 			if ((n = config_serv.find("return")) != std::string::npos)
 			{
-				n = config_serv.find("301");
+				n = config_serv.find("301"); //парсинг номера в мапу
 				while (config_serv[n] != ' ')
 					n++;
 				n++;
@@ -83,7 +84,6 @@ class config_parser
 					n++;
 				line = config_serv.substr(i, n - i);
 				_return = line;
-				std::cout << _return <<std::endl;
 			}
 
 		}
