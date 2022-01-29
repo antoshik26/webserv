@@ -16,6 +16,7 @@ class request_manager
 		// std::map<std::string, std::vector<std::string> > _body;
 		std::map<std::string, std::string> _body;
 		std::map<std::string, std::string> _body_cgi;
+		std::map<std::string, std::string> _cooci; 
 		std::string _body_file;
 	public:
 		request_manager()
@@ -167,7 +168,9 @@ class request_manager
 
 			pair_node = find_line(request, "Content-Type", ':');
 			_body.insert(pair_node);
+			
 
+			// codsdfgh = find_coasdf()
 		}
 
 		void find_page_and_param(std::string request)

@@ -26,6 +26,7 @@
 #include "../request_manager/request_manager.hpp"
 #include "../cgi/cgi.hpp"
 #include "../response_manager/response_manager.hpp"
+#include "../Cookies/cookies.hpp"
 #include "chanki.hpp"
 
 #define		serv_port		5000; //считывать с config		 
@@ -84,6 +85,7 @@ class serv
 		// std::pair<int, int> pull_server_client_socketfd[100];
 		request_manager request;
 		response_manager response;
+		cookies _cookies_serv;
 		// config_parser _conf_serv;
 
 
@@ -93,7 +95,7 @@ class serv
 
 		}
 
-		serv(std::vector<config_parser> conf_serv)
+		serv(std::vector<config_parser> conf_serv, cookies cookies_serv)
 		{
 			try
 			{
@@ -111,6 +113,7 @@ class serv
 				_conf_serv_vec = conf_serv;
 				count_serv = conf_serv.size();
 			 	std::cout << it->get_port() <<std::endl;
+				_cookies_serv = cookies_serv;
 				while (it != it2)
 				{
 					bzero((char *) &serv_config, sizeof(serv_config));
@@ -422,9 +425,9 @@ class serv
 				
 
 				rc = recv(_poll_server_client_socketfd[i].fd, buffer, 1024 - 1, 0);
-				if (errno != 0)
-					std::cout << std::strerror(errno) << errno <<  std::endl;
-				usleep(1000);
+				// if (errno != 0)
+				// 	std::cout << std::strerror(errno) << errno <<  std::endl;
+				// usleep(1000);
 				if (rc == 0)
 				{
 					close(_poll_server_client_socketfd[i].fd);
@@ -447,7 +450,7 @@ class serv
 					if (result == 0)
 					{
 						request = request_manager(_recv_reader[i]);
-						response = response_manager(request, _conf_serv_vec[i]);
+						response = response_manager(request, _conf_serv_vec[i], _cookies_serv);
 						_poll_server_client_socketfd[i].events = POLLOUT;
 					}
 					else

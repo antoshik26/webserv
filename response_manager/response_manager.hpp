@@ -7,6 +7,7 @@
 #include <cstdlib>
 #include "../request_manager/request_manager.hpp"
 #include "../config_parser/config_parser.hpp"
+#include "../Cookies/cookies.hpp"
 
 class response_manager
 {
@@ -14,16 +15,18 @@ class response_manager
 		request_manager _request;
 		config_parser _conf;
 		std::string response;
+		cookies _cookies_serv;
 	public:
 		response_manager()
 		{
 
 		}
 
-		response_manager(request_manager request, config_parser conf)
+		response_manager(request_manager request, config_parser conf, cookies cookies_serv)
 		{
 			_request = request;
 			_conf = conf;
+			_cookies_serv = cookies_serv;
 		}
 		//оператор копирование 
 		//оператор присваивания
@@ -125,7 +128,23 @@ class response_manager
 
 		std::string html_header()
 		{
-			std::string html_header = "HTTP/1.1 200 OK\r\n\r\n";
+			std::string html_header = "HTTP/1.1 200 OK\r\n";
+			std::map<std::string, std::string> cookies_value;
+			std::map<std::string, std::string>::iterator it;
+			std::map<std::string, std::string>::iterator it2;
+			cookies_value = _cookies_serv.get_cookies(_conf.get_port());
+
+			if ((!cookies_value.empty()))
+			{	
+				it = cookies_value.begin();
+				it2 = cookies_value.end();
+				while (it != it2)
+				{
+					html_header = html_header + "Set-Cookie:" + it->first + "=" + it->second + ";\r\n";
+					it++;
+				}
+			}
+			html_header = html_header + "\r\n";
 			return(html_header);
 		}
 
@@ -216,7 +235,7 @@ class response_manager
 			return (body_html);
 		}
 
-		std::string find_path_to_html()
+		std::string find_path_to_html() //переделать
 		{
 			size_t i = 0;
 		 	const char* stat_path;
@@ -289,7 +308,7 @@ class response_manager
 			return (path_and_file);
 		}
 
-		int definition_path_or_filr(std::string file_or_path)
+		int definition_path_or_filr(std::string file_or_path) //переделать
 		{
 			(void)file_or_path;
 			int a = 0;
@@ -413,6 +432,7 @@ class response_manager
 				}
 			}
 			html = html + html_basement;
+			// std::cout << html << std::endl;
 			return (html);
 		}
 
@@ -443,7 +463,7 @@ class response_manager
 					path = find_path_to_html();
 					if (path[path.length() - 1] != '/')
 						path = path + '/';
-					content_file = _request.get_body().find("Content-Disposition")->second.substr(n + 10, 9);//n - _request.get_body().find("Content-Disposition")->second.find("/r") - 1);
+					content_file = _request.get_body().find("Content-Disposition")->second.substr(n + 10, 8);//n - _request.get_body().find("Content-Disposition")->second.find("/r") - 1);
 					path = "/Users/dmadelei/Desktop/";
 					path = path + content_file;
 					if (!(path.empty()))
@@ -465,7 +485,7 @@ class response_manager
 							f.open(path);
 							if (f.good())
 							{
-								// f << _request.get_body_file();
+								f << _request.get_body_file();
 								f.close();
 								//204
 							}
@@ -480,6 +500,10 @@ class response_manager
 					html = create_error_page(403);
 			}
 			//	cgi
+			// if (!(body.empty()))
+			// {
+				// multipath or cgi
+			// }
 			// if (definition_path_or_filr(_request.get_page_index()) == 0)	//path //вынести в работу с путями
 			// {
 			// 	path = find_path_to_html();
@@ -510,7 +534,6 @@ class response_manager
 			path = find_path_to_html();
 			if (path.empty())
 			{
-				// content_file = 
 				path = path + content_file;
 				if (stat(path.c_str(), &stat_file) == 0)
 				{

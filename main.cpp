@@ -2,6 +2,7 @@
 #include "./client/client.hpp"
 #include "./config_parser/config_parser.hpp"
 #include "./request_manager/request_manager.hpp"
+#include "./Cookies/cookies.hpp"
 #include <fstream>
 
 
@@ -18,6 +19,7 @@ int  main(int argc, char* argv[], char* env[])
 	size_t j = 0;
 	argv[1] = "config.conf";
 	std::vector<config_parser> list_conf;
+	
 	try
 	{
 		fs.open(argv[1]);
@@ -54,9 +56,10 @@ int  main(int argc, char* argv[], char* env[])
 		line = config.substr(j, i - config.length());
 		// std::cout << line << std::endl;
 		list_conf.push_back(config_parser(line));
+		cookies cookies_serv(list_conf);
 
 		// serv myserv(config);
-		serv myserv(list_conf);
+		serv myserv(list_conf, cookies_serv);
 
 
 		// error = myserv.serv_bind();
