@@ -13,11 +13,12 @@ class request_manager
 		std::string _page;
 		std::string _page_and_param;
 		std::string _page_index;
+		std::string _body_file;
 		// std::map<std::string, std::vector<std::string> > _body;
 		std::map<std::string, std::string> _body;
 		std::map<std::string, std::string> _body_cgi;
-		std::map<std::string, std::string> _cooci; 
-		std::string _body_file;
+		std::map<std::string, std::string> _cooci;
+		std::map<std::string, std::string> _parser_cookies;
 	public:
 		request_manager()
 		{
@@ -59,6 +60,10 @@ class request_manager
 		std::map<std::string, std::string> get_body()
 		{
 			return (_body);
+		}
+		std::map<std::string, std::string> get_body_cgi()
+		{
+			return (_body_cgi);
 		}
 
 		std::string get_body_file()
@@ -168,9 +173,7 @@ class request_manager
 
 			pair_node = find_line(request, "Content-Type", ':');
 			_body.insert(pair_node);
-			
-
-			// codsdfgh = find_coasdf()
+			parsing_cookies(request);
 		}
 
 		void find_page_and_param(std::string request)
@@ -326,7 +329,23 @@ class request_manager
 				j++;
 			}
 			return (res_split);
-		}		
+		}
+
+		void parsing_cookies(std::string request)
+		{
+			// size_t n;
+			// std::pair<std::string, std::string> pair_node;
+			// pair_node = find_line(request, "Content-Disposition", ':');
+			// std::string cookies_content;
+			// if ((!pair_node->second.empty()))
+			// {
+			// 	cookies_value = pair_node->second;
+				
+			// }//доделать
+			
+
+			
+		}
 };
 
 #endif

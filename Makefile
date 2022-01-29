@@ -3,7 +3,7 @@ CC = clang++
 FLAGS = -Wall -Wextra -Werror -std=c++98
 INCLUDE = -I.
 HEADER =  ${VECTOR}/Vector.hpp ${VECTOR}/ReversIteratorVector.hpp ${STACK}/Stack.hpp ${Stack}/IteratorVector.hpp ${MAP}/Map.hpp
-SRCS = main.cpp
+SRCS = main.cpp ./cgi/cgi.cpp ./cgi/parse_cgi.cpp
 
 OBJS = ${SRCS:.cpp=.o}
 
@@ -16,7 +16,7 @@ ${NAME}:	${OBJS}
 				${CC} -g ${FLAGS} ${INCLUDE} -o ${NAME} ${OBJS}
 
 test:			
-				${CC} -g main.cpp
+				${CC} -g main.cpp ./cgi/cgi.cpp ./cgi/parse_cgi.cpp
 
 pusk:
 			./webserv config.conf

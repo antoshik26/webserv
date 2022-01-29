@@ -21,10 +21,11 @@ class cgi
 		void find_script(std::string extension,std::map<std::string, std::map<std::string, std::string> > cgi);
 		void execve_script();
 	public:
+		cgi();
 		cgi(char **env);
-		//void new_cgi(std::string extension,std::map<std::string, std::map<std::string, std::string> > cgi,std::map<std::string, std::string> body);//final
-		void new_cgi(std::map<std::string, std::string> body);//comment
+		void new_cgi(std::string extension, std::map<std::string, std::map<std::string, std::string> > cgi,std::map<std::string, std::string> body);//final
+		// void new_cgi(std::map<std::string, std::string> body);//comment
 		std::string get_string();
-		virtual ~cgi();
+		~cgi();
 };
 #endif

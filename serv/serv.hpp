@@ -86,6 +86,7 @@ class serv
 		request_manager request;
 		response_manager response;
 		cookies _cookies_serv;
+		cgi _cgi_scripts;
 		// config_parser _conf_serv;
 
 
@@ -95,7 +96,7 @@ class serv
 
 		}
 
-		serv(std::vector<config_parser> conf_serv, cookies cookies_serv)
+		serv(std::vector<config_parser> conf_serv, cookies cookies_serv, cgi cgi_scripst)
 		{
 			try
 			{
@@ -110,6 +111,7 @@ class serv
 				pollfd one_socket;
 				std::string line;
 
+				_cgi_scripts = cgi_scripst;
 				_conf_serv_vec = conf_serv;
 				count_serv = conf_serv.size();
 			 	std::cout << it->get_port() <<std::endl;
@@ -450,7 +452,7 @@ class serv
 					if (result == 0)
 					{
 						request = request_manager(_recv_reader[i]);
-						response = response_manager(request, _conf_serv_vec[i], _cookies_serv);
+						response = response_manager(request, _conf_serv_vec[i], _cookies_serv, _cgi_scripts);
 						_poll_server_client_socketfd[i].events = POLLOUT;
 					}
 					else

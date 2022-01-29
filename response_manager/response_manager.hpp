@@ -8,25 +8,28 @@
 #include "../request_manager/request_manager.hpp"
 #include "../config_parser/config_parser.hpp"
 #include "../Cookies/cookies.hpp"
+#include "../cgi/cgi.hpp"
 
 class response_manager
 {
 	private:
 		request_manager _request;
 		config_parser _conf;
-		std::string response;
 		cookies _cookies_serv;
+		cgi _cgi_scripts;
+		std::string response;
 	public:
 		response_manager()
 		{
 
 		}
 
-		response_manager(request_manager request, config_parser conf, cookies cookies_serv)
+		response_manager(request_manager request, config_parser conf, cookies cookies_serv, cgi cgi_scripst)
 		{
 			_request = request;
 			_conf = conf;
 			_cookies_serv = cookies_serv;
+			_cgi_scripts = cgi_scripst;
 		}
 		//оператор копирование 
 		//оператор присваивания
@@ -444,6 +447,7 @@ class response_manager
 			std::string html_basement;
 			std::string content_file;
 			std::string path;
+			std::string result_cgi;
 			std::map<std::string, std::map<std::string, std::string> >::iterator _loc;
 			std::map<std::string, std::map<std::string, std::string> > _locations;
 			std::map<std::string, std::string> body;
@@ -502,15 +506,18 @@ class response_manager
 			//	cgi
 			// if (!(body.empty()))
 			// {
-				// multipath or cgi
+			// 	multipath or cgi
 			// }
-			// if (definition_path_or_filr(_request.get_page_index()) == 0)	//path //вынести в работу с путями
+			// if (definition_path_or_filr(_request.get_page_index()) != 0)	//path //вынести в работу с путями
 			// {
-			// 	path = find_path_to_html();
-			// 	if (path.find(".cs") != std::string::npos || path.find(".py") != std::string::npos)
-			// 	{
-
-			// 	}
+				path = find_path_to_html();
+				if (path.find(".cs") != std::string::npos || path.find(".py") != std::string::npos)
+				{
+					_cgi_scripts.new_cgi(".py", _conf.get_cgi(), _request.get_body_cgi());
+					result_cgi = _cgi_scripts.get_string();
+					std::cout << result_cgi << std::endl;
+					if (_body.Referer)
+				}
 			// }
 			html = html + html_basement;
 			return (html);

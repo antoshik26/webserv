@@ -3,6 +3,7 @@
 #include "./config_parser/config_parser.hpp"
 #include "./request_manager/request_manager.hpp"
 #include "./Cookies/cookies.hpp"
+#include "./cgi/cgi.hpp"
 #include <fstream>
 
 
@@ -18,6 +19,7 @@ int  main(int argc, char* argv[], char* env[])
 	size_t i = 0;
 	size_t j = 0;
 	argv[1] = "config.conf";
+	cgi cgi_scripst(env);
 	std::vector<config_parser> list_conf;
 	
 	try
@@ -59,7 +61,7 @@ int  main(int argc, char* argv[], char* env[])
 		cookies cookies_serv(list_conf);
 
 		// serv myserv(config);
-		serv myserv(list_conf, cookies_serv);
+		serv myserv(list_conf, cookies_serv, cgi_scripst);
 
 
 		// error = myserv.serv_bind();

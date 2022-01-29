@@ -32,5 +32,5 @@ void cgi::find_script(std::string extension, std::map<std::string, std::map<std:
 	std::string search;
 	search = cgi.find(".py")->first;
 	this->_script=new char[ cgi.find(".py")->first.length()];
-	strcpy(_script,search.c_str());
+	strcpy(_script,search.c_str()); 
 }
