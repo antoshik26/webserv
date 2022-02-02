@@ -424,8 +424,6 @@ class serv
 
 			if ((_poll_server_client_socketfd[i].revents & POLLIN) == POLLIN)
 			{
-				
-
 				rc = recv(_poll_server_client_socketfd[i].fd, buffer, 1024 - 1, 0);
 				// if (errno != 0)
 				// 	std::cout << std::strerror(errno) << errno <<  std::endl;

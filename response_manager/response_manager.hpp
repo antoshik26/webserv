@@ -238,7 +238,7 @@ class response_manager
 		{
 			std::string body_html;
 
-			body_html = "HTTP/1.1 307 Temporary Redirect\n";
+			body_html = "HTTP/1.1 307 Temporary Redirect\r\n";
 			body_html = body_html + "Location: " + _conf.get_return();
 			return (body_html);
 		}
@@ -266,7 +266,7 @@ class response_manager
 			split_file.push_back(line);
 			return (split_file);
 		}
-		std::string find_path_to_html() //переделать
+		std::string find_path_to_html(std::string _path) //переделать
 		{
 			//size_t i = 0;
 		 	//const char* stat_path;
@@ -385,7 +385,7 @@ class response_manager
 			return (path_and_file);
 		}
 
-		int definition_path_or_filr(std::string file_or_path) //переделать
+		int definition_path_or_filr(std::string file_or_path) //переделать убрать
 		{
 			(void)file_or_path;
 			int a = 0;
@@ -502,17 +502,17 @@ class response_manager
 			std::string result_cgi;
 			std::map<std::string, std::map<std::string, std::string> >::iterator _loc;
 			std::map<std::string, std::map<std::string, std::string> > _locations;
-			std::map<std::string, std::string> body;
+			std::map<std::string, std::string> _body;
 			struct stat stat_file;
 			size_t n;
 
-			html_header = this->html_header(204, "No Content");
-			html = html + html_header;
 			html_basement = this->html_basement();
 			//multipart
-			body = _request.get_body();
-			if ((_request.get_body().find("Content-Disposition")) != _request.get_body().end())
+			_body = _request.get_body();
+			if ((_body.find("Content-Disposition")) != _body.end())
 			{
+				html_header = this->html_header(204, "No Content");
+				html = html + html_header;
 				if ((n = _request.get_body().find("Content-Disposition")->second.find("filename")) != std::string::npos)
 				{
 
@@ -568,8 +568,25 @@ class response_manager
 					_cgi_scripts.new_cgi(".py", _conf.get_cgi(), _request.get_body_cgi());
 					result_cgi = _cgi_scripts.get_string();
 					std::cout << result_cgi << std::endl;
-		//			if (_body.Referer)
-		//поиск и добавление на странице 
+					if (_body.find("Referer") != _body.end() || _body.find("Origin") != _body.end())
+					{
+						if (_body.find("Referer") != _body.end())
+						{
+							path = find_path_to_html((_body.find("Referer"))->second);
+							path = "./web_document/7000_port/html/page1.html";
+							html = create_html_file_with_result_cgi(path, result_cgi);
+						}
+						// if (_body.find("Origin") != _body.end())
+						// {
+						// 	path = find_path_to_html((_body.find("Origin"))->second);
+						// 	path = "./web_document/7000_port/html/page1.html";
+						// 	html = html + create_html_file_with_result_cgi(path, result_cgi);
+						// }
+					}
+					else
+					{
+
+					}
 				}
 			// }
 			html = html + html_basement;
@@ -609,11 +626,38 @@ class response_manager
 			return (html);
 		}
 
-		std::string find_file_name()
+		std::string create_html_file_with_result_cgi(std::string path_and_file, std::string result_cgi)
 		{
-			std::string file;
+			(void)path_and_file;
+			(void)result_cgi;
+			std::string html_result;
+			std::string key;
+			std::string value;
+			std::string html_header;
+			size_t n = 0;
+			size_t k = 0;
 			
-			return (file);
+			html_header = "HTTP/1.1 200 OK\r\n\r\n";
+			// html_header = html_header + "Location: " + path_and_file + "\r\n\r\n";
+			html_result = html_header;
+			html_result = html_result + read_full_file(path_and_file);
+			if ((n = result_cgi.find(":")) != std::string::npos)
+			{
+				key = result_cgi.substr(0, n);
+				std::cout << key << std::endl;
+				n++;
+				value = result_cgi.substr(n, result_cgi.length() - n - 1);
+				std::cout << value << std::endl;
+				if ((k = html_result.find("id=\"" + key + "\"")) != std::string::npos)
+				{
+					while (html_result[k] != '>')
+						k++;
+					k++;
+					html_result.insert(k, value);
+					std::cout << html_result << std::endl;
+				}
+			}
+			return (html_result);
 		}
 };
 
