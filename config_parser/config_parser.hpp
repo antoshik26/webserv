@@ -15,10 +15,8 @@ class config_parser
 		std::string _access_log;
 		std::string _error_log;
 		std::string _return;
-		// std::map<std::string, std::string> _return; //подумать над этим
-		// std::map<std::string, std::vector<std::string> > _locations; //переделать смотреть ниже
 		std::map<std::string, std::map<std::string, std::string> > _locations;
-		std::map<std::string, std::map<std::string, std::string> > _cgi; //подумать над таким выводом
+		std::map<std::string, std::map<std::string, std::string> > _cgi;
 	public:
 		config_parser()
 		{
