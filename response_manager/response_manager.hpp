@@ -9,7 +9,12 @@
 #include "../config_parser/config_parser.hpp"
 #include "../Cookies/cookies.hpp"
 #include "../cgi/cgi.hpp"
-
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include"iostream"
+#include"string"
 class response_manager
 {
 	private:
@@ -237,23 +242,46 @@ class response_manager
 			body_html = body_html + "Location: " + _conf.get_return();
 			return (body_html);
 		}
+		//путь до html
+		std::vector<std::string> split(std::map<std::string, std::string>::iterator it)
+		{
+			std::vector<std::string> split_file;
+			std::string page_location = it->second;
+			std::string line;
+			int i = 0;
+			int n = 0;
 
+			while (page_location[i])
+			{
+				if (page_location[i] == ' ')
+				{
+					line = page_location.substr(n, i - n);
+					split_file.push_back(line);
+					line.clear();
+					n = i + 1;
+				}
+				i++;
+			}
+			line = page_location.substr(n, i - n);
+			split_file.push_back(line);
+			return (split_file);
+		}
 		std::string find_path_to_html() //переделать
 		{
-			size_t i = 0;
-		 	const char* stat_path;
-			char buf[1000];
-			std::string path;
-			std::map<std::string, std::map<std::string, std::string> > _locations;
-			std::vector<std::string> split_file;
-			std::string path_and_file = "";
-			struct stat stat_file;
-			std::map<std::string, std::map<std::string, std::string> >::iterator it = _locations.begin();
+			//size_t i = 0;
+		 	//const char* stat_path;
+			//char buf[1000];
+			//std::string path;
+			//std::map<std::string, std::map<std::string, std::string> > _locations;
+			//std::vector<std::string> split_file;
+			//std::string path_and_file = "";
+			//struct stat stat_file;/
+			//std::map<std::string, std::map<std::string, std::string> >::iterator it = _locations.begin();
 
-			_locations = _conf.get_locations();
-			for (std::map<std::string, std::map<std::string, std::string> >::iterator it = _locations.begin(); it != _locations.end(); it++)
+			/*_locations = _conf.get_locations();
+			for (std::map<std::string, std::map<std::string, std::string> >::iterator it = _locations.begin(); it != _locations.end(); it++)//if path exist
 			{
-				if (_request.get_page_index() == it->first)
+				if (_request.get_page_index() == it->first)//папка или файл
 				{
 					split_file = split((it->second).find("index"));
 					path = (it->second).find("root")->second;
@@ -269,16 +297,62 @@ class response_manager
 						i++;
 					}
 				}
-			}
-			if (path_and_file.empty())
+			}*/
+			/*if (path_and_file.empty())
 			{
 				path = _locations.find("/")->second.find("root")->second;
 				if (!(_locations.find("/")->second.find("index")->second.empty()))
 					path_and_file = path + _request.get_page_index();
 			}
-			return (path_and_file);
+			return (path_and_file);*/
+			std::map<std::string, std::map<std::string, std::string> > _locations;
+			std::string path=_request.get_page_index();
+
+			_locations = _conf.get_locations();
+			for (std::map<std::string, std::map<std::string, std::string> >::iterator it = _locations.begin(); it != _locations.end(); it++)//if path exist
+			{
+				if(path == it->first)
+				{
+					if(!parse_location_root(it).empty())
+					{
+						return(parse_location_root(it));
+					}
+				}
+			}
+			if (Exists(path.c_str()) || Exists(("."+path).c_str()))
+			{
+				return(path);
+			}
+			path.clear();
+			return(path);
+		}
+		
+		std::string parse_location_root(std::map<std::string, std::map<std::string, std::string> >::iterator it)
+		{
+			std::vector<std::string> split_file = split((it->second).find("index"));
+			std::string root;
+
+			root=(it->second).find("root")->second;
+			for (std::vector<std::string>::iterator it_v=split_file.begin();it_v!=split_file.end();it_v++)
+			{
+				if(Exists((root + *(it_v)).c_str())==1 || Exists(("."+root + *(it_v)).c_str())==1 )
+				{
+					return(root+*(it_v));
+				}
+			}
+			root.clear();
+			return(root);
 		}
 
+		int Exists(const char *path)
+		{
+    	struct stat info;
+
+    	if(stat( path, &info ) != 0)
+        	return 0;
+    	else 
+        	return 1;
+		}
 		std::string find_path_to_cgi()
 		{
 			size_t i = 0;
@@ -321,29 +395,7 @@ class response_manager
 			return a;
 		}
 
-		std::vector<std::string> split(std::map<std::string, std::string>::iterator it)
-		{
-			std::vector<std::string> split_file;
-			std::string page_location = it->second;
-			std::string line;
-			int i = 0;
-			int n = 0;
-
-			while (page_location[i])
-			{
-				if (page_location[i] == ' ')
-				{
-					line = page_location.substr(n, i - n);
-					split_file.push_back(line);
-					line.clear();
-					n = i + 1;
-				}
-				i++;
-			}
-			line = page_location.substr(n, i - n);
-			split_file.push_back(line);
-			return (split_file);
-		}
+		
 
 		std::string metod_get() //переделать стуктуру создание get от ответа полностью
 		{
@@ -516,13 +568,13 @@ class response_manager
 					_cgi_scripts.new_cgi(".py", _conf.get_cgi(), _request.get_body_cgi());
 					result_cgi = _cgi_scripts.get_string();
 					std::cout << result_cgi << std::endl;
-					if (_body.Referer)
+		//			if (_body.Referer)
+		//поиск и добавление на странице 
 				}
 			// }
 			html = html + html_basement;
 			return (html);
 		}
-
 		std::string metod_delete()
 		{
 			std::ofstream f;
