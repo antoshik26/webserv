@@ -266,19 +266,26 @@ class response_manager
 			split_file.push_back(line);
 			return (split_file);
 		}
-		std::string find_path_to_html(std::string _path) //переделать
+		std::string find_path_to_html(std::string path)
 		{
-			//size_t i = 0;
-		 	//const char* stat_path;
-			//char buf[1000];
-			//std::string path;
-			//std::map<std::string, std::map<std::string, std::string> > _locations;
-			//std::vector<std::string> split_file;
-			//std::string path_and_file = "";
-			//struct stat stat_file;/
-			//std::map<std::string, std::map<std::string, std::string> >::iterator it = _locations.begin();
+			(void)path;
+			std::string asdfg;
 
-			/*_locations = _conf.get_locations();
+			return (asdfg);
+		}	
+		std::string find_path_to_html() //переделать
+		{
+			size_t i = 0;
+		 	const char* stat_path;
+			char buf[1000];
+			std::string path;
+			std::map<std::string, std::map<std::string, std::string> > _locations;
+			std::vector<std::string> split_file;
+			std::string path_and_file = "";
+			struct stat stat_file;
+			// std::map<std::string, std::map<std::string, std::string> >::iterator it = _locations.begin();
+
+			_locations = _conf.get_locations();
 			for (std::map<std::string, std::map<std::string, std::string> >::iterator it = _locations.begin(); it != _locations.end(); it++)//if path exist
 			{
 				if (_request.get_page_index() == it->first)//папка или файл
@@ -297,34 +304,34 @@ class response_manager
 						i++;
 					}
 				}
-			}*/
-			/*if (path_and_file.empty())
+			}
+			if (path_and_file.empty())
 			{
 				path = _locations.find("/")->second.find("root")->second;
 				if (!(_locations.find("/")->second.find("index")->second.empty()))
 					path_and_file = path + _request.get_page_index();
 			}
-			return (path_and_file);*/
-			std::map<std::string, std::map<std::string, std::string> > _locations;
-			std::string path=_request.get_page_index();
+			return (path_and_file);
+			// std::map<std::string, std::map<std::string, std::string> > _locations;
+			// std::string path=_request.get_page_index();
 
-			_locations = _conf.get_locations();
-			for (std::map<std::string, std::map<std::string, std::string> >::iterator it = _locations.begin(); it != _locations.end(); it++)//if path exist
-			{
-				if(path == it->first)
-				{
-					if(!parse_location_root(it).empty())
-					{
-						return(parse_location_root(it));
-					}
-				}
-			}
-			if (Exists(path.c_str()) || Exists(("."+path).c_str()))
-			{
-				return(path);
-			}
-			path.clear();
-			return(path);
+			// _locations = _conf.get_locations();
+			// for (std::map<std::string, std::map<std::string, std::string> >::iterator it = _locations.begin(); it != _locations.end(); it++)//if path exist
+			// {
+			// 	if(path == it->first)
+			// 	{
+			// 		if(!parse_location_root(it).empty())
+			// 		{
+			// 			return(parse_location_root(it));
+			// 		}
+			// 	}
+			// }
+			// if (Exists(path.c_str()) || Exists(("."+path).c_str()))
+			// {
+			// 	return(path);
+			// }
+			// path.clear();
+			// return(path);
 		}
 		
 		std::string parse_location_root(std::map<std::string, std::map<std::string, std::string> >::iterator it)
