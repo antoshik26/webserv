@@ -24,6 +24,7 @@ class cgi
 		cgi();
 		cgi(char **env);
 		void new_cgi(std::string extension, std::map<std::string, std::map<std::string, std::string> > cgi,std::map<std::string, std::string> body);//final
+		//void new_cgi(std::map<std::string, std::string> body);//final
 		// void new_cgi(std::map<std::string, std::string> body);//comment
 		std::string get_string();
 		~cgi();

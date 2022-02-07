@@ -266,22 +266,22 @@ class response_manager
 			split_file.push_back(line);
 			return (split_file);
 		}
-		std::string find_path_to_html(std::string _path) //переделать
+		std::string find_path_to_html(std::string _path) //переделать get /hiuefe http
 		{
-			//size_t i = 0;
-		 	//const char* stat_path;
-			//char buf[1000];
-			//std::string path;
-			//std::map<std::string, std::map<std::string, std::string> > _locations;
-			//std::vector<std::string> split_file;
-			//std::string path_and_file = "";
-			//struct stat stat_file;/
-			//std::map<std::string, std::map<std::string, std::string> >::iterator it = _locations.begin();
+			size_t i = 0;
+		 	const char* stat_path;
+			char buf[1000];
+			std::string path;
+			std::map<std::string, std::map<std::string, std::string> > _locations;
+			std::vector<std::string> split_file;
+			std::string path_and_file = "";
+			struct stat stat_file;
+			std::map<std::string, std::map<std::string, std::string> >::iterator it = _locations.begin();
 
-			/*_locations = _conf.get_locations();
+			_locations = _conf.get_locations();//распарсенный кофнифиг
 			for (std::map<std::string, std::map<std::string, std::string> >::iterator it = _locations.begin(); it != _locations.end(); it++)//if path exist
 			{
-				if (_request.get_page_index() == it->first)//папка или файл
+				if (_request.get_page_index() == it->first)//папка или файл//change to 
 				{
 					split_file = split((it->second).find("index"));
 					path = (it->second).find("root")->second;
@@ -297,15 +297,15 @@ class response_manager
 						i++;
 					}
 				}
-			}*/
-			/*if (path_and_file.empty())
+			}
+			if (path_and_file.empty())
 			{
 				path = _locations.find("/")->second.find("root")->second;
 				if (!(_locations.find("/")->second.find("index")->second.empty()))
 					path_and_file = path + _request.get_page_index();
 			}
-			return (path_and_file);*/
-			std::map<std::string, std::map<std::string, std::string> > _locations;
+			return (path_and_file);
+			/*std::map<std::string, std::map<std::string, std::string> > _locations;
 			std::string path=_request.get_page_index();
 
 			_locations = _conf.get_locations();
@@ -342,7 +342,7 @@ class response_manager
 			}
 			root.clear();
 			return(root);
-		}
+		}*/
 
 		int Exists(const char *path)
 		{

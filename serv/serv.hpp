@@ -215,7 +215,7 @@ class serv
 				// throw;
 			}
 			return (error);
-		}
+		}//доп
 
 		int accept_serv(int socket_serv)
 		{
@@ -235,7 +235,7 @@ class serv
 				// throw;
 			}
 			return (sock_klient);
-		}
+		}//доп
 		
 
 		int listen_fd()
@@ -259,7 +259,7 @@ class serv
 			{
 				throw;
 			}
-		}
+		}//ок
 
 		int add_client_in_poll(int socket_serv, config_parser conf)
 		{
@@ -285,7 +285,7 @@ class serv
 				return (1);
 			}
 			return (0);
-		}
+		}//ок
 
 		int new_client()
 		{
@@ -404,7 +404,7 @@ class serv
 				// throw;
 			}
 			return (0);
-		}		
+		}//доп		
 	
 		int check_chank_and_multipart(int i)
 		{
@@ -412,7 +412,7 @@ class serv
 			int result = 0;
 
 			return (result);
-		}
+		}//????????????????????????????
 
 		int check_condition_socket(int i, char *buffer)
 		{
@@ -465,7 +465,7 @@ class serv
 			// 	result = write_send(i);
 			// }
 			return (result);
-		}
+		}//переписать
 
 		int reader_recv(int i, char *buffer)
 		{
@@ -510,7 +510,7 @@ class serv
 			else
 				return (1);
 			return (result);
-		}
+		}//ок
 
 		int write_send(int i)
 		{
