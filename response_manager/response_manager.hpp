@@ -601,6 +601,7 @@ class response_manager
 			html = html + html_basement;
 			return (html);
 		}
+		//curl -X DELETE http://localhost:7000
 		std::string metod_delete()
 		{
 			std::ofstream f;
