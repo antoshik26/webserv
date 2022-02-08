@@ -266,13 +266,15 @@ class response_manager
 			split_file.push_back(line);
 			return (split_file);
 		}
-		std::string find_path_to_html(std::string path)
-		{
-			(void)path;
-			std::string asdfg;
 
-			return (asdfg);
-		}	
+		std::string find_path_to_html(std::string asd)
+		{
+			(void)asd;
+			std::string asbn;
+			
+			return (asbn);
+		}
+
 		std::string find_path_to_html() //переделать
 		{
 			size_t i = 0;
@@ -283,7 +285,7 @@ class response_manager
 			std::vector<std::string> split_file;
 			std::string path_and_file = "";
 			struct stat stat_file;
-			// std::map<std::string, std::map<std::string, std::string> >::iterator it = _locations.begin();
+			std::map<std::string, std::map<std::string, std::string> >::iterator it = _locations.begin();
 
 			_locations = _conf.get_locations();
 			for (std::map<std::string, std::map<std::string, std::string> >::iterator it = _locations.begin(); it != _locations.end(); it++)//if path exist
@@ -599,6 +601,7 @@ class response_manager
 			html = html + html_basement;
 			return (html);
 		}
+		//curl -X DELETE http://localhost:7000
 		std::string metod_delete()
 		{
 			std::ofstream f;
