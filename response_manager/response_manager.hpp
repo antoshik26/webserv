@@ -17,7 +17,7 @@
 #include"string"
 class response_manager
 {
-	private:
+	protected:
 		request_manager _request;
 		config_parser _conf;
 		cookies _cookies_serv;
@@ -74,12 +74,6 @@ class response_manager
 			return (dir_tree);
 		}
 
-		int error()
-		{
-
-			return (0);
-		}
-
 		std::string body_html()
 		{
 			std::string html;
@@ -110,7 +104,7 @@ class response_manager
 				html_error = error_500();
 			if (error == 404)
 				html_error = error_404();
-			if (error ==501)
+			if (error == 501)
 				html_error = error_501();
 			return (html_error);
 		}
@@ -267,11 +261,47 @@ class response_manager
 			return (split_file);
 		}
 
-		std::string find_path_to_html(std::string asd)
+		std::string find_path_to_html(std::string path_to_file)
 		{
-			(void)asd;
+			(void)path_to_file;
 			std::string asbn;
-			
+			// size_t i = 0;
+		 	// const char* stat_path;
+			// char buf[1000];
+			// std::string path;
+			// std::map<std::string, std::map<std::string, std::string> > _locations;
+			// std::vector<std::string> split_file;
+			// std::string path_and_file = "";
+			// struct stat stat_file;
+			// std::map<std::string, std::map<std::string, std::string> >::iterator it = _locations.begin();
+
+
+			// _locations = path_to_file;
+			// for (std::map<std::string, std::map<std::string, std::string> >::iterator it = _locations.begin(); it != _locations.end(); it++)//if path exist
+			// {
+			// 	if (_request.get_page_index() == it->first)//папка или файл
+			// 	{
+			// 		split_file = split((it->second).find("index"));
+			// 		path = (it->second).find("root")->second;
+			// 		while (i < split_file.size())
+			// 		{
+			// 			path_and_file = path + split_file[i];
+			// 			stat_path = path_and_file.c_str();
+			// 			if (stat(stat_path, &stat_file) != -1) //&& S_ISDIR(stat_file.st_mode)) //НЕ ПАПКА
+			// 			{
+			// 				return (path_and_file);
+			// 			}
+			// 			path_and_file.clear();
+			// 			i++;
+			// 		}
+			// 	}
+			// }
+			// if (path_and_file.empty())
+			// {
+			// 	path = _locations.find("/")->second.find("root")->second;
+			// 	if (!(_locations.find("/")->second.find("index")->second.empty()))
+			// 		path_and_file = path + _request.get_page_index();
+			// }
 			return (asbn);
 		}
 
@@ -283,11 +313,17 @@ class response_manager
 			std::string path;
 			std::map<std::string, std::map<std::string, std::string> > _locations;
 			std::vector<std::string> split_file;
+			std::string file;
 			std::string path_and_file = "";
 			struct stat stat_file;
 			std::map<std::string, std::map<std::string, std::string> >::iterator it = _locations.begin();
 
 			_locations = _conf.get_locations();
+			file = split_path_and_files(_request.get_page_index());
+			// if (file.empty())
+			// {
+
+			// }
 			for (std::map<std::string, std::map<std::string, std::string> >::iterator it = _locations.begin(); it != _locations.end(); it++)//if path exist
 			{
 				if (_request.get_page_index() == it->first)//папка или файл
@@ -362,6 +398,7 @@ class response_manager
     	else 
         	return 1;
 		}
+		
 		std::string find_path_to_cgi()
 		{
 			size_t i = 0;
@@ -404,7 +441,38 @@ class response_manager
 			return a;
 		}
 
-		
+		int definition_path_or_filr_norm(std::string file_or_path) //переделать убрать
+		{
+			int a = 0;
+			struct stat stat_file;
+			
+			if (stat(file_or_path.c_str(), &stat_file ) != -1)
+			{
+				if (S_ISREG(stat_file.st_mode))
+				{
+					a = 1;
+					return (a);
+				}
+				if (S_ISDIR(stat_file.st_mode))
+				{
+					a = 2;
+					return (a);
+				}
+			}
+			return a;
+		}
+
+		std::string split_path_and_files(std::string path_location)
+		{
+			(void)path_location;
+			std::string file;
+			size_t i = path_location.length();
+			
+			while (path_location[i] != '/')
+				i--;
+			file = path_location.substr(i, i - path_location.length());
+			return (file);
+		}
 
 		std::string metod_get() //переделать стуктуру создание get от ответа полностью
 		{
@@ -601,7 +669,7 @@ class response_manager
 			html = html + html_basement;
 			return (html);
 		}
-		//curl -X DELETE http://localhost:7000
+
 		std::string metod_delete()
 		{
 			std::ofstream f;
@@ -670,7 +738,4 @@ class response_manager
 			return (html_result);
 		}
 };
-
 #endif
-
-

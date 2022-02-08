@@ -1,1 +1,1 @@
-curl -X DELETE http://localhost:7000
+curl -X DELETE http://localhost:7000/
