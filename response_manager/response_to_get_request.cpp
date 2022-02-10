@@ -1,16 +1,12 @@
 #include "response_to_get_request.hpp"
 
-response_to_get_request::response_to_get_request()
-{}
-
-response_to_get_request::response_to_get_request(request_manager request, 
-		config_parser conf, cookies cookies_serv, cgi cgi_scripst) : response_manager(request, conf, cookies_serv, cgi_scripst);
+response_to_get_request::response_to_get_request(request_manager request, config_parser conf, cookies cookies_serv, cgi cgi_scripst) : response_manager(request, conf, cookies_serv, cgi_scripst)
 {}
 
 response_to_get_request::~response_to_get_request()
 {}
 
-std::string metod_get()
+std::string response_to_get_request::metod_response()
 {
 	std::string html;
 			std::string html_header;
@@ -102,4 +98,35 @@ std::string metod_get()
 			html = html + html_basement;
 			// std::cout << html << std::endl;
 			return (html);
+}
+
+std::string response_to_get_request::crate_dir_tree(const char* path_dir)
+{
+	std::string dir_tree;
+	std::string buf;
+	DIR* path = opendir(path_dir);
+	struct dirent* dirent_file;
+	struct stat stat_file;
+	dir_tree = dir_tree + "<!DOCTYPE html>\n<html>\n<body>\n";
+	while ((dirent_file = readdir(path)) != NULL)
+	{
+		if (stat(dirent_file->d_name, &stat_file) != -1)
+		{
+			if (S_ISREG(stat_file.st_mode))
+			{
+				buf = "<a href=\"" + (std::string)dirent_file->d_name + "\">" + (std::string)dirent_file->d_name + "</a>\n";
+				std::cout << buf <<std::endl;
+			}
+			if (S_ISDIR(stat_file.st_mode))
+			{
+				buf = "<a href=" + (std::string)dirent_file->d_name + " >" + (std::string)dirent_file->d_name + " </a>\n";
+				std::cout << buf <<std::endl;
+			}
+		}
+		dir_tree = dir_tree + buf;
+		buf.clear();
+	}
+	dir_tree = dir_tree + "</body> \n</html>\n";
+	std::cout << dir_tree << std::endl;
+	return (dir_tree);
 }

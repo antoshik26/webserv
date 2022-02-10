@@ -27,6 +27,11 @@
 #include "../cgi/cgi.hpp"
 #include "../response_manager/response_manager.hpp"
 #include "../Cookies/cookies.hpp"
+#include "../response_manager/response_to_get_request.hpp"
+#include "../response_manager/response_to_post_request.hpp"
+#include "../response_manager/response_to_delete_request.hpp"
+#include "../response_manager/response_error_request.hpp"
+#include "../response_manager/response_manager.hpp"
 #include "chanki.hpp"
 
 #define		serv_port		5000; //считывать с config		 
@@ -84,7 +89,7 @@ class serv
 		int count_client;						//отвратительно
 		// std::pair<int, int> pull_server_client_socketfd[100];
 		request_manager request;
-		response_manager response;
+		// response_manager response;
 		cookies _cookies_serv;
 		cgi _cgi_scripts;
 		// config_parser _conf_serv;
@@ -291,8 +296,6 @@ class serv
 		{
 			// int new_client = -1;
 			size_t i;
-			size_t n;
-			int rc;
 			int rc2;
 			char buffer[1024];
 			int error;
@@ -449,8 +452,8 @@ class serv
 					std::cout << buffer << std::endl;
 					if (result == 0)
 					{
-						request = request_manager(_recv_reader[i]);
-						response = response_manager(request, _conf_serv_vec[i], _cookies_serv, _cgi_scripts);
+						// request = request_manager(_recv_reader[i]);
+						// response = response_manager(request, _conf_serv_vec[i], _cookies_serv, _cgi_scripts);
 						_poll_server_client_socketfd[i].events = POLLOUT;
 					}
 					else
@@ -517,14 +520,48 @@ class serv
 			(void)i;
 			int result = 0;
 			size_t rc;
-			std::string body_html;
+			std::string body_html_send;
 
-			body_html = response.body_html();
-			rc = send(_poll_server_client_socketfd[i].fd, body_html.c_str(), body_html.length(), 0);
+			request = request_manager(_recv_reader[i]);
+			// response = response_manager(request, _conf_serv_vec[i], _cookies_serv, _cgi_scripts);
+			body_html_send = body_html(i);
+			rc = send(_poll_server_client_socketfd[i].fd, body_html_send.c_str(), body_html_send.length(), 0);
 			// close(_poll_server_client_socketfd[i].fd); //?
 			_recv_reader[i].erase();
 			// _poll_server_client_socketfd[i].fd = -1;  //?
 			return (result);
+		}
+
+		std::string body_html(int i)
+		{
+			std::string html;
+			std::string html_header;
+			std::string html_basement;
+			std::string content_file;
+			std::string path;
+			std::map<std::string, std::map<std::string, std::string> >::iterator _loc;
+			std::map<std::string, std::map<std::string, std::string> > _locations;
+
+			if (request.get_name_request() == "GET")
+			{
+			 	response_to_get_request get(request, _conf_serv_vec[i], _cookies_serv, _cgi_scripts);
+				html = get.metod_response();
+			}
+			if (request.get_name_request() == "POST")
+			{
+				response_to_post_request post(request, _conf_serv_vec[i], _cookies_serv, _cgi_scripts);
+				html = post.metod_response();
+			}
+			if (request.get_name_request() == "DELETE")
+			{
+				response_to_delete_request delete_respinse(request, _conf_serv_vec[i], _cookies_serv, _cgi_scripts);
+				html = delete_respinse.metod_response();
+			}
+			if (html.empty())
+			{
+			// 	html = create_error_page(501);
+			}
+			return (html);
 		}
 
 		std::string crate_dir_tree(char* path_dir)

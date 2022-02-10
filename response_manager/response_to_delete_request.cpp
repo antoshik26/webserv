@@ -1,16 +1,14 @@
 #include "response_to_delete_request.hpp"
 
-response_to_delete_request::response_to_delete_request()
-{}
 
 response_to_delete_request::response_to_delete_request(request_manager request, 
-		config_parser conf, cookies cookies_serv, cgi cgi_scripst) : request_manager(request, conf, cookies_serv, cgi_scripst);
+		config_parser conf, cookies cookies_serv, cgi cgi_scripst) : response_manager(request, conf, cookies_serv, cgi_scripst)
 {}
 
 response_to_delete_request::~response_to_delete_request()
 {}
 
-std::string metod_delete()
+std::string response_to_delete_request::metod_response()
 {
 	std::ofstream f;
 	std::string html;
@@ -24,7 +22,7 @@ std::string metod_delete()
 	struct stat stat_file;
 	size_t n;
 
-	html_basement = this->html_basement();
+	html_basement = response_manager::html_basement();
 	path = find_path_to_html();
 	if (path.empty())
 	{
@@ -33,7 +31,7 @@ std::string metod_delete()
 		{
 			std::remove(path.c_str());
 			if (!std::ifstream(path))
-				html = this->html_header(204);
+				html = response_manager::html_header(204);
 		}
 		else
 			html = create_error_page(403);

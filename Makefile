@@ -16,7 +16,7 @@ ${NAME}:	${OBJS}
 				${CC} -g ${FLAGS} ${INCLUDE} -o ${NAME} ${OBJS}
 
 test:			
-				${CC} -g main.cpp ./cgi/cgi.cpp ./cgi/parse_cgi.cpp
+				${CC} -g main.cpp ./cgi/cgi.cpp ./cgi/parse_cgi.cpp ./response_manager/response_error_request.cpp ./response_manager/response_manager.cpp ./response_manager/response_to_delete_request.cpp ./response_manager/response_to_get_request.cpp ./response_manager/response_to_post_request.cpp
 
 pusk:
 			./webserv config.conf

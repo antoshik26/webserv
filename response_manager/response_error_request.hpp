@@ -1,19 +1,15 @@
 #ifndef RESPONSE_ERROR_REQUEST_HPP
-#define RESPONSE_MANAGER_HPP
-#include "response_error_request.hpp"
+#define RESPONSE_ERROR_REQUEST_HPP
+#include <string>
 
 class response_error_request
 {
-	private:
-
 	public:
-		response_error_request();
-		~response_error_request();
 		std::string create_error_page(int error);
 		std::string error_403();
 		std::string error_204();
-		std::string return_page();
-	private:
-
+		std::string error_500();
+		std::string error_404();
+		std::string error_501();
 };
 #endif

@@ -1,20 +1,14 @@
 #include "response_error_request.hpp"
 
-response_error_request::response_error_request()
-{}
-
-response_error_request::~response_error_request()
-{}
-
 std::string response_error_request::create_error_page(int error)
 {
 	std::string html_error;
 	if (error == 500)
-		html_error = error_500();
+		html_error = this->error_500();
 	if (error == 404)
-		html_error = error_404();
+		html_error = this->error_404();
 	if (error == 501)
-		html_error = error_501();
+		html_error = this->error_501();
 	return (html_error);
 }
 
@@ -75,14 +69,5 @@ std::string response_error_request::error_501()
 	body_html = body_html + "</body>";
 	body_html = body_html + "</html>";
 	// body_html = body_html + html_basement();
-	return (body_html);
-}
-
-std::string response_error_request::return_page()
-{
-	std::string body_html;
-
-	body_html = "HTTP/1.1 307 Temporary Redirect\r\n";
-	body_html = body_html + "Location: " + _conf.get_return();
 	return (body_html);
 }

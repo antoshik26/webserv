@@ -333,6 +333,7 @@ class request_manager
 
 		void parsing_cookies(std::string request)
 		{
+			(void)request;
 			// size_t n;
 			// std::pair<std::string, std::string> pair_node;
 			// pair_node = find_line(request, "Content-Disposition", ':');
@@ -342,9 +343,6 @@ class request_manager
 			// 	cookies_value = pair_node->second;
 				
 			// }//доделать
-			
-
-			
 		}
 };
 

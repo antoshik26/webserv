@@ -67,10 +67,10 @@ class cookies
 			return (cookies_serv);
 		}
 
-		void set_cookies(std::map<std::string, std::string> new_cookies)
-		{
+		// void set_cookies(std::map<std::string, std::string> new_cookies)
+		// {
 
-		}
+		// }
 	private:
 		
 

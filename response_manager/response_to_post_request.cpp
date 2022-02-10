@@ -1,16 +1,13 @@
 #include "response_to_post_request.hpp"
 
-response_to_post_request::response_to_post_request()
-{}
-
 response_to_post_request::response_to_post_request(request_manager request, 
-			config_parser conf, cookies cookies_serv, cgi cgi_scripst) : request_manager(request, conf, cookies_serv, cgi_scripst)
+			config_parser conf, cookies cookies_serv, cgi cgi_scripst) : response_manager(request, conf, cookies_serv, cgi_scripst)
 {}
 
 response_to_post_request::~response_to_post_request()
 {}
 
-std::string response_to_post_request::metod_post()
+std::string response_to_post_request::metod_response()
 {
 	std::ofstream f;
 	std::string html;
@@ -110,4 +107,38 @@ std::string response_to_post_request::metod_post()
 	// }
 	html = html + html_basement;
 	return (html);
+}
+
+std::string response_to_post_request::create_html_file_with_result_cgi(std::string path_and_file, std::string result_cgi)
+{
+	(void)path_and_file;
+	(void)result_cgi;
+	std::string html_result;
+	std::string key;
+	std::string value;
+	std::string html_header;
+	size_t n = 0;
+	size_t k = 0;
+	
+	html_header = "HTTP/1.1 200 OK\r\n\r\n";
+	// html_header = html_header + "Location: " + path_and_file + "\r\n\r\n";
+	html_result = html_header;
+	html_result = html_result + read_full_file(path_and_file);
+	if ((n = result_cgi.find(":")) != std::string::npos)
+	{
+		key = result_cgi.substr(0, n);
+		std::cout << key << std::endl;
+		n++;
+		value = result_cgi.substr(n, result_cgi.length() - n - 1);
+		std::cout << value << std::endl;
+		if ((k = html_result.find("id=\"" + key + "\"")) != std::string::npos)
+		{
+			while (html_result[k] != '>')
+				k++;
+			k++;
+			html_result.insert(k, value);
+			std::cout << html_result << std::endl;
+		}
+	}
+	return (html_result);
 }
