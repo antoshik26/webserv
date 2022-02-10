@@ -244,7 +244,7 @@ class request_manager
 			}
 			if (_name_request == "DELETE")
 			{
-
+				
 			}
 		}
 
@@ -307,7 +307,7 @@ class request_manager
 				n = i;
 				while (request[i] != '\r')
 					i++;
-				str->second = request.substr(n + 1, i - n);
+				str->second = request.substr(n + 1, i - n - 1);
 			}
 			return (*str);
 		}

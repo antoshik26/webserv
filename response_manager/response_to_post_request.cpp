@@ -21,6 +21,7 @@ std::string response_to_post_request::metod_response()
 	std::map<std::string, std::string> _body;
 	struct stat stat_file;
 	size_t n;
+	size_t j;
 
 	html_basement = this->html_basement();
 	//multipart
@@ -35,9 +36,15 @@ std::string response_to_post_request::metod_response()
 			path = find_path_to_html();
 			if (path[path.length() - 1] != '/')
 				path = path + '/';
-			content_file = _request.get_body().find("Content-Disposition")->second.substr(n + 10, 8);//n - _request.get_body().find("Content-Disposition")->second.find("/r") - 1);
+			content_file = _request.get_body().find("Content-Disposition")->second;
+			n = n + 10;
+			j = n;
+			while (content_file[n]!= '\"')
+				n++;
+			std::string content_file2 = content_file.substr(j, n-j);
+			std::cout << content_file2 << std::endl;
 			path = "/Users/dmadelei/Desktop/";
-			path = path + content_file;
+			path = path + content_file2;
 			if (!(path.empty()))
 			{
 				if (stat(path.c_str(), &stat_file) == 0)
@@ -71,6 +78,8 @@ std::string response_to_post_request::metod_response()
 		else
 			html = create_error_page(403);
 	}
+	else
+	{
 	//	cgi
 	// if (!(body.empty()))
 	// {
@@ -78,7 +87,7 @@ std::string response_to_post_request::metod_response()
 	// }
 	// if (definition_path_or_filr(_request.get_page_index()) != 0)	//path //вынести в работу с путями
 	// {
-		path = find_path_to_html();
+		path = find_path_to_cgi();
 		if (path.find(".cs") != std::string::npos || path.find(".py") != std::string::npos)
 		{
 			_cgi_scripts.new_cgi(".py", _conf.get_cgi(), _request.get_body_cgi());
@@ -88,23 +97,17 @@ std::string response_to_post_request::metod_response()
 			{
 				if (_body.find("Referer") != _body.end())
 				{
-					path = find_path_to_html((_body.find("Referer"))->second);
-					path = "./web_document/7000_port/html/page1.html";
+					path = (_body.find("Referer"))->second;
+					size_t n = path.find("localhost");
+					while (path[n] != '/')
+						n++;
+					content_file = path.substr(n, path.length() - n);
+					path = find_path_to_html(content_file);
 					html = create_html_file_with_result_cgi(path, result_cgi);
 				}
-				// if (_body.find("Origin") != _body.end())
-				// {
-				// 	path = find_path_to_html((_body.find("Origin"))->second);
-				// 	path = "./web_document/7000_port/html/page1.html";
-				// 	html = html + create_html_file_with_result_cgi(path, result_cgi);
-				// }
-			}
-			else
-			{
-
 			}
 		}
-	// }
+	}
 	html = html + html_basement;
 	return (html);
 }

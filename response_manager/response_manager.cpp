@@ -120,11 +120,11 @@ std::string response_manager::find_path_to_html(std::string path_to_file)
 	if (file.empty())
 		path = find_location_path();
 	else
-		path = find_location_file(file);
-	return (path_and_file);
+		path = find_location_file(path_and_file);
+	return (path);
 }
 
-std::string response_manager::find_path_to_html() //переделать
+std::string response_manager::find_path_to_html() //не работает
 {
 	size_t i = 0;
 	const char* stat_path;
@@ -141,8 +141,8 @@ std::string response_manager::find_path_to_html() //переделать
 	if (file.empty())
 		path = find_location_path();
 	else
-		path = find_location_file(file);
-	return (path_and_file);
+		path = find_location_file(_request.get_page_index());
+	return (path);
 }
 
 // std::string response_manager::find_path_to_html() //переделать
@@ -262,7 +262,7 @@ std::string response_manager::split_path_and_files(std::string path_location)
 	
 	while (path_location[i] != '/')
 		i--;
-	file = path_location.substr(i, i - path_location.length());
+	file = path_location.substr(i + 1, i - path_location.length());
 	return (file);
 }
 
@@ -280,6 +280,7 @@ std::string response_manager::find_location_path()
 	struct stat stat_file;
 
 	path_location = find_firs_location(_request.get_page_index());
+	_locations = _conf.get_locations();
 	for (std::map<std::string, std::map<std::string, std::string> >::iterator it = _locations.begin(); it != _locations.end(); it++)//if path exist
 	{
 		if (path_location == it->first)//папка или файл
@@ -316,17 +317,22 @@ std::string response_manager::find_location_file(std::string file)
 	const char* stat_path;
 	char buf[1000];
 	std::string path;
+	std::string path_location;
 	std::map<std::string, std::map<std::string, std::string> > _locations;
 	std::vector<std::string> split_file;
 	// std::string file;
 	std::string path_and_file = "";
 	struct stat stat_file;
 
+	_locations = _conf.get_locations();
+	path_location = find_firs_location(_request.get_page_index());
 	for (std::map<std::string, std::map<std::string, std::string> >::iterator it = _locations.begin(); it != _locations.end(); it++)//if path exist
 	{
-		if (_request.get_page_index() == it->first)//папка или файл
+		if (path_location == it->first)//папка или файл
 		{
 			path = (it->second).find("root")->second;
+			if (path[path.length() - 1] == '/')
+				path.pop_back();
 			path_and_file = path + file;
 			stat_path = path_and_file.c_str();
 			if (stat(stat_path, &stat_file) != -1) //&& S_ISDIR(stat_file.st_mode)) //НЕ ПАПКА
@@ -343,13 +349,13 @@ std::string response_manager::find_firs_location(std::string path)
 {
 	(void)path;
 	std::string location;
-	size_t j = 1;
+	size_t j = 0;
 	size_t i = j;
 
-	while (path[i] != '/' || path[i])
+	while (path[i] != '/')
 		i++;
 	if (path[i] == '/')
-		location = path.substr(j, i - j);
+		location = path.substr(j, i + 1 - j);
 	return (location);
 }
 

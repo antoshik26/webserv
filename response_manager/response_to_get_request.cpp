@@ -23,29 +23,11 @@ std::string response_to_get_request::metod_response()
 			if (definition_path_or_filr(_request.get_page_index()) == 0)	//path //вынести в работу с путями
 			{
 				path = find_path_to_html();
-				// if (definition_path_or_filr(path) == 0)
-				if (path.empty())
+				if (stat(path.c_str(), &stat_file) != -1)
 				{
-					if (_conf.get_avtoindex() == true)
+					if (S_ISDIR(stat_file.st_mode))
 					{
-						if (stat(path.c_str(), &stat_file) != -1)
-						{
-							if (S_ISDIR(stat_file.st_mode))
-							{
-								html = html + crate_dir_tree((path).c_str());
-							}
-						}
-					}
-					else
-					{
-						if (_conf.get_return().empty())
-							html = create_error_page(404);
-						else
-						{
-							html = return_page();
-							if (html.empty())
-								html = create_error_page(404);
-						}
+						html = html + crate_dir_tree((path).c_str());
 					}
 				}
 				else
@@ -104,13 +86,19 @@ std::string response_to_get_request::crate_dir_tree(const char* path_dir)
 {
 	std::string dir_tree;
 	std::string buf;
-	DIR* path = opendir(path_dir);
+	// std::string path_dir2 = "/Users/dmadelei/Documents/webserv/web_document/7000_port/html/";
+	DIR* path = opendir(path_dir2.c_str());
 	struct dirent* dirent_file;
 	struct stat stat_file;
 	dir_tree = dir_tree + "<!DOCTYPE html>\n<html>\n<body>\n";
+	std::string path_file;
+	if (path_dir)
 	while ((dirent_file = readdir(path)) != NULL)
 	{
-		if (stat(dirent_file->d_name, &stat_file) != -1)
+		
+		path_file = path_dir2 + (std::string)(dirent_file->d_name);
+		std::cout << path_file << std::endl;
+		if (stat(path_file.c_str(), &stat_file) != -1)
 		{
 			if (S_ISREG(stat_file.st_mode))
 			{
@@ -124,6 +112,7 @@ std::string response_to_get_request::crate_dir_tree(const char* path_dir)
 			}
 		}
 		dir_tree = dir_tree + buf;
+		dir_tree = dir_tree + "<br>\n";
 		buf.clear();
 	}
 	dir_tree = dir_tree + "</body> \n</html>\n";

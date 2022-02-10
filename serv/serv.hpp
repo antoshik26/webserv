@@ -474,7 +474,7 @@ class serv
 		{
 			int result = 0;
 			size_t n;
-			size_t k;
+			size_t k ;
 
 
 			_recv_reader[i] = _recv_reader[i] + buffer;
@@ -508,7 +508,7 @@ class serv
 				}
 			}
 			size_t content_length = std::atoi(_recv_reader[i].substr(_recv_reader[i].find("Content-Length: ") + 16, 10).c_str());
-			if (_recv_reader[i].size() >= content_length + k + 4)
+			if (_recv_reader[i].size() >= content_length + k + 4 - 1)
 				return (0);
 			else
 				return (1);
