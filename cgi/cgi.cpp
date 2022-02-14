@@ -10,7 +10,6 @@ cgi::cgi(char **env)
 void cgi::new_cgi(std::string extension,std::map<std::string, std::map<std::string, std::string> > cgi,std::map<std::string, std::string> body)//final
 //void cgi::new_cgi(std::strinf script,std::map<std::string, std::string> body) 
 {
-	int i=0;
 	fill_varibles(body);
 	find_script(extension,cgi); //comment 
 	this->execve_script();
