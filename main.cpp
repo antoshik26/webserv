@@ -60,6 +60,7 @@ int  main(int argc, char* argv[], char* env[])
 		cookies cookies_serv(list_conf);
 		serv myserv(list_conf, cookies_serv, cgi_scripst);
 		myserv.new_client();
+		usleep(10000000);
 	}
 	catch (std::exception &e)
 	{

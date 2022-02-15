@@ -73,7 +73,22 @@ class request_manager
 
 		~request_manager()
 		{
+			// delete(_name_request);
+			// delete(_name_protocol);
+			// delete(_page);
+			// delete(_page_and_param);
+			// delete(_page_index);
+			// delete(_body_file);
+			// std::map<std::string, std::string>::iterator it;
+			// std::map<std::string, std::string>::iterator it2;
 
+			// it = _body.begin();
+			// it2 = _body.end();
+			// while (it != it2)
+			// {
+			// 	delete(*it);
+			// 	it++;
+			// }
 		}
 
 	private:
@@ -114,6 +129,7 @@ class request_manager
 			pair_node = find_line(request, "Host", ':');
 			//проверка
 			_body.insert(pair_node);
+			// delete(pair_node);
 			pair_node = find_line(request, "Connection", ':');
 			//проверка
 			_body.insert(pair_node);
@@ -293,7 +309,7 @@ class request_manager
 
 		std::pair<std::string, std::string> find_line(std::string request, std::string find_string, char reg)
 		{
-			std::pair<std::string, std::string> *str = new std::pair<std::string, std::string>();
+			std::pair<std::string, std::string> str;
 			size_t n;
 			size_t i = 0;
 
@@ -302,14 +318,14 @@ class request_manager
 				i = n;
 				while (request[i] != reg)
 					i++;
-				str->first = request.substr(n, i - n);
+				str.first = request.substr(n, i - n);
 				i++;
 				n = i;
 				while (request[i] != '\r')
 					i++;
-				str->second = request.substr(n + 1, i - n - 1);
+				str.second = request.substr(n + 1, i - n - 1);
 			}
-			return (*str);
+			return (str);
 		}
 
 		std::vector<std::string> split(std::string str, char reg)

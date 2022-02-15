@@ -35,6 +35,42 @@ class config_parser
 
 		~config_parser()
 		{
+			std::map<std::string, std::map<std::string, std::string> >::iterator it = _locations.begin();
+			std::map<std::string, std::map<std::string, std::string> >::iterator it2 = _locations.end();
+			// std::map<std::string, std::string>::iterator it3;
+			// std::map<std::string, std::string>::iterator it4;;
+			// while(it != it2)
+			// {
+			// 	delete(it->first);
+			// 	it3 = it->second.begin();
+			// 	it4 = it->second.end();
+			// 	while(it3 != it4)
+			// 	{
+			// 		delete(it3->first);
+			// 		delete(it3->second);
+			// 		it3++;
+			// 	}
+			// 	it++; 
+			// }
+			// it = _cgi.begin();
+			// it2 = _cgi.end();
+			// while (it != it2)
+			// {
+			// 	delete(it->first);
+			// 	it3 = it->second.begin();
+			// 	it4 = it->second.end();
+			// 	while(it3 != it4)
+			// 	{
+			// 		delete(it3->first);
+			// 		delete(it3->second);
+			// 		it3++;
+			// 	}
+			// 	it++;
+			// }
+			// delete(server_name);
+			// delete(_access_log);
+			// delete(_error_log);
+			// delete(_return);
 		}
 		
 		std::map<std::string, std::map<std::string, std::string> > get_locations()

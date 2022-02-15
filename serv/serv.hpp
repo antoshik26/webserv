@@ -489,7 +489,9 @@ class serv
 					n = boundary.find("\r\n") - 45;
 					boundary = "---" + boundary.substr(45, n) + "--";
 					if (_recv_reader[i].find(boundary) == std::string::npos)
+					{
 						return (1);
+					}
 				}
 				if (_recv_reader[i].find("Content-Length") != std::string::npos)
 				{
@@ -507,7 +509,7 @@ class serv
 					}
 				}
 			}
-			size_t content_length = std::atoi(_recv_reader[i].substr(_recv_reader[i].find("Content-Length: ") + 16, 10).c_str());
+			size_t content_length = std::atoi(_recv_reader[i].substr(_recv_reader[i].find("Content-Length: ") + 16, 10).c_str()); //leaks
 			if (_recv_reader[i].size() >= content_length + k + 4 - 1)
 				return (0);
 			else
