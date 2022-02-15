@@ -26,7 +26,12 @@ std::string response_to_get_request::metod_response()
 				if (stat(path.c_str(), &stat_file) != -1)
 				{
 					if (S_ISDIR(stat_file.st_mode))
-						html = html + crate_dir_tree((path).c_str(), _request.get_page_index());
+					{	
+						if (_conf.get_avtoindex() == true)
+							html = html + crate_dir_tree((path).c_str(), _request.get_page_index());
+						else
+							html = create_error_page(404);
+					}	
 					else
 						html = html + read_full_file(path);
 				}		
