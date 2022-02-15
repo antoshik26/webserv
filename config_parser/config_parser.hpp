@@ -71,7 +71,7 @@ class config_parser
 
 			if ((n = config_serv.find("return")) != std::string::npos)
 			{
-				n = config_serv.find("301"); //парсинг номера в мапу
+				n = config_serv.find("307"); //парсинг номера в мапу
 				while (config_serv[n] != ' ')
 					n++;
 				n++;
@@ -171,7 +171,7 @@ class config_parser
 					while(line[i] != '$')
 						i++;
 					extensions = line.substr(a, i - a);
-					if (extensions == ".cs" || extensions == ".py")
+					if (extensions == ".php" || extensions == ".py")
 					{
 						find_cgi_include(line, extensions);
 						find_cgi_pass(line, extensions);

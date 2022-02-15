@@ -41,7 +41,7 @@ std::string response_to_post_request::metod_response()
 			j = n;
 			while (content_file[n]!= '\"')
 				n++;
-			std::string content_file2 = content_file.substr(j, n-j);
+			std::string content_file2 = content_file.substr(j, n - j);
 			std::cout << content_file2 << std::endl;
 			path = "/Users/dmadelei/Desktop/";
 			path = path + content_file2;
@@ -88,9 +88,12 @@ std::string response_to_post_request::metod_response()
 	// if (definition_path_or_filr(_request.get_page_index()) != 0)	//path //вынести в работу с путями
 	// {
 		path = find_path_to_cgi();
-		if (path.find(".cs") != std::string::npos || path.find(".py") != std::string::npos)
+		if (path.find(".php") != std::string::npos || path.find(".py") != std::string::npos)
 		{
-			_cgi_scripts.new_cgi(".py", _conf.get_cgi(), _request.get_body_cgi());
+			if (path.find(".php") != std::string::npos)
+				_cgi_scripts.new_cgi(".php", _conf.get_cgi(), _request.get_body_cgi());
+			else
+				_cgi_scripts.new_cgi(".py", _conf.get_cgi(), _request.get_body_cgi());
 			result_cgi = _cgi_scripts.get_string();
 			std::cout << result_cgi << std::endl;
 			if (_body.find("Referer") != _body.end() || _body.find("Origin") != _body.end())
@@ -106,6 +109,10 @@ std::string response_to_post_request::metod_response()
 					html = create_html_file_with_result_cgi(path, result_cgi);
 				}
 			}
+		}
+		else
+		{
+			html = create_error_page(403);	
 		}
 	}
 	html = html + html_basement;

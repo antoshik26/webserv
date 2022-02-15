@@ -24,7 +24,7 @@ std::string response_to_delete_request::metod_response()
 
 	html_basement = response_manager::html_basement();
 	path = find_path_to_html();
-	if (path.empty())
+	if (!(path.empty()))
 	{
 		path = path + content_file;
 		if (stat(path.c_str(), &stat_file) == 0)
