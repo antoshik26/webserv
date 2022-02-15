@@ -174,107 +174,6 @@ class response_manager
 	// 		return (body_html);
 	// 	}
 		
-<<<<<<< HEAD
-		std::string return_page()
-		{
-			std::string body_html;
-
-			body_html = "HTTP/1.1 307 Temporary Redirect\r\n";
-			body_html = body_html + "Location: " + _conf.get_return();
-			return (body_html);
-		}
-		//путь до html
-		std::vector<std::string> split(std::map<std::string, std::string>::iterator it)
-		{
-			std::vector<std::string> split_file;
-			std::string page_location = it->second;
-			std::string line;
-			int i = 0;
-			int n = 0;
-
-			while (page_location[i])
-			{
-				if (page_location[i] == ' ')
-				{
-					line = page_location.substr(n, i - n);
-					split_file.push_back(line);
-					line.clear();
-					n = i + 1;
-				}
-				i++;
-			}
-			line = page_location.substr(n, i - n);
-			split_file.push_back(line);
-			return (split_file);
-		}
-		std::string find_path_to_html(std::string path)
-		{
-			(void)path;
-			std::string asdfg;
-
-			return (asdfg);
-		}	
-		std::string find_path_to_html() //переделать
-		{
-			size_t i = 0;
-		 	const char* stat_path;
-			char buf[1000];
-			std::string path;
-			std::map<std::string, std::map<std::string, std::string> > _locations;
-			std::vector<std::string> split_file;
-			std::string path_and_file = "";
-			struct stat stat_file;
-			// std::map<std::string, std::map<std::string, std::string> >::iterator it = _locations.begin();
-
-			_locations = _conf.get_locations();
-			for (std::map<std::string, std::map<std::string, std::string> >::iterator it = _locations.begin(); it != _locations.end(); it++)//if path exist
-			{
-				if (_request.get_page_index() == it->first)//папка или файл//change to 
-				{
-					split_file = split((it->second).find("index"));
-					path = (it->second).find("root")->second;
-					while (i < split_file.size())
-					{
-						path_and_file = path + split_file[i];
-						stat_path = path_and_file.c_str();
-						if (stat(stat_path, &stat_file) != -1) //&& S_ISDIR(stat_file.st_mode)) //НЕ ПАПКА
-						{
-							return (path_and_file);
-						}
-						path_and_file.clear();
-						i++;
-					}
-				}
-			}
-			if (path_and_file.empty())
-			{
-				path = _locations.find("/")->second.find("root")->second;
-				if (!(_locations.find("/")->second.find("index")->second.empty()))
-					path_and_file = path + _request.get_page_index();
-			}
-			return (path_and_file);
-			// std::map<std::string, std::map<std::string, std::string> > _locations;
-			// std::string path=_request.get_page_index();
-
-			// _locations = _conf.get_locations();
-			// for (std::map<std::string, std::map<std::string, std::string> >::iterator it = _locations.begin(); it != _locations.end(); it++)//if path exist
-			// {
-			// 	if(path == it->first)
-			// 	{
-			// 		if(!parse_location_root(it).empty())
-			// 		{
-			// 			return(parse_location_root(it));
-			// 		}
-			// 	}
-			// }
-			// if (Exists(path.c_str()) || Exists(("."+path).c_str()))
-			// {
-			// 	return(path);
-			// }
-			// path.clear();
-			// return(path);
-		}
-=======
 	// 	std::string return_page()
 	// 	{
 	// 		std::string body_html;
@@ -416,7 +315,6 @@ class response_manager
 	// 		// path.clear();
 	// 		// return(path);
 	// 	}
->>>>>>> 79dbb4e15e6a4234d7eb4c79a762ca9cdaeab7ae
 		
 	// 	std::string parse_location_root(std::map<std::string, std::map<std::string, std::string> >::iterator it)
 	// 	{

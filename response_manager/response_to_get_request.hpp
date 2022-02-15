@@ -19,6 +19,6 @@ class response_to_get_request: public virtual response_manager, public virtual r
 		response_to_get_request(request_manager request, config_parser conf, cookies cookies_serv, cgi cgi_scripst);
 		~response_to_get_request();
 		std::string metod_response();
-		std::string crate_dir_tree(const char* path_dir);
+		std::string crate_dir_tree(const char* path_dir, std::string location);
 };
 #endif

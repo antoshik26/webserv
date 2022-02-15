@@ -63,7 +63,7 @@ int  main(int argc, char* argv[], char* env[])
 	}
 	catch (std::exception &e)
 	{
-		 return(error);
+		//  return(error);
 	}
 	return (0);
 }

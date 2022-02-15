@@ -26,16 +26,13 @@ std::string response_to_get_request::metod_response()
 				if (stat(path.c_str(), &stat_file) != -1)
 				{
 					if (S_ISDIR(stat_file.st_mode))
-					{
-						html = html + crate_dir_tree((path).c_str());
-					}
-				}
+						html = html + crate_dir_tree((path).c_str(), _request.get_page_index());
+					else
+						html = html + read_full_file(path);
+				}		
 				else
 				{
-					if (stat(path.c_str(), &stat_file) != -1)
-						html = html + read_full_file(path);
-					else
-						html = create_error_page(404);
+					html = create_error_page(404);
 				}
 			}
 			else								//file
@@ -82,32 +79,50 @@ std::string response_to_get_request::metod_response()
 			return (html);
 }
 
-std::string response_to_get_request::crate_dir_tree(const char* path_dir)
+std::string response_to_get_request::crate_dir_tree(const char* path_dir, std::string location)
 {
 	std::string dir_tree;
 	std::string buf;
-	// std::string path_dir2 = "/Users/dmadelei/Documents/webserv/web_document/7000_port/html/";
-	DIR* path = opendir(path_dir2.c_str());
+	// std::string path_dir2 = "/Users/dmadelei/Documents/webserv/web_document/7000_port/";
+	std::cout << path_dir << std::endl;
+	// std::map<std::string, std::string> body; 
+	// std::string refer;
+	DIR* path = opendir(path_dir);
 	struct dirent* dirent_file;
 	struct stat stat_file;
 	dir_tree = dir_tree + "<!DOCTYPE html>\n<html>\n<body>\n";
 	std::string path_file;
-	if (path_dir)
+	
+	// if (path_dir)
+	// body = _request.get_body();
+	// if (body.find("Referer") != body.end())
+	// {
+	// 	refer = body.find("Referer")->second;
+	// 	refer.erase(0, 21);
+	// 	refer.push_back('/');
+	// }
+	if (location == "/")
+		location.clear();
+	if (location[location.length()] != '/')
+		location.push_back('/');
 	while ((dirent_file = readdir(path)) != NULL)
 	{
-		
-		path_file = path_dir2 + (std::string)(dirent_file->d_name);
+		if (path_dir[strlen(path_dir)] == '/') 
+			path_file = path_dir + (std::string)(dirent_file->d_name);
+		else
+			path_file =  (std::string)path_dir + "/" + (std::string)(dirent_file->d_name);
 		std::cout << path_file << std::endl;
+		
 		if (stat(path_file.c_str(), &stat_file) != -1)
 		{
 			if (S_ISREG(stat_file.st_mode))
 			{
-				buf = "<a href=\"" + (std::string)dirent_file->d_name + "\">" + (std::string)dirent_file->d_name + "</a>\n";
+				buf = "<a href=\"" + location + (std::string)dirent_file->d_name + "\">" + (std::string)dirent_file->d_name + "</a>\n";
 				std::cout << buf <<std::endl;
 			}
 			if (S_ISDIR(stat_file.st_mode))
 			{
-				buf = "<a href=" + (std::string)dirent_file->d_name + " >" + (std::string)dirent_file->d_name + " </a>\n";
+				buf = "<a href=\"" + location + (std::string)dirent_file->d_name + "\">" + (std::string)dirent_file->d_name + "</a>\n";
 				std::cout << buf <<std::endl;
 			}
 		}
