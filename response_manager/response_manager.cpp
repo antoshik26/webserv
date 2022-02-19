@@ -19,7 +19,7 @@ response_manager::~response_manager()
 {
 }
 
-std::string response_manager::html_header()
+std::string response_manager::html_header(std::pair<std::string, std::string> session_identifier)
 {
 	std::string html_header = "HTTP/1.1 200 OK\r\n";
 	std::map<std::string, std::string> cookies_value;
@@ -38,6 +38,7 @@ std::string response_manager::html_header()
 			it++;
 		}
 	}
+	html_header = html_header + "Set-Cookie:ID=" + session_identifier.first + ";\r\n";
 	html_header = html_header + "\r\n";
 	return(html_header);
 }
@@ -369,16 +370,14 @@ std::string response_manager::return_page()
 	return (body_html);
 }
 
-std::string response_manager::session_manager_add_backgraund(std::string html)
+std::string response_manager::session_manager_add_backgraund(std::string html, std::pair<std::string, std::string> persen_database)
 {
-	std::pair<std::string, std::string> session_manager;
 	size_t n;
 	std::string collor_backgraund;
 	
 	if ((n = html.find("background-color")) != std::string::npos)
 	{
-		session_manager = find_client_session(_request.get_identifier());
-		collor_backgraund = session_manager.second;
+		collor_backgraund = persen_database.second;
 		html.insert(n + 17, "#");
 		html.insert(n + 18, collor_backgraund);
 		std::cout << html << std::endl;

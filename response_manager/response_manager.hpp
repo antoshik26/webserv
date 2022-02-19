@@ -27,7 +27,7 @@ class response_manager : public virtual session_manager
 		response_manager();
 		response_manager(request_manager request, config_parser conf, cookies cookies_serv, cgi cgi_scripst);
 		~response_manager();
-		std::string html_header();
+		std::string html_header(std::pair<std::string, std::string> sesion_identifier);
 		std::string html_header(int code);
 		std::string html_header(int code, std::string text);
 		std::string html_basement();
@@ -43,7 +43,7 @@ class response_manager : public virtual session_manager
 		std::string find_firs_location(std::string path);
 		std::string find_location_path();
 		std::string return_page();
-		std::string session_manager_add_backgraund(std::string html);
+		std::string session_manager_add_backgraund(std::string html, std::pair<std::string, std::string> sesion_identifier);
 		virtual std::string metod_response() = 0;
 	// 	std::string create_error_page(int error)
 	// 	{

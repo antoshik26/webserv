@@ -1,7 +1,7 @@
 #include "response_to_post_request.hpp"
 
 response_to_post_request::response_to_post_request(request_manager request, 
-			config_parser conf, cookies cookies_serv, cgi cgi_scripst) : response_manager(request, conf, cookies_serv, cgi_scripst)
+			config_parser conf, cookies cookies_serv, cgi cgi_scripst, session_manager database) : response_manager(request, conf, cookies_serv, cgi_scripst)
 {}
 
 response_to_post_request::~response_to_post_request()
@@ -130,7 +130,7 @@ std::string response_to_post_request::create_html_file_with_result_cgi(std::stri
 	size_t n = 0;
 	size_t k = 0;
 	
-	html_header = "HTTP/1.1 200 OK\r\n\r\n";
+	html_header = this->html_header(session_identifier);
 	// html_header = html_header + "Location: " + path_and_file + "\r\n\r\n";
 	html_result = html_header;
 	html_result = html_result + read_full_file(path_and_file);

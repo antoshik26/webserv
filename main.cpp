@@ -24,7 +24,7 @@ int  main(int argc, char* argv[], char* env[])
 	argv[1] = "config.conf";
 	cgi cgi_scripst(env);
 	std::vector<config_parser> list_conf;
-	
+	srand(time(0));
 	try
 	{
 		fs.open(argv[1]);

@@ -1,7 +1,9 @@
 #include "response_to_get_request.hpp"
 
-response_to_get_request::response_to_get_request(request_manager request, config_parser conf, cookies cookies_serv, cgi cgi_scripst) : response_manager(request, conf, cookies_serv, cgi_scripst)
-{}
+response_to_get_request::response_to_get_request(request_manager request, config_parser conf, cookies cookies_serv, cgi cgi_scripst, session_manager database) : response_manager(request, conf, cookies_serv, cgi_scripst)
+{
+	session_identifier = database.find_client_session(request.get_identifier());
+}
 
 response_to_get_request::~response_to_get_request()
 {}
@@ -17,8 +19,7 @@ std::string response_to_get_request::metod_response()
 			std::map<std::string, std::map<std::string, std::string> > _locations;
 			struct stat stat_file;
 
-			html_header = this->html_header();
-			html = html + html_header;
+			html_header = "HTTP/1.1 200 OK\r\n\r\n";
 			html_basement = this->html_basement();
 			if (definition_path_or_filr(_request.get_page_index()) == 0)	//path //вынести в работу с путями
 			{
@@ -34,8 +35,11 @@ std::string response_to_get_request::metod_response()
 					}	
 					else
 					{
+						html_header = this->html_header(session_identifier);
+						html = html + html_header;
 						html = html + read_full_file(path);
-						html = session_manager_add_backgraund(html);
+						html = session_manager_add_backgraund(html, session_identifier);
+						// std::cout << html << std::endl;
 					}
 				}		
 				else
@@ -67,7 +71,8 @@ std::string response_to_get_request::metod_response()
 					// }
 				}
 				else
-				{	
+				{
+					html = html + html_header;
 					if (path.find(".py") != std::string::npos)
 					{
 						// cgi_py();

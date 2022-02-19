@@ -4,8 +4,9 @@
 #include <string>
 #include <vector>
 #include "../config_parser/config_parser.hpp"
+#include "../session_manager/session_manager.hpp"
 
-class cookies
+class cookies 
 {
 	private:
 		std::map<size_t, std::map<std::string, std::string> > _cookies_serv;

@@ -4,10 +4,10 @@
 #include <string>
 #include <vector>
 #include <iostream>
-#include "../Cookies/cookies.hpp"
+#include "../chunked/chunked.hpp"
 #include "../session_manager/session_manager.hpp"
 
-class request_manager : public virtual session_manager
+class request_manager : public chunked
 {
 	private:
 		std::string _name_request;
@@ -27,7 +27,7 @@ class request_manager : public virtual session_manager
 		{
 		}
 	
-		request_manager(std::string request)
+		request_manager(std::string request, session_manager& database)
 		{
 			(void)request;
 
@@ -36,7 +36,7 @@ class request_manager : public virtual session_manager
 			find_protocol(request);
 			parsing_request(request);
 			parsing_body(request);
-			parsing_cookies(request);
+			parsing_cookies(request, database);
 		}
 		//оператор копирование 
 		//оператор присваивания
@@ -356,8 +356,9 @@ class request_manager : public virtual session_manager
 			return (res_split);
 		}
 
-		void parsing_cookies(std::string request)
+		void parsing_cookies(std::string request, session_manager& database)
 		{
+			(void)database;
 			(void)request;
 			std::pair<std::string, std::string> pair_node;
 			std::string cookies;
@@ -371,25 +372,27 @@ class request_manager : public virtual session_manager
 				cookies = pair_node.second;
 				if ((n = cookies.find("ID")) != std::string::npos)
 				{
-					k = n;
+					k = n + 3;
 					while(cookies[n] != ';' && cookies[n] != '\r')
 						n++;
 					identifier = cookies.substr(k, n - k);
-					pair_node = find_client_session(identifier);
+					pair_node = database.find_client_session(identifier);
 					if (pair_node.first != identifier)
 					{
-						creating_identifier_session(identifier);
+						database.creating_identifier_session(identifier);
 						_identifier = identifier;
 					}
+					else
+						_identifier = identifier;
 				}
 				else
 				{
-					_identifier = creating_identifier_session();
+					_identifier = database.creating_identifier_session();
 				}
 			}
 			else
 			{
-				_identifier = creating_identifier_session();
+				_identifier = database.creating_identifier_session();
 			}
 		}
 };

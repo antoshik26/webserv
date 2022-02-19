@@ -32,7 +32,7 @@
 #include "../response_manager/response_to_delete_request.hpp"
 #include "../response_manager/response_error_request.hpp"
 #include "../response_manager/response_manager.hpp"
-#include "chanki.hpp"
+#include "../session_manager/session_manager.hpp"
 
 #define		serv_port		5000; //считывать с config		 
 #define		fd_count		500;
@@ -89,6 +89,7 @@ class serv
 		int count_client;						//отвратительно
 		// std::pair<int, int> pull_server_client_socketfd[100];
 		request_manager request;
+		session_manager database;
 		// response_manager response;
 		cookies _cookies_serv;
 		cgi _cgi_scripts;
@@ -501,10 +502,10 @@ class serv
 							return (1);
 						else
 						{
-							chanki a(_recv_reader[i]);
-							std::string new_recv_reader = a.get_request();
-							_recv_reader[i].clear();
-							_recv_reader[i] = new_recv_reader;
+							// chanki a(_recv_reader[i]);
+							// std::string new_recv_reader = a.get_request();
+							// _recv_reader[i].clear();
+							// _recv_reader[i] = new_recv_reader;
 						}	
 					}
 				}
@@ -524,7 +525,7 @@ class serv
 			size_t rc;
 			std::string body_html_send;
 
-			request = request_manager(_recv_reader[i]);
+			request = request_manager(_recv_reader[i], database);
 			// response = response_manager(request, _conf_serv_vec[i], _cookies_serv, _cgi_scripts);
 			body_html_send = body_html(i);
 			rc = send(_poll_server_client_socketfd[i].fd, body_html_send.c_str(), body_html_send.length(), 0);
@@ -546,12 +547,12 @@ class serv
 
 			if (request.get_name_request() == "GET")
 			{
-			 	response_to_get_request get(request, _conf_serv_vec[i], _cookies_serv, _cgi_scripts);
+			 	response_to_get_request get(request, _conf_serv_vec[i], _cookies_serv, _cgi_scripts, database);
 				html = get.metod_response();
 			}
 			if (request.get_name_request() == "POST")
 			{
-				response_to_post_request post(request, _conf_serv_vec[i], _cookies_serv, _cgi_scripts);
+				response_to_post_request post(request, _conf_serv_vec[i], _cookies_serv, _cgi_scripts, database);
 				html = post.metod_response();
 			}
 			if (request.get_name_request() == "DELETE")

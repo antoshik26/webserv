@@ -1,15 +1,15 @@
 #ifndef SESSION_MANAGER_HPP
 #define SESSION_MANAGER_HPP
-#include "../Cookies/cookies.hpp"
 #include "../config_parser/config_parser.hpp"
 #include <string>
 #include <map>
 
-class session_manager : public cookies
+class session_manager
 {
 	private:
 		std::map<std::string, std::string> sesion_identifier;
-	protected:
+		// std::map<size_t, std::map<std::string, std::string> sesion_identifier;
+	public:
 		session_manager()
 		{}
 
@@ -55,9 +55,17 @@ class session_manager : public cookies
 		std::pair<std::string, std::string> find_client_session(std::string identifier)
 		{
 			std::map<std::string, std::string>::iterator it;
+			std::pair<std::string, std::string> it_pair;
 
-			it = sesion_identifier.find(identifier);
-			return (*it);
+			// it->first.clear();
+			// it->second.clear();
+			if (sesion_identifier.find(identifier) != sesion_identifier.end())
+			{
+				it = sesion_identifier.find(identifier);
+				it_pair.first = it->first;
+				it_pair.second = it->second;
+			}
+			return (it_pair);
 		}
 
 	private:
@@ -78,7 +86,7 @@ class session_manager : public cookies
 		{
 			char ch;
 			unsigned short tmp;
-			tmp = rand() % 205 + 50;
+			tmp = rand() % ('Z' - 'A' + 1) + 'A';
 			ch = tmp;
 			return ch;
 		}

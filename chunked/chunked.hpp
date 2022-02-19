@@ -2,24 +2,24 @@
 #define CHANKI_HPP
 
 
-class chanki
+class chunked
 {
 	private:
 		std::string _request_with_chanki;
 		std::string _request_without_chanki;
 	public:
-		chanki()
+		chunked()
 		{
 
 		}
 
-		chanki(std::string request_with_chanki)
+		chunked(std::string request_with_chanki)
 		{
 			_request_with_chanki = request_with_chanki;
 			//magic
 		}
 
-		~chanki()
+		~chunked()
 		{
 		}
 
