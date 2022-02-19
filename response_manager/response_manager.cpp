@@ -27,6 +27,7 @@ std::string response_manager::html_header()
 	std::map<std::string, std::string>::iterator it2;
 	cookies_value = _cookies_serv.get_cookies(_conf.get_port());
 
+
 	if ((!cookies_value.empty()))
 	{	
 		it = cookies_value.begin();
@@ -366,6 +367,23 @@ std::string response_manager::return_page()
 	body_html = "HTTP/1.1 307 Temporary Redirect\r\n";
 	body_html = body_html + "Location: " + _conf.get_return();
 	return (body_html);
+}
+
+std::string response_manager::session_manager_add_backgraund(std::string html)
+{
+	std::pair<std::string, std::string> session_manager;
+	size_t n;
+	std::string collor_backgraund;
+	
+	if ((n = html.find("background-color")) != std::string::npos)
+	{
+		session_manager = find_client_session(_request.get_identifier());
+		collor_backgraund = session_manager.second;
+		html.insert(n + 17, "#");
+		html.insert(n + 18, collor_backgraund);
+		std::cout << html << std::endl;
+	}
+	return (html);
 }
 
 // std::vector<std::string> find_firs_location(std::string path)

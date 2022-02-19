@@ -33,7 +33,10 @@ std::string response_to_get_request::metod_response()
 							html = create_error_page(404);
 					}	
 					else
+					{
 						html = html + read_full_file(path);
+						html = session_manager_add_backgraund(html);
+					}
 				}		
 				else
 				{

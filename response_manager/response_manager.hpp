@@ -9,12 +9,13 @@
 #include "../config_parser/config_parser.hpp"
 #include "../Cookies/cookies.hpp"
 #include "../cgi/cgi.hpp"
+#include "../session_manager/session_manager.hpp"
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-class response_manager
+class response_manager : public virtual session_manager
 {
 	protected:
 		request_manager _request;
@@ -42,6 +43,7 @@ class response_manager
 		std::string find_firs_location(std::string path);
 		std::string find_location_path();
 		std::string return_page();
+		std::string session_manager_add_backgraund(std::string html);
 		virtual std::string metod_response() = 0;
 	// 	std::string create_error_page(int error)
 	// 	{

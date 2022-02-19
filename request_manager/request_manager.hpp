@@ -4,8 +4,10 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include "../Cookies/cookies.hpp"
+#include "../session_manager/session_manager.hpp"
 
-class request_manager
+class request_manager : public virtual session_manager
 {
 	private:
 		std::string _name_request;
@@ -14,6 +16,7 @@ class request_manager
 		std::string _page_and_param;
 		std::string _page_index;
 		std::string _body_file;
+		std::string _identifier;
 		// std::map<std::string, std::vector<std::string> > _body;
 		std::map<std::string, std::string> _body;
 		std::map<std::string, std::string> _body_cgi;
@@ -33,6 +36,7 @@ class request_manager
 			find_protocol(request);
 			parsing_request(request);
 			parsing_body(request);
+			parsing_cookies(request);
 		}
 		//оператор копирование 
 		//оператор присваивания
@@ -69,6 +73,11 @@ class request_manager
 		std::string get_body_file()
 		{
 			return (_body_file);
+		}
+
+		std::string get_identifier()
+		{
+			return(_identifier);
 		}
 
 		~request_manager()
@@ -189,7 +198,7 @@ class request_manager
 
 			pair_node = find_line(request, "Content-Type", ':');
 			_body.insert(pair_node);
-			parsing_cookies(request);
+			// parsing_cookies(request);
 		}
 
 		void find_page_and_param(std::string request)
@@ -350,15 +359,38 @@ class request_manager
 		void parsing_cookies(std::string request)
 		{
 			(void)request;
-			// size_t n;
-			// std::pair<std::string, std::string> pair_node;
-			// pair_node = find_line(request, "Content-Disposition", ':');
-			// std::string cookies_content;
-			// if ((!pair_node->second.empty()))
-			// {
-			// 	cookies_value = pair_node->second;
-				
-			// }//доделать
+			std::pair<std::string, std::string> pair_node;
+			std::string cookies;
+			std::string identifier;
+			size_t n;
+			size_t k;
+
+			if (request.find("Cookie") != std::string::npos)
+			{
+				pair_node = find_line(request, "Cookie", ':');
+				cookies = pair_node.second;
+				if ((n = cookies.find("ID")) != std::string::npos)
+				{
+					k = n;
+					while(cookies[n] != ';' && cookies[n] != '\r')
+						n++;
+					identifier = cookies.substr(k, n - k);
+					pair_node = find_client_session(identifier);
+					if (pair_node.first != identifier)
+					{
+						creating_identifier_session(identifier);
+						_identifier = identifier;
+					}
+				}
+				else
+				{
+					_identifier = creating_identifier_session();
+				}
+			}
+			else
+			{
+				_identifier = creating_identifier_session();
+			}
 		}
 };
 
@@ -455,3 +487,5 @@ class request_manager
 
 // Content-Disposition: form-data; name="f"; filename="kianu.jpeg"
 // Content-Type: image/jpeg
+
+// Cookie: Password=XYZ123; Username=XYZ

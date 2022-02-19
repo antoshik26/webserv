@@ -17,10 +17,10 @@ void removeStr(std::string& str)
     }
 }
 
-int main()
-{
-    std::string http_chunk_header = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nchunk 2\r\n0\r\n";
-    removeStr(http_chunk_header);
-    std::cout << http_chunk_header;
-    return (0);
-}
+// int main()
+// {
+//     std::string http_chunk_header = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nchunk 2\r\n0\r\n";
+//     removeStr(http_chunk_header);
+//     std::cout << http_chunk_header;
+//     return (0);
+// }
