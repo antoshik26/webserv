@@ -19,6 +19,7 @@ void cgi::fill_env(char **env)
 		this->_env[i]=(char *)env[i];
 	}
 }
+
 void cgi::fill_varibles(std::map<std::string, std::string> body)
 {
 	this->_env[pos]=new char[body["a"].length()+2];

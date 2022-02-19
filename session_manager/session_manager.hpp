@@ -8,10 +8,24 @@ class session_manager
 {
 	private:
 		std::map<std::string, std::string> sesion_identifier;
-		// std::map<size_t, std::map<std::string, std::string> sesion_identifier;
+		std::map<size_t, std::map<std::string, std::string> >session_identifier;
 	public:
 		session_manager()
-		{}
+		{
+		}
+	
+		session_manager(std::vector<config_parser> conf_serv)
+		{
+			std::vector<config_parser>::iterator it = conf_serv.begin();
+			std::vector<config_parser>::iterator it2 = conf_serv.end();
+			std::pair<size_t, std::map<std::string, std::string> >pair_session_identifier;
+			while (it != it2)
+			{
+				pair_session_identifier.first = it->get_port();
+				session_identifier.insert(pair_session_identifier);
+				it++;
+			}
+		}
 
 		~session_manager()
 		{}
@@ -36,15 +50,12 @@ class session_manager
 
 		void creating_identifier_session(std::string identifier)
 		{
-			std::string sesion_identifier_client;
 			std::string collor_backgraund;
 			std::pair<std::string, std::string> pair_identifier;
 
-			sesion_identifier_client = rand_identifier();
-			if (sesion_identifier.find(sesion_identifier_client) == sesion_identifier.end())
+			if (sesion_identifier.find(identifier) == sesion_identifier.end())
 			{
-				sesion_identifier_client = rand_identifier();
-				pair_identifier.first = sesion_identifier_client;
+				pair_identifier.first = identifier;
 				collor_backgraund = rand_collor_backgraund();
 				pair_identifier.second = collor_backgraund;
 				sesion_identifier.insert(pair_identifier);
@@ -57,8 +68,6 @@ class session_manager
 			std::map<std::string, std::string>::iterator it;
 			std::pair<std::string, std::string> it_pair;
 
-			// it->first.clear();
-			// it->second.clear();
 			if (sesion_identifier.find(identifier) != sesion_identifier.end())
 			{
 				it = sesion_identifier.find(identifier);

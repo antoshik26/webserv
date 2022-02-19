@@ -116,12 +116,14 @@ class serv
 				std::vector<config_parser>::iterator it2 = conf_serv.end();
 				pollfd one_socket;
 				std::string line;
+				session_manager _database(conf_serv);
 
 				_cgi_scripts = cgi_scripst;
 				_conf_serv_vec = conf_serv;
 				count_serv = conf_serv.size();
 			 	std::cout << it->get_port() <<std::endl;
 				_cookies_serv = cookies_serv;
+				database = _database;
 				while (it != it2)
 				{
 					bzero((char *) &serv_config, sizeof(serv_config));

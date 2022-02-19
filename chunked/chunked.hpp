@@ -4,32 +4,21 @@
 
 class chunked
 {
-	private:
-		std::string _request_with_chanki;
-		std::string _request_without_chanki;
-	public:
+	protected:
 		chunked()
 		{
-
-		}
-
-		chunked(std::string request_with_chanki)
-		{
-			_request_with_chanki = request_with_chanki;
-			//magic
 		}
 
 		~chunked()
 		{
 		}
 
-		std::string get_request()
+		std::string clear_request_from_chunked(std::string request_with_chunked)
 		{
-			return(_request_without_chanki);
+			(void)request_with_chunked;
+			std::string request_without_chunked;
+			return (request_without_chunked);
 		}
-	private:
-
-
 };
 
 #endif

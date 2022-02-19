@@ -30,7 +30,7 @@ class request_manager : public chunked
 		request_manager(std::string request, session_manager& database)
 		{
 			(void)request;
-
+			//add chanki
 			find_method_http(request);
 			find_page_and_param(request);
 			find_protocol(request);
