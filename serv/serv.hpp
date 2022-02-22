@@ -564,7 +564,7 @@ class serv
 			}
 			if (html.empty())
 			{
-			// 	html = create_error_page(501);
+				html = create_error_page();
 			}
 			return (html);
 		}
@@ -597,6 +597,20 @@ class serv
 			}
 			dir_tree = dir_tree + "\r\n\r\n";
 			return (dir_tree);
+		}
+		std::string create_error_page()
+		{
+			std::string body_html;
+			
+			body_html = "HTTP/1.1 501 Not Implemented\r\n\r\n";
+			body_html = body_html + "<!DOCTYPE html>";
+			body_html = body_html + "<html>";
+			body_html = body_html + "<body>";
+			body_html = body_html + "<h1>501</h1>";
+			body_html = body_html + "</body>";
+			body_html = body_html + "</html>";
+			body_html = body_html + "\r\n\r\n";
+			return (body_html);
 		}
 };
 // syscall("php filein > file_out")

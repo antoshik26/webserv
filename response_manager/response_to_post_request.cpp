@@ -2,7 +2,9 @@
 
 response_to_post_request::response_to_post_request(request_manager request, 
 			config_parser conf, cookies cookies_serv, cgi cgi_scripst, session_manager database) : response_manager(request, conf, cookies_serv, cgi_scripst)
-{}
+{
+	session_identifier = database.find_client_session(request.get_identifier());
+}
 
 response_to_post_request::~response_to_post_request()
 {}
@@ -91,9 +93,9 @@ std::string response_to_post_request::metod_response()
 		if (path.find(".php") != std::string::npos || path.find(".py") != std::string::npos)
 		{
 			if (path.find(".php") != std::string::npos)
-				_cgi_scripts.new_cgi(".php", _conf.get_cgi(), _request.get_body_cgi());
+				_cgi_scripts.new_cgi(/*path*/".sh", _conf.get_cgi(), _request.get_body_cgi());
 			else
-				_cgi_scripts.new_cgi(".py", _conf.get_cgi(), _request.get_body_cgi());
+				_cgi_scripts.new_cgi(/*path*/".py", _conf.get_cgi(), _request.get_body_cgi());
 			result_cgi = _cgi_scripts.get_string();
 			std::cout << result_cgi << std::endl;
 			if (_body.find("Referer") != _body.end() || _body.find("Origin") != _body.end())
@@ -150,5 +152,7 @@ std::string response_to_post_request::create_html_file_with_result_cgi(std::stri
 			std::cout << html_result << std::endl;
 		}
 	}
+	html_result = session_manager_add_backgraund(html_result, session_identifier);
+	std::cout << html_result << std::endl;
 	return (html_result);
 }

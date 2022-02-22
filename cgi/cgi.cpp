@@ -17,8 +17,8 @@ void cgi::new_cgi(std::string extension,std::map<std::string, std::map<std::stri
 	this->execve_script();
 	//this->execve_script(script);
 
-	// delete _env[pos];
-	// delete _env[pos+1];
+	delete _env[pos];
+	delete _env[pos+1];
 	//delete _script; depeends on args comment?
 }
 //void cgi::execve_script(std::string script)
