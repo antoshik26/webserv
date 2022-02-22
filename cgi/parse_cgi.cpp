@@ -16,7 +16,9 @@ void cgi::fill_env(char **env)
 	{
 		i--;
 		this->_env[i]=new char[strlen(env[i])];
-		this->_env[i]=(char *)env[i];
+		//this->_env[i]=(char *)env[i];
+		strcpy(_env[i], env[i]);
+
 	}
 }
 
