@@ -1,2 +1,2 @@
 #!/bin/bash
-echo "text2:"+$a+" "+$b
+echo "text2:"$a $b
