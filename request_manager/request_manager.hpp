@@ -27,7 +27,7 @@ class request_manager : public chunked
 		{
 		}
 	
-		request_manager(std::string request, session_manager& database)
+		request_manager(std::string request, session_manager& database, int port)
 		{
 			(void)request;
 			//add chanki
@@ -36,7 +36,7 @@ class request_manager : public chunked
 			find_protocol(request);
 			parsing_request(request);
 			parsing_body(request);
-			parsing_cookies(request, database);
+			parsing_cookies(request, database, port);
 		}
 		//оператор копирование 
 		//оператор присваивания
@@ -356,10 +356,11 @@ class request_manager : public chunked
 			return (res_split);
 		}
 
-		void parsing_cookies(std::string request, session_manager& database)
+		void parsing_cookies(std::string request, session_manager& database, int port)
 		{
 			(void)database;
 			(void)request;
+			(void)port;
 			std::pair<std::string, std::string> pair_node;
 			std::string cookies;
 			std::string identifier;
@@ -376,10 +377,10 @@ class request_manager : public chunked
 					while(cookies[n] != ';' && cookies[n] != '\r')
 						n++;
 					identifier = cookies.substr(k, n - k);
-					pair_node = database.find_client_session(identifier);
+					pair_node = database.find_client_session(identifier, port);
 					if (pair_node.first != identifier)
 					{
-						database.creating_identifier_session(identifier);
+						database.creating_identifier_session(identifier, port);
 						_identifier = identifier;
 					}
 					else
@@ -387,12 +388,12 @@ class request_manager : public chunked
 				}
 				else
 				{
-					_identifier = database.creating_identifier_session();
+					_identifier = database.creating_identifier_session(port);
 				}
 			}
 			else
 			{
-				_identifier = database.creating_identifier_session();
+				_identifier = database.creating_identifier_session(port);
 			}
 		}
 };

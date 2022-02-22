@@ -2,7 +2,7 @@
 
 response_to_get_request::response_to_get_request(request_manager request, config_parser conf, cookies cookies_serv, cgi cgi_scripst, session_manager database) : response_manager(request, conf, cookies_serv, cgi_scripst)
 {
-	session_identifier = database.find_client_session(request.get_identifier());
+	session_identifier = database.find_client_session(request.get_identifier(), conf.get_port());
 }
 
 response_to_get_request::~response_to_get_request()

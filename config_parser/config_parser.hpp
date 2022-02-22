@@ -207,7 +207,7 @@ class config_parser
 					while(line[i] != '$')
 						i++;
 					extensions = line.substr(a, i - a);
-					if (extensions == ".php" || extensions == ".py")
+					if (extensions == ".sh" || extensions == ".py")
 					{
 						find_cgi_include(line, extensions);
 						find_cgi_pass(line, extensions);

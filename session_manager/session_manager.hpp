@@ -8,7 +8,7 @@ class session_manager
 {
 	private:
 		std::map<std::string, std::string> sesion_identifier;
-		std::map<size_t, std::map<std::string, std::string> >session_identifier;
+		std::map<size_t, std::map<std::string, std::string> > session_identifier;
 	public:
 		session_manager()
 		{
@@ -30,11 +30,12 @@ class session_manager
 		~session_manager()
 		{}
 
-		std::string creating_identifier_session()
+		std::string creating_identifier_session(int port)
 		{
 			std::string sesion_identifier_client;
 			std::string collor_backgraund;
 			std::pair<std::string, std::string> pair_identifier;
+			std::map<size_t, std::map<std::string, std::string> >::iterator it;
 
 			sesion_identifier_client = rand_identifier();
 			if (sesion_identifier.find(sesion_identifier_client) == sesion_identifier.end())
@@ -43,36 +44,52 @@ class session_manager
 				pair_identifier.first = sesion_identifier_client;
 				collor_backgraund = rand_collor_backgraund();
 				pair_identifier.second = collor_backgraund;
-				sesion_identifier.insert(pair_identifier);
+				it = session_identifier.find(port);
+				it->second.insert(pair_identifier);
+				// pair_session.first = port;
+				// pair_session.second.insert(pair_identifier);
+				// session_identifier.insert(pair_session);
+				// session_identifier.insert(pair_identifier);
 			}
 			return (pair_identifier.first);
 		}
 
-		void creating_identifier_session(std::string identifier)
+		void creating_identifier_session(std::string identifier, int port)
 		{
 			std::string collor_backgraund;
 			std::pair<std::string, std::string> pair_identifier;
+			std::map<size_t, std::map<std::string, std::string> >::iterator it;
 
 			if (sesion_identifier.find(identifier) == sesion_identifier.end())
 			{
 				pair_identifier.first = identifier;
 				collor_backgraund = rand_collor_backgraund();
 				pair_identifier.second = collor_backgraund;
-				sesion_identifier.insert(pair_identifier);
+				it = session_identifier.find(port);
+				it->second.insert(pair_identifier);
+				// pair_session.first = port;
+				// pair_session.second.insert(pair_identifier);
+				// session_identifier.insert(pair_session);
+				// sesion_identifier.insert(pair_identifier);
 			}
 			return;
 		}
 
-		std::pair<std::string, std::string> find_client_session(std::string identifier)
+		std::pair<std::string, std::string> find_client_session(std::string identifier, int port)
 		{
 			std::map<std::string, std::string>::iterator it;
 			std::pair<std::string, std::string> it_pair;
+			std::map<size_t, std::map<std::string, std::string> >::iterator it2;
 
-			if (sesion_identifier.find(identifier) != sesion_identifier.end())
+			if (session_identifier.find(port) != session_identifier.end())
 			{
-				it = sesion_identifier.find(identifier);
-				it_pair.first = it->first;
-				it_pair.second = it->second;
+				it2 = session_identifier.find(port);
+				if (it2->second.find(identifier) != it2->second.end())
+				{
+					it = it2->second.find(identifier);
+					it_pair.first = it->first;
+					it_pair.second = it->second;
+				}
 			}
 			return (it_pair);
 		}
