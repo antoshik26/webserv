@@ -13,7 +13,7 @@ void cgi::new_cgi(std::string extension,std::map<std::string, std::map<std::stri
 //void cgi::new_cgi(std::strinf script,std::map<std::string, std::string> body) 
 {
 	fill_varibles(body);
-	find_script(extension,cgi); //comment 
+	//find_script(extension,cgi); //comment 
 	this->execve_script();
 	//this->execve_script(script);
 
@@ -67,11 +67,11 @@ cgi::~cgi()
 		return;
 	while(_env[i])
 	{
-		delete _env[i];
+	//	delete _env[i];
 		i++;
 	}
-	delete[] _env[i+2];
-	delete [] _env;
+	//delete[] _env[i+2];
+	//delete [] _env;
 	//delete _script;
 }
 
