@@ -633,7 +633,7 @@ class serv
 		{
 			std::string body_html;
 			
-			body_html = "HTTP/1.1 200 OK\r\n\r\n";
+			body_html = "HTTP/1.1 501 Not Implemented\r\n\r\n";
 			body_html = body_html + "<!DOCTYPE html>";
 			body_html = body_html + "<html>";
 			body_html = body_html + "<body>";
