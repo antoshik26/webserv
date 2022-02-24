@@ -64,7 +64,7 @@ int  main(int argc, char* argv[], char* env[])
 	}
 	catch (std::exception &e)
 	{
-		//  return(error);
+		std::cerr << e.what() << std::endl;
 	}
 	return (0);
 }

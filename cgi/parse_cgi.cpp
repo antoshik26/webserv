@@ -32,6 +32,7 @@ void cgi::fill_varibles(std::map<std::string, std::string> body)
 
 void cgi::find_script(std::string extension, std::map<std::string, std::map<std::string, std::string> > cgi)
 {
+	(void)extension;
 	std::string search;
 	search = cgi.find(".py")->first;
 	this->_script=new char[ cgi.find(".py")->first.length()];

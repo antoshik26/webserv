@@ -35,8 +35,8 @@ class config_parser
 
 		~config_parser()
 		{
-			std::map<std::string, std::map<std::string, std::string> >::iterator it = _locations.begin();
-			std::map<std::string, std::map<std::string, std::string> >::iterator it2 = _locations.end();
+			// std::map<std::string, std::map<std::string, std::string> >::iterator it = _locations.begin();
+			// std::map<std::string, std::map<std::string, std::string> >::iterator it2 = _locations.end();
 			// std::map<std::string, std::string>::iterator it3;
 			// std::map<std::string, std::string>::iterator it4;;
 			// while(it != it2)

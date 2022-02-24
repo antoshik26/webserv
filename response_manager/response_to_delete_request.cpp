@@ -20,7 +20,6 @@ std::string response_to_delete_request::metod_response()
 	std::map<std::string, std::map<std::string, std::string> > _locations;
 	std::map<std::string, std::string> body;
 	struct stat stat_file;
-	size_t n;
 
 	html_basement = response_manager::html_basement();
 	path = find_path_to_html();

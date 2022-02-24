@@ -82,6 +82,7 @@ class serv
 
 		// int client_socket_fd;
 		// pollfd poll_server_client_socketfd[10];	//плохо
+		std::vector<sockaddr_in> secv_config_vector;
 		std::vector<pollfd> _poll_server_client_socketfd;			//хорошо
 		std::vector<int> conf_fd;
 		std::vector<config_parser> _conf_serv_vec;
@@ -132,7 +133,9 @@ class serv
 					serv_config.sin_port = htons(it->get_port());
 					// serv_config.sin_port = htons(conf_serv.get_listen_port);
 					serv_config.sin_addr.s_addr = INADDR_ANY;
+					
 					bzero(serv_config.sin_zero, 8);
+					secv_config_vector.push_back(serv_config);
 					// serv_config.sin_addr.s_addr = inet_addr("127.0.0.1"); на приватный ip адресс
 					socket_fd = socket(AF_INET, SOCK_STREAM, 0);
 					ret = setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, (char *)&option, sizeof(option));
@@ -256,7 +259,7 @@ class serv
 				
 				while (it != it2)
 				{
-					error = listen(it->fd, 32);
+					error = listen(it->fd, 30000);
 					// if (error < 0)
 					// 	throw;
 					it++;
@@ -278,7 +281,7 @@ class serv
 
 			if ((new_client = accept_serv(socket_serv)) == -1)
 			{
-				// throw;
+				std::cout << "afdgdsfgdfg" << std::endl;
 				return (new_client);
 			}
 			else
@@ -305,16 +308,17 @@ class serv
 			std::string a;
 			bzero(buffer, 1024);
 			std::vector<pollfd>::iterator it;
-			std::vector<config_parser>::iterator it2;
+			std::vector<std::string>::iterator it2;
+			// std::vector<config_parser>::iterator it2;
+			// std::vector<pollfd>::iterator it3;
 
+			errno = 0;
 			try
 			{
 				while (true)
 				{
 					rc2 = poll(_poll_server_client_socketfd.data(), _poll_server_client_socketfd.size(), -1);
 					i = 0;
-					// if (errno != 0)
-					// 	std::cout << std::strerror(errno) << errno <<  std::endl;
 					while (rc2 > 0 && i < _poll_server_client_socketfd.size())
 					{
 						if (_poll_server_client_socketfd[i].revents == 0)
@@ -397,7 +401,10 @@ class serv
 									// _poll_server_client_socketfd[i].events = POLLIN; //?
 									close(_poll_server_client_socketfd[i].fd);
 									_recv_reader[i].erase();
+									_recv_reader.erase(_recv_reader.begin() + i);
 									_poll_server_client_socketfd[i].fd = -1;
+									// *it = _poll_server_client_socketfd[i];
+									_poll_server_client_socketfd.erase(_poll_server_client_socketfd.begin() + i);
 								}
 								bzero(buffer, 1024);
 							}
@@ -407,7 +414,9 @@ class serv
 			}
 			catch(std::exception &e)
 			{
-				// throw;
+				// std::cout << i << std::endl;
+				// std::cerr << e.what() << std::endl;
+				// std::cout << std::strerror(errno) << errno <<  std::endl;
 			}
 			return (0);
 		}//доп		
@@ -427,32 +436,43 @@ class serv
 			int result = 0;
 			int rc = 0;
 			int rc2 = 0;
+			char buffer2[1024];
+			bzero(buffer2, 1024);
 
 			if ((_poll_server_client_socketfd[i].revents & POLLIN) == POLLIN)
 			{
-				rc = recv(_poll_server_client_socketfd[i].fd, buffer, 1024 - 1, 0);
+				rc = recv(_poll_server_client_socketfd[i].fd, buffer2, 1024 - 1, 0);
 				// if (errno != 0)
 				// 	std::cout << std::strerror(errno) << errno <<  std::endl;
 				// usleep(1000);
 				if (rc == 0)
 				{
+					// std::cout << "aaaaaaa" << std::endl;
+					// close(_poll_server_client_socketfd[i].fd);
+					// _recv_reader[i].erase();
+					// _poll_server_client_socketfd[i].fd = -1;
 					close(_poll_server_client_socketfd[i].fd);
 					_recv_reader[i].erase();
+					_recv_reader.erase(_recv_reader.begin() + i);
 					_poll_server_client_socketfd[i].fd = -1;
+					// *it = _poll_server_client_socketfd[i];
+					_poll_server_client_socketfd.erase(_poll_server_client_socketfd.begin() + i);
 					rc2--;
 				}
 				if (rc < 0)
 				{
+					// std::cout << "bbbbbbb" << std::endl;
 					// std::cout << "error" << std::endl;
 					close(_poll_server_client_socketfd[i].fd);
 					_recv_reader[i].erase();
 					_poll_server_client_socketfd[i].fd = -1;
+					
 				}
 				if (rc > 0)
 				{
 				// std::cout << POLLIN << std::endl;
-					result = reader_recv(i, buffer);
-					std::cout << buffer << std::endl;
+					result = reader_recv(i, buffer2);
+					// std::cout << buffer << std::endl;
 					if (result == 0)
 					{
 						// request = request_manager(_recv_reader[i]);
@@ -526,14 +546,25 @@ class serv
 			int result = 0;
 			size_t rc;
 			std::string body_html_send;
-
-			request = request_manager(_recv_reader[i], database, _conf_serv_vec[i].get_port());
-			// response = response_manager(request, _conf_serv_vec[i], _cookies_serv, _cgi_scripts);
-			body_html_send = body_html(i);
-			rc = send(_poll_server_client_socketfd[i].fd, body_html_send.c_str(), body_html_send.length(), 0);
-			// close(_poll_server_client_socketfd[i].fd); //?
-			_recv_reader[i].erase();
-			// _poll_server_client_socketfd[i].fd = -1;  //?
+			try
+			{
+				request = request_manager(_recv_reader[i], database, _conf_serv_vec[i].get_port());
+				// response = response_manager(request, _conf_serv_vec[i], _cookies_serv, _cgi_scripts);
+				body_html_send = body_html(i);
+				// body_html_send = create_error_page();
+				rc = send(_poll_server_client_socketfd[i].fd, body_html_send.c_str(), body_html_send.length(), 0);
+				// close(_poll_server_client_socketfd[i].fd); //?
+				// _recv_reader[i].erase();
+				// _poll_server_client_socketfd[i].fd = -1;  //?
+				
+			}
+			catch(std::exception &e)
+			{
+				// std::cout << "aaasdfszdfsdf" << std::endl;
+				// std::cout << i << std::endl;
+				// std::cerr << e.what() << std::endl;
+				// std::cout << std::strerror(errno) << errno <<  std::endl;
+			}
 			return (result);
 		}
 
@@ -602,7 +633,7 @@ class serv
 		{
 			std::string body_html;
 			
-			body_html = "HTTP/1.1 501 Not Implemented\r\n\r\n";
+			body_html = "HTTP/1.1 200 OK\r\n\r\n";
 			body_html = body_html + "<!DOCTYPE html>";
 			body_html = body_html + "<html>";
 			body_html = body_html + "<body>";

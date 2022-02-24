@@ -107,14 +107,10 @@ std::string response_manager::read_full_file(std::string path_to_file)
 std::string response_manager::find_path_to_html(std::string path_to_file)
 {
 	(void)path_to_file;
-	size_t i = 0;
-	const char* stat_path;
-	char buf[1000];
 	std::string path;
 	std::map<std::string, std::map<std::string, std::string> > _locations;
 	std::vector<std::string> split_file;
 	std::string path_and_file = "";
-	struct stat stat_file;
 	std::string file;
 
 	_locations = _conf.get_locations();
@@ -128,15 +124,11 @@ std::string response_manager::find_path_to_html(std::string path_to_file)
 
 std::string response_manager::find_path_to_html() //не работает
 {
-	size_t i = 0;
-	const char* stat_path;
-	char buf[1000];
 	std::string path;
 	std::map<std::string, std::map<std::string, std::string> > _locations;
 	std::vector<std::string> split_file;
 	std::string file;
 	std::string path_and_file = "";
-	struct stat stat_file;
 
 	_locations = _conf.get_locations();
 	file = split_path_and_files(_request.get_page_index());
@@ -195,10 +187,7 @@ std::string response_manager::find_path_to_html() //не работает
 
 std::string response_manager::find_path_to_cgi()
 {
-	size_t i = 0;
-	size_t n = 0;
 	const char* stat_path;
-	char buf[1000];
 	std::string path;
 	std::map<std::string, std::map<std::string, std::string> > _cgi;
 	std::map<std::string, std::map<std::string, std::string> >::iterator it;
@@ -270,9 +259,7 @@ std::string response_manager::split_path_and_files(std::string path_location)
 
 std::string response_manager::find_location_path()
 {
-	size_t i = 0;
 	const char* stat_path;
-	char buf[1000];
 	std::string path;
 	std::map<std::string, std::map<std::string, std::string> > _locations;
 	std::vector<std::string> split_file;
@@ -280,6 +267,7 @@ std::string response_manager::find_location_path()
 	std::string path_and_file = "";
 	std::string path_location;
 	struct stat stat_file;
+	size_t i = 0;
 
 	path_location = find_firs_location(_request.get_page_index());
 	_locations = _conf.get_locations();
@@ -315,9 +303,7 @@ std::string response_manager::find_location_path()
 std::string response_manager::find_location_file(std::string file)
 {
 	(void)file;
-	size_t i = 0;
 	const char* stat_path;
-	char buf[1000];
 	std::string path;
 	std::string path_location;
 	std::map<std::string, std::map<std::string, std::string> > _locations;
