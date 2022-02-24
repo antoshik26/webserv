@@ -89,13 +89,14 @@ std::string response_to_post_request::metod_response()
 	// }
 	// if (definition_path_or_filr(_request.get_page_index()) != 0)	//path //вынести в работу с путями
 	// {
-		path = find_path_to_cgi();
-		if (path.find(".php") != std::string::npos || path.find(".py") != std::string::npos)
+		path = find_path_to_cgi2();
+		// std::cout << path << std::endl;
+		if (path.find(".sh") != std::string::npos || path.find(".py") != std::string::npos)
 		{
-			if (path.find(".php") != std::string::npos)
-				_cgi_scripts.new_cgi(/*path*/".sh", _conf.get_cgi(), _request.get_body_cgi());
-			else
-				_cgi_scripts.new_cgi(/*path*/".py", _conf.get_cgi(), _request.get_body_cgi());
+			// if (path.find(".py") != std::string::npos)
+			// 	_cgi_scripts.new_cgi(path, _request.get_body_cgi());
+			// else
+			_cgi_scripts.new_cgi(path, _request.get_body_cgi());
 			result_cgi = _cgi_scripts.get_string();
 			std::cout << result_cgi << std::endl;
 			if (_body.find("Referer") != _body.end() || _body.find("Origin") != _body.end())

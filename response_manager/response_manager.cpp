@@ -214,6 +214,37 @@ std::string response_manager::find_path_to_cgi()
 	return (path_and_file);
 }
 
+std::string response_manager::find_path_to_cgi2()
+{
+	const char* stat_path;
+	std::string path;
+	std::map<std::string, std::map<std::string, std::string> > _cgi;
+	std::map<std::string, std::map<std::string, std::string> >::iterator it;
+	std::vector<std::string> split_file;
+	std::string path_and_file;
+	struct stat stat_file;
+	std::string line;
+	
+	line = _request.get_page_index().substr(_request.get_page_index().find(".") + 1, _request.get_page_index().length());
+	_cgi = _conf.get_cgi();
+	for (std::map<std::string, std::map<std::string, std::string> >::iterator it = _cgi.begin(); it != _cgi.end(); it++)
+	{
+		if (it->first.find(line) != std::string::npos)
+		{
+			path = (it->second).find("cgi_puss")->second;
+			path_and_file = path + _request.get_page_index();
+			stat_path = path_and_file.c_str();
+			if (stat(stat_path, &stat_file) != -1)
+			{
+				//исполняемый
+				return (path_and_file);
+			}
+		}
+	}
+	return (path_and_file);
+}
+
+
 int response_manager::definition_path_or_filr(std::string file_or_path) //переделать убрать
 {
 	(void)file_or_path;

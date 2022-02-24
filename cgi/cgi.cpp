@@ -9,22 +9,20 @@ cgi::cgi(char **env)
 {
 	this->fill_env(env);
 }
-void cgi::new_cgi(std::string extension,std::map<std::string, std::map<std::string, std::string> > cgi,std::map<std::string, std::string> body)//final
-//void cgi::new_cgi(std::strinf script,std::map<std::string, std::string> body) 
+// void cgi::new_cgi(std::string extension,std::map<std::string, std::map<std::string, std::string> > cgi,std::map<std::string, std::string> body)//final
+void cgi::new_cgi(std::string script,std::map<std::string, std::string> body) 
 {
-	(void)extension;
-	(void)cgi;
 	fill_varibles(body);
 	//find_script(extension,cgi); //comment 
-	this->execve_script();
-	//this->execve_script(script);
+	// this->execve_script();
+	this->execve_script(script);
 
 	delete _env[pos];
 	delete _env[pos+1];
 	//delete _script; depeends on args comment?
 }
-//void cgi::execve_script(std::string script)
-void cgi::execve_script()
+void cgi::execve_script(std::string script)
+// void cgi::execve_script()
 {
 	pid_t		pid;
 	char * const * nll = NULL;
@@ -32,14 +30,15 @@ void cgi::execve_script()
 	{
 		std::cout<<"error: pipe"<<std::endl;
 	}
+	std::cout << script << std::endl;
 	pid = fork();
 	int f;
 	if (!pid)
 	{ 
 		dup2(pipe1[1],1);
 		close(pipe1[1]);
-		_script = "./web_document/7000_port/scripts/test.py";
-		execve(_script,nll,this->_env);
+		// _script = "./web_document/7000_port/scripts/test.py";
+		execve(script.c_str(),nll,this->_env);
 		std::cout<<"error: smt wrong execve"<<std::endl;
 	}
 	wait(&f);

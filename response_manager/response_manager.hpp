@@ -44,6 +44,7 @@ class response_manager : public virtual session_manager
 		std::string find_location_path();
 		std::string return_page();
 		std::string session_manager_add_backgraund(std::string html, std::pair<std::string, std::string> sesion_identifier);
+		std::string find_path_to_cgi2();
 		virtual std::string metod_response() = 0;
 	// 	std::string create_error_page(int error)
 	// 	{
