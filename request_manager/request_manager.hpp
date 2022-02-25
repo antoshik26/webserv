@@ -30,6 +30,8 @@ class request_manager : public chunked
 		request_manager(std::string request, session_manager& database, int port)
 		{
 			(void)request;
+			if (request.find("Transfer-Encoding: chunked") != std::string::npos)
+				request = clear_request_from_chunked(request);
 			//add chanki
 			find_method_http(request);
 			find_page_and_param(request);
