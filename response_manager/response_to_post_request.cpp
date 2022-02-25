@@ -96,22 +96,33 @@ std::string response_to_post_request::metod_response()
 			// if (path.find(".py") != std::string::npos)
 			// 	_cgi_scripts.new_cgi(path, _request.get_body_cgi());
 			// else
-			_cgi_scripts.new_cgi(path, _request.get_body_cgi());
-			result_cgi = _cgi_scripts.get_string();
-			std::cout << result_cgi << std::endl;
-			if (_body.find("Referer") != _body.end() || _body.find("Origin") != _body.end())
+			if (stat(path.c_str(), &stat_file) == 0)
 			{
-				if (_body.find("Referer") != _body.end())
+				if ((stat_file.st_mode & S_IXUSR) ==  S_IXUSR)
 				{
-					path = (_body.find("Referer"))->second;
-					size_t n = path.find("localhost");
-					while (path[n] != '/')
-						n++;
-					content_file = path.substr(n, path.length() - n);
-					path = find_path_to_html(content_file);
-					html = create_html_file_with_result_cgi(path, result_cgi);
+					_cgi_scripts.new_cgi(path, _request.get_body_cgi());
+					result_cgi = _cgi_scripts.get_string();
+					std::cout << result_cgi << std::endl;
+					if (_body.find("Referer") != _body.end() || _body.find("Origin") != _body.end())
+					{
+						if (_body.find("Referer") != _body.end())
+						{
+							path = (_body.find("Referer"))->second;
+							size_t n = path.find("localhost");
+							while (path[n] != '/')
+								n++;
+							content_file = path.substr(n, path.length() - n);
+							path = find_path_to_html(content_file);
+							html = create_html_file_with_result_cgi(path, result_cgi);
+						}
+					}
+				}
+				else
+				{
+					html = create_error_page(403);	
 				}
 			}
+			
 		}
 		else
 		{
