@@ -29,7 +29,10 @@ std::string response_to_get_request::metod_response()
 					if (S_ISDIR(stat_file.st_mode))
 					{	
 						if (_conf.get_avtoindex() == true)
+						{
+							html = html + html_header;
 							html = html + crate_dir_tree((path).c_str(), _request.get_page_index());
+						}
 						else
 							html = create_error_page(404);
 					}	
@@ -49,46 +52,30 @@ std::string response_to_get_request::metod_response()
 			}
 			else								//file
 			{
-				path = find_path_to_cgi();
-				if (path.empty())
+				// html = html + html_header;
+				_locations = _conf.get_locations();
+				path = _locations.find("/")->second.find("root")->second + _request.get_page_index();
+				if (stat(path.c_str(), &stat_file) == -1)
+					path = find_path_to_cgi();
+				html = html + html_header;
+				if (path.find(".py") != std::string::npos)
 				{
-					// if (stat(path.c_str(), stat_file) != -1)
-					// {
-					// 	if (S_ISREG(stat_file->st_mode))
-					// 	{
-					// 		html = html + read_full_file(path);
-					// 	}
-					// 	else
-					// 	{
-					// 		// rewrite ^ https://$host$request_uri? <флаг>;
-					// 		create_error_page(404); 
-					// 	}
-					// }
-					// else
-					// {
-					// 	// rewrite ^ https://$host$request_uri? <флаг>;
-					// 	create_error_page(404); 
-					// }
+					if (path.empty())
+						path = find_path_to_cgi2();
+					// cgi_py();
 				}
+				if (path.find(".sh") != std::string::npos)
+				{
+					if (path.empty())
+						path = find_path_to_cgi2();
+					//cgi_cs();
+				}
+				if (stat(path.c_str(), &stat_file) != -1)
+					html = html + read_full_file(path);
 				else
-				{
-					html = html + html_header;
-					if (path.find(".py") != std::string::npos)
-					{
-						// cgi_py();
-					}
-					if (path.find(".cs") != std::string::npos)
-					{
-						//cgi_cs();
-					}
-					if (stat(path.c_str(), &stat_file) != -1)
-						html = html + read_full_file(path);
-					else
-						html = create_error_page(404);
-				}
+					html = create_error_page(404);
 			}
 			html = html + html_basement;
-			// std::cout << html << std::endl;
 			return (html);
 }
 
@@ -144,6 +131,6 @@ std::string response_to_get_request::crate_dir_tree(const char* path_dir, std::s
 		buf.clear();
 	}
 	dir_tree = dir_tree + "</body> \n</html>\n";
-	std::cout << dir_tree << std::endl;
+	// std::cout << dir_tree << std::endl;
 	return (dir_tree);
 }

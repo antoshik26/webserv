@@ -260,7 +260,7 @@ int response_manager::definition_path_or_filr_norm(std::string file_or_path) //Ð
 	int a = 0;
 	struct stat stat_file;
 	
-	if (stat(file_or_path.c_str(), &stat_file ) != -1)
+	if (stat(file_or_path.c_str(), &stat_file) != -1)
 	{
 		if (S_ISREG(stat_file.st_mode))
 		{
