@@ -10,6 +10,7 @@ SRCS =	./cgi/cgi.cpp \
 		./response_manager/response_to_delete_request.cpp \
 		./response_manager/response_to_get_request.cpp \
 		./response_manager/response_to_post_request.cpp \
+		./chunked/chunked.cpp \
 		main.cpp \
 
 OBJS = ${SRCS:.cpp=.o}
