@@ -21,7 +21,12 @@ int  main(int argc, char* argv[], char* env[])
 	std::string config;
 	size_t i = 0;
 	size_t j = 0;
-	argv[1] = "config.conf";
+	// argv[1] = "config.conf";
+	if (argc < 2)
+	{
+		std::cerr << "ERROR: Config not found" << std::endl;
+		return (0);
+	}
 	cgi cgi_scripst(env);
 	std::vector<config_parser> list_conf;
 	srand(time(0));

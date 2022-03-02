@@ -520,7 +520,7 @@ class serv
 				{
 					if (_recv_reader[i].find("Transfer-Encoding: chunked") != std::string::npos)
 					{
-						if (_recv_reader[i].find("0/r/n/r/n") != std::string::npos)
+						if (_recv_reader[i].find("\r\n0\r\n\r\n") == std::string::npos)
 							return (1);
 						else
 						{
